@@ -137,5 +137,27 @@ module.exports = {
     }
 
     return res.status(200).json(user);
+  },
+
+  async update(req, res) {
+    let { id } = req.params;
+    const { name, email, phone } = req.body;
+    const { userId } = req;
+    id = Number(id);
+
+    if (userId !== id) {
+      return res
+        .status(400)
+        .json({ error: "Você só pode editar o próprio perfil!" });
+    }
+
+    await User.update({ name, email, phone }, { where: { id } });
+
+    return res.status(200).json({
+      success: `O usuário com o id ${id} foi atualizado com sucesso!`,
+      name,
+      email,
+      phone
+    });
   }
 };

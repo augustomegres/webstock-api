@@ -7,6 +7,7 @@ const AuthController = require("./app/controllers/AuthController");
 const routes = express.Router();
 
 routes.get("/user/:id", authMiddleware, UserController.show);
+routes.put("/user/:id", authMiddleware, UserController.update);
 routes.post("/users", UserController.store);
 
 routes.post("/authenticate", AuthController.authenticate);
