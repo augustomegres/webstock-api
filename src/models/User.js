@@ -8,7 +8,6 @@ class User extends Model {
         email: DataTypes.STRING,
         cpf: DataTypes.STRING,
         phone: DataTypes.STRING,
-        companyName: DataTypes.STRING,
         passwordHash: DataTypes.STRING,
         isAdmin: DataTypes.BOOLEAN
       },
@@ -18,6 +17,7 @@ class User extends Model {
       }
     );
   }
+  //this.hasMany(models.Company, );
 }
 
 module.exports = User;

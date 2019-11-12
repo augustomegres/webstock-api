@@ -3,8 +3,9 @@ const Yup = require("yup");
 const { Op } = require("sequelize");
 
 const User = require("../models/User");
+const Company = require("../models/Company");
 
-const Mail = require("../../services/email");
+const Mail = require("../services/email");
 
 module.exports = {
   async show(req, res) {
@@ -12,7 +13,9 @@ module.exports = {
     const { userId } = req;
     id = Number(id);
 
-    const user = await User.findByPk(userId);
+    const user = await User.findByPk(userId, {
+      include: [{ association: "company" }]
+    });
 
     if (!user.isAdmin) {
       if (userId !== id) {
@@ -25,7 +28,9 @@ module.exports = {
     if (id === userId) {
       return res.status(200).json(user);
     } else {
-      return res.status(200).json(await User.findByPk(id));
+      return res.json(
+        await User.findByPk(id, { include: [{ association: "company" }] })
+      );
     }
   },
 
@@ -36,7 +41,8 @@ module.exports = {
       email,
       cpf,
       phone,
-      companyName,
+      company,
+      cnpj,
       password,
       confirmPassword
     } = req.body;
@@ -58,7 +64,7 @@ module.exports = {
         .required()
         .min(10)
         .max(20),
-      companyName: Yup.string()
+      company: Yup.string()
         .required()
         .min(2)
         .max(80),
@@ -76,7 +82,7 @@ module.exports = {
       email,
       cpf,
       phone,
-      companyName,
+      company,
       password,
       confirmPassword
     });
@@ -91,7 +97,7 @@ module.exports = {
     /** VERIFICANDO SE O USUÁRIO EXISTE */
     const userExists = await User.findOne({
       where: {
-        [Op.or]: [{ email }, { companyName }, { cpf }]
+        [Op.or]: [{ email }, { cpf }]
       }
     });
 
@@ -108,13 +114,6 @@ module.exports = {
           error: "O cpf informado ja está cadastrado em nosso banco de dados"
         });
       }
-
-      if (userExists.companyName === companyName) {
-        return res.status(400).json({
-          error:
-            "A empresa informada ja está cadastrada em nosso banco de dados"
-        });
-      }
     }
 
     /** CRIPTOGRAFANDO SENHA */
@@ -127,15 +126,21 @@ module.exports = {
         email,
         cpf,
         phone,
-        companyName,
         passwordHash
       });
 
+      await Company.create({
+        name: company,
+        cnpj,
+        ownerId: user.id
+      });
+
       Mail.sendWelcomeMsg(email);
+
+      /** VERIFICANDO SE O USUARIO IRÁ CADASTRAR A EMPRESA */
     } catch (e) {
       return res.status(400).json({ error: e });
     }
-
     return res.status(200).json(user);
   },
 
