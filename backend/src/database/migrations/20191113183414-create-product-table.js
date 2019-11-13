@@ -30,7 +30,7 @@ module.exports = {
         allowNull: true
       },
       price: {
-        type: Sequelize.STRING,
+        type: Sequelize.DECIMAL,
         allowNull: true
       },
       quantity: {
@@ -48,7 +48,6 @@ module.exports = {
       }
     });
   },
-
   down: queryInterface => {
     return queryInterface.dropTable("products");
   }

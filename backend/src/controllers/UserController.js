@@ -117,6 +117,28 @@ module.exports = {
       }
     }
 
+    /** VERIFICANDO SE A EMPRESA JÁ EXISTE */
+    const companyExists = await Company.findOne({
+      where: {
+        [Op.or]: [{ name }, { cnpj }]
+      }
+    });
+
+    if (companyExists) {
+      if (companyExists.name === company) {
+        return res.status(400).json({
+          error:
+            "Já existe uma empresa com este nome cadastrado em nosso sistema!"
+        });
+      }
+
+      if (companyExists.cnpj === cnpj) {
+        return res.status(400).json({
+          error: "Este cnpj já está cadastrado em nosso sistema!"
+        });
+      }
+    }
+
     /** CRIPTOGRAFANDO SENHA */
     const passwordHash = await bcrypt.hash(password, 10);
 
