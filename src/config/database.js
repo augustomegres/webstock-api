@@ -1,9 +1,9 @@
 module.exports = {
   dialect: "postgres",
-  host: "salt.db.elephantsql.com",
-  username: "lpnfrgsq",
-  password: "sDcXTIpLUEl2EP4ITkOIP_97P5mLWqVh",
-  database: "lpnfrgsq",
+  host: process.env.DATABASE_URL,
+  username: process.env.DATABASE_USERNAME,
+  password: process.env.DATABASE_PASSWORD,
+  database: process.env.DATABASE_NAME,
   define: {
     timestamps: true
   }
