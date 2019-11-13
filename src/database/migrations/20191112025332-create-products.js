@@ -2,7 +2,7 @@
 
 module.exports = {
   up: (queryInterface, Sequelize) => {
-    return queryInterface.createTable("companies", {
+    return queryInterface.createTable("products", {
       id: {
         type: Sequelize.INTEGER,
         primaryKey: true,
@@ -10,21 +10,33 @@ module.exports = {
         allowNull: false,
         unique: true
       },
-      ownerId: {
+      companyId: {
         type: Sequelize.INTEGER,
         allowNull: false,
-        references: { model: "users", key: "id" },
+        references: { model: "companies", key: "id" },
         onUpdate: "CASCADE",
-        onDelete: "RESTRICT"
+        onDelete: "CASCADE"
       },
       name: {
         type: Sequelize.STRING,
-        allowNull: false,
-        unique: true
+        allowNull: false
       },
-      cnpj: {
+      sku: {
         type: Sequelize.STRING,
         allowNull: true
+      },
+      type: {
+        type: Sequelize.STRING,
+        allowNull: true
+      },
+      price: {
+        type: Sequelize.STRING,
+        allowNull: true
+      },
+      quantity: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        defaultValue: 0
       },
       createdAt: {
         type: Sequelize.DATE,
@@ -38,6 +50,6 @@ module.exports = {
   },
 
   down: queryInterface => {
-    return queryInterface.dropTable("companies");
+    return queryInterface.dropTable("products");
   }
 };

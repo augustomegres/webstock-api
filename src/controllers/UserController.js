@@ -68,6 +68,7 @@ module.exports = {
         .required()
         .min(2)
         .max(80),
+      cnpj: Yup.string().length(18),
       password: Yup.string()
         .required()
         .min(6),
