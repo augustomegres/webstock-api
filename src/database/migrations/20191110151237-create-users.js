@@ -24,6 +24,10 @@ module.exports = {
         allowNull: false,
         unique: true
       },
+      date_of_birth: {
+        type: Sequelize.DATE,
+        allowNull: false
+      },
       phone: {
         type: Sequelize.STRING,
         allowNull: false

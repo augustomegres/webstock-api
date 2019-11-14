@@ -7,6 +7,7 @@ class User extends Model {
         name: DataTypes.STRING,
         email: DataTypes.STRING,
         cpf: DataTypes.STRING,
+        date_of_birth: DataTypes.DATE,
         phone: DataTypes.STRING,
         passwordHash: DataTypes.STRING,
         isAdmin: DataTypes.BOOLEAN

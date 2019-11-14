@@ -15,17 +15,17 @@ module.exports = {
     const user = await User.findOne({ where: { email } });
 
     if (!user) {
-      return res.status(400).json({ error: "Usuário não encontrado" });
+      return res.status(404).json({ error: "Usuário não encontrado" });
     }
 
     if (!(await bcrypt.compare(password, user.passwordHash))) {
-      return res.status(400).json({ error: "Falha na autenticação" });
+      return res.status(401).json({ error: "Falha na autenticação" });
     }
 
     user.passwordHash = undefined;
 
     return res
-      .status(400)
+      .status(200)
       .json({ user, token: generateToken({ id: user.id }) });
   }
 };

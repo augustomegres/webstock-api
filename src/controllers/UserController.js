@@ -40,9 +40,14 @@ module.exports = {
       name,
       email,
       cpf,
+      date_of_birth,
       phone,
       company,
       cnpj,
+      address,
+      street,
+      number,
+      city,
       password,
       confirmPassword
     } = req.body;
@@ -149,12 +154,17 @@ module.exports = {
         email,
         cpf,
         phone,
+        date_of_birth,
         passwordHash
       });
 
       await Company.create({
         name: company,
         cnpj,
+        address,
+        street,
+        number,
+        city,
         ownerId: user.id
       });
 

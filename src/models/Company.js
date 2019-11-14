@@ -6,6 +6,10 @@ class Company extends Model {
       {
         name: DataTypes.STRING,
         cnpj: DataTypes.STRING,
+        address: DataTypes.STRING,
+        number: DataTypes.STRING,
+        street: DataTypes.STRING,
+        city: DataTypes.STRING,
         ownerId: DataTypes.INTEGER
       },
       {
