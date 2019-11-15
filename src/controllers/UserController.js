@@ -66,7 +66,6 @@ module.exports = {
         .required()
         .length(14),
       phone: Yup.string()
-        .required()
         .min(10)
         .max(20),
       company: Yup.string()
