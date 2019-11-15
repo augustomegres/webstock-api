@@ -75,10 +75,7 @@ module.exports = {
       cnpj: Yup.string().length(18),
       password: Yup.string()
         .required()
-        .min(6),
-      confirmPassword: Yup.string().when("password", (password, field) =>
-        password ? field.required().oneOf([Yup.ref("password")]) : field
-      )
+        .min(6)
     });
 
     /** VERIFICANDO SE OS DADOS RECEBIDOS SÃO VÁLIDOS */
@@ -88,8 +85,7 @@ module.exports = {
       cpf,
       phone,
       company,
-      password,
-      confirmPassword
+      password
     });
 
     /** CASO A VERIFICAÇÃO FALHE */
