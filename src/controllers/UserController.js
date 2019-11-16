@@ -58,7 +58,7 @@ module.exports = {
       name: Yup.string()
         .required()
         .min(5)
-        .max(80),
+        .max(255),
       email: Yup.string()
         .email()
         .required(),
@@ -71,7 +71,7 @@ module.exports = {
       company: Yup.string()
         .required()
         .min(2)
-        .max(80),
+        .max(255),
       cnpj: Yup.string().length(18),
       password: Yup.string()
         .required()
