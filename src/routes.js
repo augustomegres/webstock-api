@@ -4,6 +4,7 @@ const authMiddleware = require("./middlewares/authMiddleware");
 const UserController = require("./controllers/UserController");
 const ProductController = require("./controllers/ProductController");
 const AuthController = require("./controllers/AuthController");
+const LoggedController = require("./controllers/LoggedUserController");
 
 const routes = express.Router();
 
@@ -20,5 +21,8 @@ routes.put("/product/:productId", authMiddleware, ProductController.update);
 
 /** AUTENTICAÇÃO */
 routes.post("/authenticate", AuthController.authenticate);
+
+/** LOGGEDUSER */
+routes.get("/loggedUser", authMiddleware, LoggedController.show);
 
 module.exports = routes;
