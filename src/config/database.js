@@ -8,6 +8,7 @@ module.exports = {
   password: process.env.DATABASE_PASSWORD,
   database: process.env.DATABASE_NAME,
   define: {
-    timestamps: true
+    timestamps: true,
+    freezeTableName: true
   }
 };

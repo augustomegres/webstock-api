@@ -17,7 +17,6 @@ class User extends Model {
       }
     );
   }
-  //this.hasMany(models.Company, );
 }
 
 module.exports = User;
