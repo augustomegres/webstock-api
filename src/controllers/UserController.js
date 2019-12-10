@@ -48,8 +48,7 @@ module.exports = {
       street,
       number,
       city,
-      password,
-      confirmPassword
+      password
     } = req.body;
 
     /** TRATANDO TODOS OS DADOS DA APLICAÇÃO */
