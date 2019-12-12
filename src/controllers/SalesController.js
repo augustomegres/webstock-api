@@ -61,7 +61,7 @@ module.exports = {
       total = total + product.quantity * product.unityPrice;
 
       //Insere todos os ids dentro de um array
-      productIdList.push(product.id);
+      productIdList.push(product.productId);
     });
 
     // ESTA LINHA REMOVE OS IDS DUPLICADOS DENTRO DO ARRAY
@@ -127,11 +127,11 @@ module.exports = {
      */
     const stockRemove = {};
     products.map(product => {
-      if (!stockRemove[product.product]) {
-        stockRemove[product.product] = 0;
+      if (!stockRemove[product.productId]) {
+        stockRemove[product.productId] = 0;
       }
-      stockRemove[product.product] =
-        stockRemove[product.product] + product.quantity;
+      stockRemove[product.productId] =
+        stockRemove[product.productId] + product.quantity;
     });
 
     var err = [];
