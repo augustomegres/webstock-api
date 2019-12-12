@@ -27,4 +27,9 @@ Sales.hasMany(ProductSold, {
 });
 ProductSold.belongsTo(Sales, { as: "sale", foreignKey: "sellId" });
 
+ProductSold.hasMany(Product, {
+  as: "productsList",
+  foreignKey: "product"
+});
+
 module.exports = connection;
