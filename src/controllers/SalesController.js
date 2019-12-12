@@ -172,8 +172,6 @@ module.exports = {
      */
     products.map(product => {
       product.sellId = Sale.id;
-      product.productId = product.id;
-      product.productName = product.name;
     });
 
     try {

@@ -5,7 +5,8 @@ class ProductSold extends Model {
     super.init(
       {
         sellId: DataTypes.INTEGER,
-        product: DataTypes.INTEGER,
+        productId: DataTypes.INTEGER,
+        productName: DataTypes.STRING,
         quantity: DataTypes.INTEGER,
         unityPrice: DataTypes.DECIMAL
       },
