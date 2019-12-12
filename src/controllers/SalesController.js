@@ -172,6 +172,7 @@ module.exports = {
      */
     products.map(product => {
       product.sellId = Sale.id;
+      product.unityPrice = product.unityPrice.toFixed(2);
     });
 
     try {
