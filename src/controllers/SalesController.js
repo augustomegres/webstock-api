@@ -226,6 +226,21 @@ module.exports = {
     return res.status(200).json({ success: "Venda concluída com sucesso!" });
   },
   async delete(req, res) {
-    //INCLUIR DEPOIS
+    const { userId } = req;
+    const { id } = req.params;
+
+    const user = await User.findByPk(userId, {
+      include: [{ association: "company" }]
+    });
+
+    const sale = await Sales.destroy({
+      where: { [Op.and]: { id: id, companyId: user.company.id } }
+    });
+
+    if (sale === 1) {
+      return res.status(200).json({ success: "Venda deletada com sucesso!" });
+    }
+    if (sale === 0)
+      return res.status(400).json({ error: "Esta venda não existe!" });
   }
 };

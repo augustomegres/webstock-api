@@ -23,6 +23,7 @@ routes.put("/product/:productId", authMiddleware, ProductController.update);
 /** VENDAS */
 routes.get("/sales", authMiddleware, SalesController.index);
 routes.post("/sales", authMiddleware, SalesController.store);
+routes.delete("/sales/:id", authMiddleware, SalesController.delete);
 
 /** AUTENTICAÇÃO */
 routes.post("/authenticate", AuthController.authenticate);
