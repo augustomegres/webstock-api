@@ -4,14 +4,10 @@
 
 Esta requisição é utilizada na parte de registro de usuários.
 
-    
 ```json
 MÉTODO: POST
 
 URL: http://localhost.com.br/users
-
-HEADER: 
-  "authorization": "Bearer token"
 
 CORPO:
 {
@@ -29,7 +25,9 @@ CORPO:
    "password": "123456"
 }
 ```
-***
+
+---
+
 - ## Atualizar um usuário
 
 Esta requisição atualiza um usuário existente. É utilizada na edição de perfil
@@ -48,7 +46,9 @@ CORPO (JSON):
     "phone": "(32) 92000-8962",
   }
 ```
-***
+
+---
+
 - ## Visualizar um usuário
 
 Esta requisição atualiza um usuário existente. É utilizada na edição de perfil

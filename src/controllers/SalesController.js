@@ -108,7 +108,7 @@ module.exports = {
      */
     let productsExists = await Product.findAll({
       where: {
-        id: productIdList
+        productId: productIdList
       }
     });
 
