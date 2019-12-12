@@ -61,7 +61,7 @@ module.exports = {
       total = total + product.quantity * product.unityPrice;
 
       //Insere todos os ids dentro de um array
-      productIdList.push(product.product);
+      productIdList.push(product.id);
     });
 
     // ESTA LINHA REMOVE OS IDS DUPLICADOS DENTRO DO ARRAY
@@ -108,7 +108,7 @@ module.exports = {
      */
     let productsExists = await Product.findAll({
       where: {
-        productId: productIdList
+        id: productIdList
       }
     });
 
@@ -172,6 +172,8 @@ module.exports = {
      */
     products.map(product => {
       product.sellId = Sale.id;
+      product.productId = product.id;
+      product.productName = product.name;
     });
 
     try {
