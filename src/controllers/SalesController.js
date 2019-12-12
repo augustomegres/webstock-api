@@ -16,10 +16,7 @@ module.exports = {
 
     try {
       var sales = await Sales.findAll({
-        include: [
-          { association: "productSold" },
-          { association: "productList" }
-        ],
+        include: [{ association: "productSold" }],
         where: {
           companyId: loggedUser.company.id,
           total: {
