@@ -26,6 +26,10 @@ module.exports = {
     const { userId } = req;
     const { name, sku, type, price, quantity } = req.body;
 
+    if (!name || !price || !quantity) {
+      return res.status(400).json({ error: "Verifique os dados enviados!" });
+    }
+
     const loggedUser = await User.findByPk(userId, {
       include: {
         association: "company",
