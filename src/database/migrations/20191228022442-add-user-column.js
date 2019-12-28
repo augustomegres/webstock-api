@@ -2,11 +2,11 @@
 
 module.exports = {
   up: (queryInterface, Sequelize) => {
-    return queryInterface.addColumn("users", {
-      recoverPasswordToken: {
-        type: Sequelize.STRING
-      }
-    });
+    return queryInterface.addColumn(
+      "users",
+      "recoverPasswordToken",
+      Sequelize.STRING
+    );
   },
 
   down: (queryInterface, Sequelize) => {
