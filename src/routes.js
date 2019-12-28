@@ -6,6 +6,7 @@ const ProductController = require("./controllers/ProductController");
 const SalesController = require("./controllers/SalesController");
 const AuthController = require("./controllers/AuthController");
 const LoggedController = require("./controllers/LoggedUserController");
+const PasswordRecoverController = require("./controllers/PasswordRecoverController");
 
 const routes = express.Router();
 
@@ -32,6 +33,7 @@ routes.post("/authenticate", AuthController.authenticate);
 routes.get("/loggedUser", authMiddleware, LoggedController.show);
 
 /** RECUPERAÇÃO DE SENHA */
-routes.get("/password-recover/:token");
+routes.post("/password-recover", PasswordRecoverController.store);
+routes.post("/password-update", PasswordRecoverController.update);
 
 module.exports = routes;

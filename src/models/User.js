@@ -10,6 +10,7 @@ class User extends Model {
         date_of_birth: DataTypes.DATE,
         passwordHash: DataTypes.STRING,
         recoverPasswordToken: DataTypes.STRING,
+        recoverPasswordTokenExpires: DataTypes.DATE,
         isAdmin: DataTypes.BOOLEAN
       },
       {
