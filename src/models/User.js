@@ -9,6 +9,7 @@ class User extends Model {
         cpf: DataTypes.STRING,
         date_of_birth: DataTypes.DATE,
         passwordHash: DataTypes.STRING,
+        recoverPasswordToken: DataTypes.STRING,
         isAdmin: DataTypes.BOOLEAN
       },
       {
