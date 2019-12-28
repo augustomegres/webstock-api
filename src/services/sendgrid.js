@@ -19,7 +19,7 @@ module.exports = {
       to,
       from: "naoresponda@webstock.com.br",
       subject: "Link para recuperação de senha",
-      text: `Para recuperar sua senha, clique no link http://localhost:3000/recuperar-senha?token=${token}`
+      text: `Para recuperar sua senha, clique no link https://webstock.com.br/nova_senha?token=${token}`
     };
 
     sendgrid.send(msg);
