@@ -5,7 +5,7 @@ const { Op } = require("sequelize");
 const User = require("../models/User");
 const Company = require("../models/Company");
 
-const Mail = require("../services/email");
+const Mail = require("../services/sendgrid");
 
 module.exports = {
   async show(req, res) {

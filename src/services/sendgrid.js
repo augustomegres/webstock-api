@@ -13,5 +13,15 @@ module.exports = {
     };
 
     sendgrid.send(msg);
+  },
+  sendRecoverEmail(to, token) {
+    const msg = {
+      to,
+      from: "naoresponda@webstock.com.br",
+      subject: "Link para recuperação de senha",
+      text: `Para recuperar sua senha, clique no link http://localhost:3000/recuperar-senha?token=${token}`
+    };
+
+    sendgrid.send(msg);
   }
 };

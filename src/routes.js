@@ -28,7 +28,10 @@ routes.delete("/sales/:id", authMiddleware, SalesController.delete);
 /** AUTENTICAÇÃO */
 routes.post("/authenticate", AuthController.authenticate);
 
-/** LOGGEDUSER */
+/** USUARIO LOGADO */
 routes.get("/loggedUser", authMiddleware, LoggedController.show);
+
+/** RECUPERAÇÃO DE SENHA */
+routes.get("/password-recover/:token");
 
 module.exports = routes;
