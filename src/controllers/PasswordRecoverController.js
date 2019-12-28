@@ -56,6 +56,22 @@ module.exports = {
     const { token } = req.query;
     const { password } = req.body;
 
+    const schema = Yup.object().shape({
+      password: Yup.string()
+        .required()
+        .min(6)
+    });
+
+    const isValid = await schema.isValid({
+      password
+    });
+
+    if (!isValid) {
+      return res
+        .status(400)
+        .json({ error: "A senha deve conter no mínimo 6 dígitos" });
+    }
+
     const now = new Date();
 
     const user = await User.findOne({ where: { recoverPasswordToken: token } });
