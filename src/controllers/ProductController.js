@@ -1,5 +1,6 @@
 const User = require("../models/User");
 const Product = require("../models/Product");
+const ProductSold = require("../models/ProductSold");
 
 module.exports = {
   async index(req, res) {
@@ -124,17 +125,26 @@ module.exports = {
     const product = await Product.findByPk(productId);
 
     if (!product) {
-      res
-        .status(400)
-        .json({
-          error: "O produto informado não existe em nosso banco de dados"
-        });
+      res.status(400).json({
+        error: "O produto informado não existe em nosso banco de dados"
+      });
     }
 
     if (loggedUser.company.id !== product.companyId) {
       return res
         .status(400)
         .json({ error: "O produto informado não pertence a sua empresa!" });
+    }
+
+    const timesItWasSold = await ProductSold.findAndCountAll({
+      where: { productId: productId }
+    });
+
+    if (timesItWasSold.count > 0) {
+      return res.status(400).json({
+        error:
+          "Você não pode deletar um produto que já foi vendido, caso deseje remove-lo de sua lista, deixe-o desabilitado."
+      });
     }
 
     try {
