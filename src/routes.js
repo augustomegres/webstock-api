@@ -20,6 +20,7 @@ routes.get("/product/:productId", authMiddleware, ProductController.show);
 routes.get("/products", authMiddleware, ProductController.index);
 routes.post("/product", authMiddleware, ProductController.store);
 routes.put("/product/:productId", authMiddleware, ProductController.update);
+routes.delete("/product/:productId", authMiddleware, ProductController.delete);
 
 /** VENDAS */
 routes.get("/sales", authMiddleware, SalesController.index);

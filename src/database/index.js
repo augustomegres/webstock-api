@@ -7,7 +7,10 @@ const Product = require("../models/Product");
 const Sales = require("../models/Sales");
 const ProductSold = require("../models/ProductSold");
 
-const connection = new Sequelize(process.env.DATABASE_URL, dbConfig);
+const connection = new Sequelize(
+  process.env.DATABASE_URL + "?ssl=on",
+  dbConfig
+);
 
 User.init(connection);
 Company.init(connection);
