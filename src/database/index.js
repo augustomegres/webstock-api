@@ -1,5 +1,4 @@
 const Sequelize = require("sequelize");
-const dbConfig = require("../config/database");
 
 const User = require("../models/User");
 const Company = require("../models/Company");
@@ -7,10 +6,7 @@ const Product = require("../models/Product");
 const Sales = require("../models/Sales");
 const ProductSold = require("../models/ProductSold");
 
-const connection = new Sequelize(
-  process.env.DATABASE_URL + "?ssl=on",
-  dbConfig
-);
+const connection = new Sequelize(process.env.DATABASE_URL);
 
 User.init(connection);
 Company.init(connection);

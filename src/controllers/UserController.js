@@ -36,20 +36,7 @@ module.exports = {
 
   async store(req, res) {
     /** RECEBENDO TODOS OS DADOS DA APLICAÇÃO */
-    const {
-      name,
-      email,
-      cpf,
-      date_of_birth,
-      phone,
-      company,
-      cnpj,
-      address,
-      street,
-      number,
-      city,
-      password
-    } = req.body;
+    const { name, email, phone, company, password } = req.body;
 
     /** TRATANDO TODOS OS DADOS DA APLICAÇÃO */
     //OS DADOS RECEBIDOS ESTÃO SENDO TRATADOS PELA BIBLIOTECA "YUP"
@@ -61,9 +48,6 @@ module.exports = {
       email: Yup.string()
         .email()
         .required(),
-      cpf: Yup.string()
-        .required()
-        .length(14),
       phone: Yup.string()
         .min(10)
         .max(20),
@@ -71,7 +55,6 @@ module.exports = {
         .required()
         .min(2)
         .max(255),
-      cnpj: Yup.string().length(18),
       password: Yup.string()
         .required()
         .min(6)
@@ -81,7 +64,6 @@ module.exports = {
     const isValid = await schema.isValid({
       name,
       email,
-      cpf,
       phone,
       company,
       password
@@ -97,45 +79,15 @@ module.exports = {
     /** VERIFICANDO SE O USUÁRIO EXISTE */
     const userExists = await User.findOne({
       where: {
-        [Op.or]: [{ email }, { cpf }]
+        [Op.or]: [{ email }]
       }
     });
 
     /** SE EXISTIR RETORNA UM ERRO */
     if (userExists) {
-      if (userExists.email === email) {
-        return res.status(400).json({
-          error: "O email informado ja está cadastrado em nosso banco de dados"
-        });
-      }
-
-      if (userExists.cpf === cpf) {
-        return res.status(400).json({
-          error: "O cpf informado ja está cadastrado em nosso banco de dados"
-        });
-      }
-    }
-
-    /** VERIFICANDO SE A EMPRESA JÁ EXISTE */
-    const companyExists = await Company.findOne({
-      where: {
-        [Op.or]: [{ name }, { cnpj }]
-      }
-    });
-
-    if (companyExists) {
-      if (companyExists.name === company) {
-        return res.status(400).json({
-          error:
-            "Já existe uma empresa com este nome cadastrado em nosso sistema!"
-        });
-      }
-
-      if (companyExists.cnpj === cnpj) {
-        return res.status(400).json({
-          error: "Este cnpj já está cadastrado em nosso sistema!"
-        });
-      }
+      return res.status(400).json({
+        error: "O email informado ja está cadastrado em nosso banco de dados"
+      });
     }
 
     /** CRIPTOGRAFANDO SENHA */
@@ -146,25 +98,16 @@ module.exports = {
       var user = await User.create({
         name,
         email,
-        cpf,
         phone,
-        date_of_birth,
         passwordHash
       });
 
       await Company.create({
         name: company,
-        cnpj,
-        address,
-        street,
-        number,
-        city,
         ownerId: user.id
       });
 
       Mail.sendWelcomeMsg(email);
-
-      /** VERIFICANDO SE O USUARIO IRÁ CADASTRAR A EMPRESA */
     } catch (e) {
       return res.status(400).json({ error: e });
     }
