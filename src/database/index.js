@@ -6,7 +6,19 @@ const Product = require("../models/Product");
 const Sales = require("../models/Sales");
 const ProductSold = require("../models/ProductSold");
 
-const connection = new Sequelize(process.env.DATABASE_URL);
+const connection = new Sequelize(
+  process.env.DATABASE,
+  process.env.DATABASE_USER,
+  process.env.DATABASE_PASSWORD,
+  {
+    host: process.env.DATABASE_HOST,
+    dialect: "postgres",
+    define: {
+      timestamps: true,
+      freezeTableName: true
+    }
+  }
+);
 
 User.init(connection);
 Company.init(connection);
