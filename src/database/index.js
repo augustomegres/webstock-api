@@ -7,7 +7,7 @@ const Sales = require("../models/Sales");
 const ProductSold = require("../models/ProductSold");
 
 const connection = new Sequelize(
-  process.env.DATABASE,
+  process.env.DATABASE_NAME,
   process.env.DATABASE_USERNAME,
   process.env.DATABASE_PASSWORD,
   {
