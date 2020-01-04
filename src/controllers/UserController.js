@@ -131,10 +131,22 @@ module.exports = {
 
     const { userId } = req;
     id = Number(id);
-    phone = phone.replace(/[^a-zA-Z0-9 ]/g, "");
-    cpf = cpf.replace(/[^a-zA-Z0-9 ]/g, "");
-    cnpj = cnpj.replace(/[^a-zA-Z0-9 ]/g, "");
-    date_of_birth = new Date(date_of_birth);
+
+    if (phone) {
+      phone = phone.replace(/[^a-zA-Z0-9 ]/g, "");
+    }
+
+    if (cpf) {
+      cpf = cpf.replace(/[^a-zA-Z0-9 ]/g, "");
+    }
+
+    if (cnpj) {
+      cnpj = cnpj.replace(/[^a-zA-Z0-9 ]/g, "");
+    }
+
+    if (date_of_birth) {
+      date_of_birth = new Date(date_of_birth);
+    }
 
     //OS DADOS RECEBIDOS ESTÃO SENDO TRATADOS PELA BIBLIOTECA "YUP"
     const schema = Yup.object().shape({
