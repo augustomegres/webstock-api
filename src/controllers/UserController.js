@@ -116,9 +116,75 @@ module.exports = {
 
   async update(req, res) {
     let { id } = req.params;
-    const { name, email, phone } = req.body;
+    let {
+      name,
+      phone,
+      date_of_birth,
+      cpf,
+      companyName,
+      cnpj,
+      city,
+      address,
+      street,
+      number
+    } = req.body;
+
     const { userId } = req;
     id = Number(id);
+    phone = phone.replace(/[^a-zA-Z0-9 ]/g, "");
+    cpf = cpf.replace(/[^a-zA-Z0-9 ]/g, "");
+    cnpj = cnpj.replace(/[^a-zA-Z0-9 ]/g, "");
+    date_of_birth = new Date(date_of_birth);
+
+    //OS DADOS RECEBIDOS ESTÃO SENDO TRATADOS PELA BIBLIOTECA "YUP"
+    const schema = Yup.object().shape({
+      name: Yup.string()
+        .min(5)
+        .max(255),
+      phone: Yup.string()
+        .min(11)
+        .max(11),
+      date_of_birth: Yup.date(),
+      cpf: Yup.string()
+        .max(11)
+        .min(11),
+      companyName: Yup.string()
+        .min(2)
+        .max(255),
+      cnpj: Yup.string()
+        .min(14)
+        .max(14),
+      city: Yup.string()
+        .min(3)
+        .max(255),
+      address: Yup.string()
+        .min(3)
+        .max(255),
+      street: Yup.string()
+        .min(3)
+        .max(255),
+      number: Yup.string()
+        .min(3)
+        .max(255)
+    });
+
+    /** VERIFICANDO SE OS DADOS RECEBIDOS SÃO VÁLIDOS */
+    const isValid = await schema.isValid({
+      name,
+      phone,
+      date_of_birth,
+      cpf,
+      companyName,
+      cnpj,
+      city,
+      address,
+      street,
+      number
+    });
+
+    if (!isValid) {
+      return res.status(400).json({ error: "Você enviou dados inválidos" });
+    }
 
     if (userId !== id) {
       return res
@@ -126,13 +192,24 @@ module.exports = {
         .json({ error: "Você só pode editar o próprio perfil!" });
     }
 
-    await User.update({ name, email, phone }, { where: { id } });
+    try {
+      await User.update(
+        { name, email, phone, date_of_birth, cpf },
+        { where: { id } }
+      );
 
-    return res.status(200).json({
-      success: `O usuário com o id ${id} foi atualizado com sucesso!`,
-      name,
-      email,
-      phone
-    });
+      await Company.update(
+        { companyName, cnpj, city, address, street, number },
+        { where: { ownerId: id } }
+      );
+
+      return res.status(200).json({
+        success: `Os dados foram atualizados com sucesso!`
+      });
+    } catch (e) {
+      return res
+        .status(400)
+        .json({ error: "Houve um erro ao atualizar suas informações" });
+    }
   }
 };
