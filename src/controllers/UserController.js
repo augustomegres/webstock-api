@@ -198,6 +198,21 @@ module.exports = {
       return res.status(400).json({ error: "Você enviou dados inválidos" });
     }
 
+    const user = {};
+    const company = {};
+
+    if (name) user.name = name;
+    if (phone) user.phone = phone;
+    if (date_of_birth) user.date_of_birth = date_of_birth;
+    if (cpf) user.cpf = cpf;
+
+    if (companyName) company.companyName = companyName;
+    if (cnpj) company.cnpj = cnpj;
+    if (city) company.city = city;
+    if (address) company.address = address;
+    if (street) company.street = street;
+    if (number) company.number = number;
+
     if (userId !== id) {
       return res
         .status(400)
@@ -205,23 +220,17 @@ module.exports = {
     }
 
     try {
-      await User.update(
-        { name, email, phone, date_of_birth, cpf },
-        { where: { id } }
-      );
+      await User.update(user, { where: { id } });
 
-      await Company.update(
-        { companyName, cnpj, city, address, street, number },
-        { where: { ownerId: id } }
-      );
+      await Company.update(company, { where: { ownerId: id } });
 
       return res.status(200).json({
         success: `Os dados foram atualizados com sucesso!`
       });
     } catch (e) {
-      return res
-        .status(400)
-        .json({ error: "Houve um erro ao atualizar suas informações" });
+      return res.status(400).json({
+        error: "Houve um erro ao atualizar suas informações"
+      });
     }
   }
 };
