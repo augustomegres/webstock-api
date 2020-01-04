@@ -132,61 +132,63 @@ module.exports = {
     const { userId } = req;
     id = Number(id);
 
-    if (phone) {
-      phone = phone.replace(/[^a-zA-Z0-9 ]/g, "");
+    if (userId !== id) {
+      return res
+        .status(400)
+        .json({ error: "Você só pode editar o próprio perfil!" });
     }
 
-    if (cpf) {
-      cpf = cpf.replace(/[^a-zA-Z0-9 ]/g, "");
+    if (phone) phone = phone.replace(/[^0-9]/g, "");
+    if (cpf) cpf = cpf.replace(/[^0-9]/g, "");
+    if (cnpj) cnpj = cnpj.replace(/[^0-9]/g, "");
+    if (date_of_birth) date_of_birth = new Date(date_of_birth);
+    if (/[^a-z éáíóúçàèìòùâêîôû]/gi.test(name)) {
+      return res
+        .status(400)
+        .json({ error: "O nome deve conter apenas letras e espaços" });
     }
 
-    if (cnpj) {
-      cnpj = cnpj.replace(/[^a-zA-Z0-9 ]/g, "");
+    if (/[^a-z éáíóúçàèìòùâêîôû.-_]/gi.test(companyName)) {
+      return res.status(400).json({
+        error: "O nome da empresa deve conter apenas letras e espaços"
+      });
     }
 
-    if (date_of_birth) {
-      date_of_birth = new Date(date_of_birth);
-    }
-
-    //OS DADOS RECEBIDOS ESTÃO SENDO TRATADOS PELA BIBLIOTECA "YUP"
+    //VALIDAÇÕES
     const schema = Yup.object().shape({
       name: Yup.string()
         .min(5)
         .max(255),
       phone: Yup.string()
-        .min(11)
+        .min(10)
         .max(11),
-      date_of_birth: Yup.date(),
-      cpf: Yup.string()
-        .max(11)
-        .min(11),
       companyName: Yup.string()
         .min(2)
         .max(255),
-      cnpj: Yup.string()
-        .min(14)
-        .max(14),
+      cpf: Yup.string().length(11),
+      date_of_birth: Yup.date(),
+      cnpj: Yup.string().length(14),
       city: Yup.string()
-        .min(3)
-        .max(255),
+        .min(2)
+        .max(100),
       address: Yup.string()
-        .min(3)
+        .min(2)
         .max(255),
       street: Yup.string()
-        .min(3)
+        .min(2)
         .max(255),
       number: Yup.string()
-        .min(3)
-        .max(255)
+        .min(1)
+        .max(24)
     });
 
     /** VERIFICANDO SE OS DADOS RECEBIDOS SÃO VÁLIDOS */
     const isValid = await schema.isValid({
       name,
       phone,
-      date_of_birth,
-      cpf,
       companyName,
+      cpf,
+      date_of_birth,
       cnpj,
       city,
       address,
@@ -195,41 +197,49 @@ module.exports = {
     });
 
     if (!isValid) {
-      return res.status(400).json({ error: "Você enviou dados inválidos" });
+      return res.status(400).json({
+        error: "Houve um erro nos dados enviados, verifique e tente novamente"
+      });
     }
 
-    const user = {};
-    const company = {};
+    //VALIDANDO DADOS DE USUARIO
+    if (name || phone || date_of_birth || cpf) {
+      var user = {};
 
-    if (name) user.name = name;
-    if (phone) user.phone = phone;
-    if (date_of_birth) user.date_of_birth = date_of_birth;
-    if (cpf) user.cpf = cpf;
+      if (name) user.name = name.replace(/\s\s+/g, " "); //ESTE REPLACE REMOVE ESPAÇOS DUPLOS
+      if (phone) user.phone = phone;
+      if (date_of_birth) user.date_of_birth = date_of_birth;
+      if (cpf) user.cpf = cpf;
+    }
 
-    if (companyName) company.companyName = companyName;
-    if (cnpj) company.cnpj = cnpj;
-    if (city) company.city = city;
-    if (address) company.address = address;
-    if (street) company.street = street;
-    if (number) company.number = number;
+    //VALIDANDO DADOS DE EMPRESA
+    if (companyName || cnpj || city || address || street || number) {
+      var company = {};
 
-    if (userId !== id) {
-      return res
-        .status(400)
-        .json({ error: "Você só pode editar o próprio perfil!" });
+      if (cnpj) company.cnpj = cnpj;
+      if (companyName) company.name = companyName.replace(/\s\s+/g, " ");
+      if (city) company.city = city.replace(/\s\s+/g, " "); //ESTE REPLACE REMOVE ESPAÇOS DUPLOS
+      if (address) company.address = address.replace(/\s\s+/g, " ");
+      if (street) company.street = street.replace(/\s\s+/g, " ");
+      if (number) company.number = number.replace(/\s\s+/g, " ");
     }
 
     try {
-      await User.update(user, { where: { id } });
+      if (user) {
+        await User.update(user, { where: { id } });
+      }
 
-      await Company.update(company, { where: { ownerId: id } });
+      if (company) {
+        await Company.update(company, { where: { ownerId: id } });
+      }
 
       return res.status(200).json({
         success: `Os dados foram atualizados com sucesso!`
       });
     } catch (e) {
       return res.status(400).json({
-        error: "Houve um erro ao atualizar suas informações"
+        error: "Houve um erro ao atualizar suas informações!",
+        e: e
       });
     }
   }
