@@ -15,12 +15,11 @@ module.exports = {
         allowNull: false,
         references: { model: "users", key: "id" },
         onUpdate: "CASCADE",
-        onDelete: "RESTRICT"
+        onDelete: "CASCADE"
       },
       name: {
         type: Sequelize.STRING,
-        allowNull: false,
-        unique: true
+        allowNull: false
       },
       cnpj: {
         type: Sequelize.STRING,

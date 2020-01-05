@@ -4,6 +4,7 @@ const { Op } = require("sequelize");
 
 const User = require("../models/User");
 const Company = require("../models/Company");
+const Account = require("../models/Account");
 
 const Mail = require("../services/sendgrid");
 
@@ -102,13 +103,20 @@ module.exports = {
         passwordHash
       });
 
-      await Company.create({
+      const newCompany = await Company.create({
         name: company,
         ownerId: user.id
       });
 
+      await Account.create({
+        name: "Dinheiro em caixa",
+        accountType: "Caixa",
+        companyId: newCompany.id
+      });
+
       Mail.sendWelcomeMsg(email);
     } catch (e) {
+      await User.destroy({ where: { id: id } });
       return res.status(400).json({ error: e });
     }
     return res.status(200).json(user);

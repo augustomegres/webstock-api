@@ -1,6 +1,7 @@
 const User = require("../models/User");
 const Product = require("../models/Product");
 const ProductSold = require("../models/ProductSold");
+const Account = require("../models/Account");
 
 module.exports = {
   async index(req, res) {
