@@ -10,7 +10,7 @@ class Account extends Model {
         accountBank: DataTypes.STRING,
         agencyNumber: DataTypes.STRING,
         accountNumber: DataTypes.STRING,
-        ownerId: DataTypes.INTEGER
+        companyId: DataTypes.INTEGER
       },
       {
         sequelize,
