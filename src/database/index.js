@@ -5,6 +5,7 @@ const Company = require("../models/Company");
 const Product = require("../models/Product");
 const Sales = require("../models/Sales");
 const ProductSold = require("../models/ProductSold");
+const Account = require("../models/Account");
 
 var opts = {
   define: {
@@ -21,6 +22,7 @@ Company.init(connection);
 Product.init(connection);
 Sales.init(connection);
 ProductSold.init(connection);
+Account.init(connection);
 
 User.hasOne(Company, { as: "company", foreignKey: "ownerId" });
 Company.belongsTo(User, { as: "users", foreignKey: "ownerId" });
@@ -33,5 +35,10 @@ Sales.hasMany(ProductSold, {
   foreignKey: "sellId"
 });
 ProductSold.belongsTo(Sales, { as: "sale", foreignKey: "sellId" });
+
+Account.belongsTo(Company, {
+  as: "accounts",
+  foreignKey: "companyId"
+});
 
 module.exports = connection;
