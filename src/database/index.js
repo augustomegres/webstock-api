@@ -6,10 +6,15 @@ const Product = require("../models/Product");
 const Sales = require("../models/Sales");
 const ProductSold = require("../models/ProductSold");
 
-const connection = new Sequelize(process.env.DATABASE_URL, {
-  timestamps: true,
-  freezeTableName: true
-});
+var opts = {
+  define: {
+    timestamps: true,
+    //prevent sequelize from pluralizing table names
+    freezeTableName: true
+  }
+};
+
+const connection = new Sequelize(process.env.DATABASE_URL, opts);
 
 User.init(connection);
 Company.init(connection);
