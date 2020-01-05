@@ -23,7 +23,7 @@ module.exports = {
       value: {
         type: Sequelize.DECIMAL,
         allowNull: false,
-        defaultValue: true
+        defaultValue: 0
       },
       accountType: {
         type: Sequelize.STRING,
