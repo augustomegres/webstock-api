@@ -40,5 +40,9 @@ Account.belongsTo(Company, {
   as: "accounts",
   foreignKey: "companyId"
 });
+Company.hasMany(Account, {
+  as: "accounts",
+  foreignKey: "companyId"
+});
 
 module.exports = connection;

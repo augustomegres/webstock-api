@@ -1,5 +1,6 @@
 const User = require("../models/User");
 const Account = require("../models/Account");
+const Company = require("../models/Company");
 const Yup = require("yup");
 
 module.exports = {
@@ -71,5 +72,73 @@ module.exports = {
         error: "Não foi possível criar sua conta devido a um erro interno!"
       });
     }
+  },
+  async index(req, res) {
+    const { userId } = req;
+
+    const user = await User.findByPk(userId, {
+      include: [{ association: "company" }]
+    });
+
+    if (!user) return res.status(400).json({ error: "Usuário não existe!" });
+
+    const accounts = await Account.findAll({
+      where: { companyId: user.company.id }
+    });
+
+    if (!accounts)
+      return res
+        .status(400)
+        .json({ error: "Houve um erro ao requisitar as contas" });
+
+    return res.status(200).json(accounts);
+  },
+  async show(req, res) {
+    const { userId } = req;
+    const { id } = req.params;
+
+    const user = await User.findByPk(userId, {
+      include: [{ association: "company" }]
+    });
+
+    if (!user) return res.status(400).json({ error: "Usuário não encontrado" });
+
+    const account = await Account.findOne({
+      where: { id: id, companyId: user.company.id }
+    });
+
+    if (!account)
+      return res
+        .status(400)
+        .json({ error: "Esta conta não existe ou não pertence a você" });
+
+    return res.status(200).json(account);
+  },
+  async delete(req, res) {
+    const { id } = req.params;
+    const { userId } = req;
+
+    const user = await User.findByPk(userId, {
+      include: [{ association: "company" }]
+    });
+
+    const company = await Company.findByPk(user.company.id, {
+      include: [{ association: "accounts" }]
+    });
+
+    if (company.accounts.length <= 1) {
+      return res.status(400).json({
+        error:
+          "Você não pode deletar todas suas contas, deve-se manter ao menos uma"
+      });
+    }
+
+    try {
+      await Account.destroy({ where: { id, companyId: company.id } });
+    } catch (e) {
+      res.status(400).json({ error: "Houve um erro inesperado" });
+    }
+
+    return;
   }
 };

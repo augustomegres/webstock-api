@@ -29,7 +29,10 @@ routes.post("/sales", authMiddleware, SalesController.store);
 routes.delete("/sales/:id", authMiddleware, SalesController.delete);
 
 /** CONTAS */
+routes.get("/accounts", authMiddleware, AccountController.index);
+routes.get("/accounts/:id", authMiddleware, AccountController.show);
 routes.post("/accounts", authMiddleware, AccountController.store);
+routes.delete("/accounts/:id", authMiddleware, AccountController.delete);
 
 /** AUTENTICAÇÃO */
 routes.post("/authenticate", AuthController.authenticate);

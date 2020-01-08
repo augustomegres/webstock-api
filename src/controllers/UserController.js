@@ -109,14 +109,14 @@ module.exports = {
       });
 
       await Account.create({
-        name: "Dinheiro em caixa",
+        name: "Valor em caixa",
         accountType: "Caixa",
         companyId: newCompany.id
       });
 
       Mail.sendWelcomeMsg(email);
     } catch (e) {
-      await User.destroy({ where: { id: id } });
+      await User.destroy({ where: { id: user.id } });
       return res.status(400).json({ error: e });
     }
     return res.status(200).json(user);
