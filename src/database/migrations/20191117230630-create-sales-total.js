@@ -22,8 +22,11 @@ module.exports = {
         allowNull: false
       },
       seller: {
-        type: Sequelize.STRING,
-        allowNull: true
+        type: Sequelize.INTEGER,
+        allowNull: true,
+        references: { model: "sellers", key: "id" },
+        onUpdate: "CASCADE",
+        onDelete: "CASCADE"
       },
       client: {
         type: Sequelize.INTEGER,
