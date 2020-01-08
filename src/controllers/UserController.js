@@ -5,6 +5,7 @@ const { Op } = require("sequelize");
 const User = require("../models/User");
 const Company = require("../models/Company");
 const Account = require("../models/Account");
+const Seller = require("../models/Seller");
 
 const Mail = require("../services/sendgrid");
 
@@ -111,6 +112,11 @@ module.exports = {
       await Account.create({
         name: "Valor em caixa",
         accountType: "Caixa",
+        companyId: newCompany.id
+      });
+
+      await Seller.create({
+        name,
         companyId: newCompany.id
       });
 
