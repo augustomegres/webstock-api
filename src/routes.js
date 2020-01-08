@@ -8,6 +8,7 @@ const AuthController = require("./controllers/AuthController");
 const LoggedController = require("./controllers/LoggedUserController");
 const PasswordRecoverController = require("./controllers/PasswordRecoverController");
 const AccountController = require("./controllers/AccountController");
+const SellerController = require("./controllers/SellerController");
 
 const routes = express.Router();
 
@@ -27,6 +28,10 @@ routes.delete("/product/:productId", authMiddleware, ProductController.delete);
 routes.get("/sales", authMiddleware, SalesController.index);
 routes.post("/sales", authMiddleware, SalesController.store);
 routes.delete("/sales/:id", authMiddleware, SalesController.delete);
+
+/** VENDEDORES */
+routes.get("/sellers", authMiddleware, SellerController.index);
+routes.post("/sellers", authMiddleware, SellerController.store);
 
 /** CONTAS */
 routes.get("/accounts", authMiddleware, AccountController.index);
