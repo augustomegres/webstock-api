@@ -10,16 +10,16 @@ module.exports = {
         allowNull: false,
         unique: true
       },
-      name: {
-        type: Sequelize.STRING,
-        allowNull: false
-      },
       companyId: {
         type: Sequelize.INTEGER,
         allowNull: false,
-        references: { model: "sellers", key: "id" },
+        references: { model: "company", key: "id" },
         onUpdate: "CASCADE",
         onDelete: "CASCADE"
+      },
+      name: {
+        type: Sequelize.STRING,
+        allowNull: false
       },
       createdAt: {
         type: Sequelize.DATE,
