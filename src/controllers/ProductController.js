@@ -1,7 +1,6 @@
 const User = require("../models/User");
 const Product = require("../models/Product");
 const ProductSold = require("../models/ProductSold");
-const Account = require("../models/Account");
 
 module.exports = {
   async index(req, res) {
@@ -25,10 +24,20 @@ module.exports = {
   },
   async store(req, res) {
     const { userId } = req;
-    const { name, sku, type, price, quantity } = req.body;
+    let { name, sku, type, price, quantity, minimum, enabled } = req.body;
+
+    if (!minimum) {
+      minimum = 0;
+    }
+
+    if (!enabled) {
+      enabled = true;
+    }
 
     if (!name || !price || !quantity) {
-      return res.status(400).json({ error: "Verifique os dados enviados!" });
+      return res
+        .status(400)
+        .json({ error: "O preço, nome e quantidade são obrigatórios!" });
     }
 
     const loggedUser = await User.findByPk(userId, {
@@ -36,7 +45,13 @@ module.exports = {
         association: "company",
         attributes: ["id", "name", "cnpj"]
       },
-      attributes: ["id", "name", "email", "phone"]
+      attributes: {
+        exclude: [
+          "passwordHash",
+          "passwordRecoverToken",
+          "recoverPasswordTokenExpires"
+        ]
+      }
     });
 
     const company = loggedUser.company;
@@ -47,7 +62,9 @@ module.exports = {
       sku,
       type,
       price,
-      quantity
+      quantity,
+      minimum,
+      enabled
     });
     return res.status(200).json(product);
   },
@@ -62,7 +79,13 @@ module.exports = {
         association: "company",
         attributes: ["id", "name", "cnpj"]
       },
-      attributes: ["id", "name", "email", "phone"]
+      attributes: {
+        exclude: [
+          "passwordHash",
+          "passwordRecoverToken",
+          "recoverPasswordTokenExpires"
+        ]
+      }
     });
 
     const product = await Product.update(
@@ -93,7 +116,13 @@ module.exports = {
         association: "company",
         attributes: ["id", "name", "cnpj"]
       },
-      attributes: ["id", "name", "email", "phone"]
+      attributes: {
+        exclude: [
+          "passwordHash",
+          "passwordRecoverToken",
+          "recoverPasswordTokenExpires"
+        ]
+      }
     });
 
     const product = await Product.findOne({
@@ -116,9 +145,7 @@ module.exports = {
         exclude: [
           "passwordHash",
           "recoverPasswordToken",
-          "recoverPasswordTokenExpires",
-          "isAdmin",
-          "date_of_birth"
+          "recoverPasswordTokenExpires"
         ]
       }
     });

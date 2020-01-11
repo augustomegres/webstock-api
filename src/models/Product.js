@@ -9,7 +9,9 @@ class Product extends Model {
         sku: DataTypes.STRING,
         type: DataTypes.STRING,
         price: DataTypes.DECIMAL,
-        quantity: DataTypes.INTEGER
+        quantity: DataTypes.DECIMAL,
+        minimum: DataTypes.DECIMAL,
+        enabled: DataTypes.BOOLEAN
       },
       {
         sequelize,

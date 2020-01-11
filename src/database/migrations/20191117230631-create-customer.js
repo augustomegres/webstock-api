@@ -2,7 +2,7 @@
 
 module.exports = {
   up: (queryInterface, Sequelize) => {
-    return queryInterface.createTable("accounts", {
+    return queryInterface.createTable("costumers", {
       id: {
         type: Sequelize.INTEGER,
         primaryKey: true,
@@ -12,6 +12,7 @@ module.exports = {
       },
       companyId: {
         type: Sequelize.INTEGER,
+        allowNull: false,
         references: { model: "companies", key: "id" },
         onUpdate: "CASCADE",
         onDelete: "CASCADE"
@@ -20,24 +21,35 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false
       },
-      value: {
-        type: Sequelize.DECIMAL,
-        allowNull: false,
-        defaultValue: 0
-      },
-      accountType: {
-        type: Sequelize.STRING,
-        allowNull: false
-      },
-      accountBank: {
+      cpf: {
         type: Sequelize.STRING,
         allowNull: true
       },
-      agencyNumber: {
+      rg: {
         type: Sequelize.STRING,
         allowNull: true
       },
-      accountNumber: {
+      email: {
+        type: Sequelize.STRING,
+        allowNull: true
+      },
+      phone: {
+        type: Sequelize.STRING,
+        allowNull: true
+      },
+      city: {
+        type: Sequelize.STRING,
+        allowNull: true
+      },
+      address: {
+        type: Sequelize.STRING,
+        allowNull: true
+      },
+      number: {
+        type: Sequelize.STRING,
+        allowNull: true
+      },
+      street: {
         type: Sequelize.STRING,
         allowNull: true
       },
@@ -51,8 +63,7 @@ module.exports = {
       }
     });
   },
-
   down: queryInterface => {
-    return queryInterface.dropTable("accounts");
+    return queryInterface.dropTable("costumers");
   }
 };

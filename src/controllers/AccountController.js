@@ -51,9 +51,15 @@ module.exports = {
         .status(400)
         .json({ error: "Verifique os dados enviados e tente novamente!" });
 
-    const user = await User.findOne({
-      where: { id: userId },
-      include: [{ association: "company" }]
+    const user = await User.findByPk(userId, {
+      include: [{ association: "company" }],
+      attributes: {
+        exclude: [
+          "passwordHash",
+          "passwordRecoverToken",
+          "recoverPasswordTokenExpires"
+        ]
+      }
     });
 
     try {
@@ -77,7 +83,14 @@ module.exports = {
     const { userId } = req;
 
     const user = await User.findByPk(userId, {
-      include: [{ association: "company" }]
+      include: [{ association: "company" }],
+      attributes: {
+        exclude: [
+          "passwordHash",
+          "passwordRecoverToken",
+          "recoverPasswordTokenExpires"
+        ]
+      }
     });
 
     if (!user) return res.status(400).json({ error: "Usuário não existe!" });
@@ -98,7 +111,14 @@ module.exports = {
     const { id } = req.params;
 
     const user = await User.findByPk(userId, {
-      include: [{ association: "company" }]
+      include: [{ association: "company" }],
+      attributes: {
+        exclude: [
+          "passwordHash",
+          "passwordRecoverToken",
+          "recoverPasswordTokenExpires"
+        ]
+      }
     });
 
     if (!user) return res.status(400).json({ error: "Usuário não encontrado" });
@@ -119,7 +139,14 @@ module.exports = {
     const { userId } = req;
 
     const user = await User.findByPk(userId, {
-      include: [{ association: "company" }]
+      include: [{ association: "company" }],
+      attributes: {
+        exclude: [
+          "passwordHash",
+          "passwordRecoverToken",
+          "recoverPasswordTokenExpires"
+        ]
+      }
     });
 
     const company = await Company.findByPk(user.company.id, {

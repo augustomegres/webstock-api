@@ -5,7 +5,8 @@ class Seller extends Model {
     super.init(
       {
         name: DataTypes.STRING,
-        companyId: DataTypes.INTEGER
+        companyId: DataTypes.INTEGER,
+        enabled: DataTypes.BOOLEAN
       },
       {
         sequelize,

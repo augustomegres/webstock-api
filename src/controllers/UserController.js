@@ -16,7 +16,14 @@ module.exports = {
     id = Number(id);
 
     const user = await User.findByPk(userId, {
-      include: [{ association: "company" }]
+      include: [{ association: "company" }],
+      attributes: {
+        exclude: [
+          "passwordHash",
+          "passwordRecoverToken",
+          "recoverPasswordTokenExpires"
+        ]
+      }
     });
 
     if (!user.isAdmin) {
@@ -31,7 +38,16 @@ module.exports = {
       return res.status(200).json(user);
     } else {
       return res.json(
-        await User.findByPk(id, { include: [{ association: "company" }] })
+        await User.findByPk(id, {
+          include: [{ association: "company" }],
+          attributes: {
+            exclude: [
+              "passwordHash",
+              "passwordRecoverToken",
+              "recoverPasswordTokenExpires"
+            ]
+          }
+        })
       );
     }
   },

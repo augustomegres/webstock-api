@@ -5,7 +5,14 @@ module.exports = {
     const { userId } = req;
 
     const user = await User.findByPk(userId, {
-      include: [{ association: "company" }]
+      include: [{ association: "company" }],
+      attributes: {
+        exclude: [
+          "passwordHash",
+          "passwordRecoverToken",
+          "recoverPasswordTokenExpires"
+        ]
+      }
     });
 
     user.passwordHash = undefined;

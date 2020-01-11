@@ -3,10 +3,12 @@ const Sequelize = require("sequelize");
 const User = require("../models/User");
 const Company = require("../models/Company");
 const Product = require("../models/Product");
-const Sales = require("../models/Sales");
+const Sale = require("../models/Sale");
 const ProductSold = require("../models/ProductSold");
 const Account = require("../models/Account");
 const Seller = require("../models/Seller");
+const Costumer = require("../models/Costumer");
+const Installments = require("../models/Installments");
 
 var opts = {
   define: {
@@ -21,10 +23,12 @@ const connection = new Sequelize(process.env.DATABASE_URL, opts);
 User.init(connection);
 Company.init(connection);
 Product.init(connection);
-Sales.init(connection);
+Sale.init(connection);
 ProductSold.init(connection);
 Account.init(connection);
 Seller.init(connection);
+Costumer.init(connection);
+Installments.init(connection);
 
 //RELAÇÃO DE USUÁRIO - EMPRESA
 User.hasOne(Company, { as: "company", foreignKey: "ownerId" });
@@ -39,14 +43,22 @@ Account.belongsTo(Company, { as: "company", foreignKey: "companyId" });
 Company.hasMany(Account, { as: "accounts", foreignKey: "companyId" });
 
 //RELAÇÃO DE VENDA - PRODUTO
-Sales.hasMany(ProductSold, { as: "productSold", foreignKey: "sellId" });
-ProductSold.belongsTo(Sales, { as: "sale", foreignKey: "sellId" });
+Sale.hasMany(ProductSold, { as: "productSold", foreignKey: "sellId" });
+ProductSold.belongsTo(Sale, { as: "sales", foreignKey: "sellId" });
 
 //RELAÇÃO DE VENDA - PRODUTO
-Sales.belongsTo(Seller, { as: "saleOwner", foreignKey: "seller" });
+Sale.belongsTo(Seller, { as: "saleOwner", foreignKey: "seller" });
 
 //RELAÇÃO DE EMPRESA - VENDEDOR
 Seller.belongsTo(Company, { as: "company", foreignKey: "companyId" });
 Company.hasMany(Seller, { as: "sellers", foreignKey: "companyId" });
+
+//RELAÇÃO DE PARCELA - VENDA
+Installments.belongsTo(Sale, { as: "sales", foreignKey: "saleId" });
+Sale.hasMany(Sale, { as: "sales", foreignKey: "saleId" });
+
+//RELAÇÃO DE CLIENTE - EMPRESA
+Costumer.belongsTo(Company, { as: "costumer", foreignKey: "costumers" });
+Company.hasMany(Costumer, { as: "costumer", foreignKey: "costumers" });
 
 module.exports = connection;

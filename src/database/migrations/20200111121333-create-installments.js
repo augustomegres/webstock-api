@@ -2,7 +2,7 @@
 
 module.exports = {
   up: (queryInterface, Sequelize) => {
-    return queryInterface.createTable("accounts", {
+    return queryInterface.createTable("installments", {
       id: {
         type: Sequelize.INTEGER,
         primaryKey: true,
@@ -10,35 +10,34 @@ module.exports = {
         allowNull: false,
         unique: true
       },
-      companyId: {
+      saleId: {
         type: Sequelize.INTEGER,
-        references: { model: "companies", key: "id" },
+        references: { model: "sales", key: "id" },
         onUpdate: "CASCADE",
         onDelete: "CASCADE"
       },
-      name: {
-        type: Sequelize.STRING,
+      installmentNumber: {
+        type: Sequelize.INTEGER,
         allowNull: false
       },
-      value: {
+      installmentTotal: {
+        type: Sequelize.INTEGER,
+        allowNull: false
+      },
+      installmentValue: {
         type: Sequelize.DECIMAL,
-        allowNull: false,
-        defaultValue: 0
-      },
-      accountType: {
-        type: Sequelize.STRING,
         allowNull: false
       },
-      accountBank: {
-        type: Sequelize.STRING,
-        allowNull: true
+      dueDate: {
+        type: Sequelize.DATE,
+        allowNull: false
       },
-      agencyNumber: {
-        type: Sequelize.STRING,
-        allowNull: true
+      paid: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false
       },
-      accountNumber: {
-        type: Sequelize.STRING,
+      paymentDate: {
+        type: Sequelize.DATE,
         allowNull: true
       },
       createdAt: {
@@ -53,6 +52,6 @@ module.exports = {
   },
 
   down: queryInterface => {
-    return queryInterface.dropTable("accounts");
+    return queryInterface.dropTable("installments");
   }
 };

@@ -17,6 +17,10 @@ module.exports = {
         onUpdate: "CASCADE",
         onDelete: "CASCADE"
       },
+      enabled: {
+        type: Sequelize.BOOLEAN,
+        default: true
+      },
       name: {
         type: Sequelize.STRING,
         allowNull: false
@@ -34,9 +38,14 @@ module.exports = {
         allowNull: true
       },
       quantity: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.DECIMAL,
         allowNull: false,
         defaultValue: 0
+      },
+      minimum: {
+        type: Sequelize.DECIMAL,
+        allowNull: false,
+        default: 0
       },
       createdAt: {
         type: Sequelize.DATE,

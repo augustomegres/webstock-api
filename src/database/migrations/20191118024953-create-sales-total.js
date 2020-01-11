@@ -26,18 +26,21 @@ module.exports = {
         allowNull: true,
         references: { model: "sellers", key: "id" },
         onUpdate: "CASCADE",
-        onDelete: "CASCADE"
+        onDelete: "RESTRICT"
       },
-      client: {
+      costumer: {
         type: Sequelize.INTEGER,
-        allowNull: true
+        allowNull: true,
+        references: { model: "costumers", key: "id" },
+        onUpdate: "CASCADE",
+        onDelete: "CASCADE"
       },
       freight: {
         type: Sequelize.DECIMAL,
         allowNull: true
       },
       total: {
-        //COM O FRETE INCLUIDO
+        //COM O FRETE
         type: Sequelize.DECIMAL,
         allowNull: true
       },

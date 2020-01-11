@@ -6,7 +6,14 @@ module.exports = {
     const { userId } = req;
 
     const user = await User.findByPk(userId, {
-      include: [{ association: "company" }]
+      include: [{ association: "company" }],
+      attributes: {
+        exclude: [
+          "passwordHash",
+          "passwordRecoverToken",
+          "recoverPasswordTokenExpires"
+        ]
+      }
     });
 
     if (!user) return res.status(400).json({ error: "O usuário não existe!" });
@@ -22,7 +29,14 @@ module.exports = {
     const { name } = req.body;
 
     const user = await User.findByPk(userId, {
-      include: [{ association: "company" }]
+      include: [{ association: "company" }],
+      attributes: {
+        exclude: [
+          "passwordHash",
+          "passwordRecoverToken",
+          "recoverPasswordTokenExpires"
+        ]
+      }
     });
 
     if (!user) return res.status(400).json({ error: "O usuário não existe!" });
