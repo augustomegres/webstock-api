@@ -58,7 +58,7 @@ Installments.belongsTo(Sale, { as: "sales", foreignKey: "saleId" });
 Sale.hasMany(Sale, { as: "sales", foreignKey: "saleId" });
 
 //RELAÇÃO DE CLIENTE - EMPRESA
-Costumer.belongsTo(Company, { as: "costumer", foreignKey: "costumers" });
-Company.hasMany(Costumer, { as: "costumer", foreignKey: "costumers" });
+Costumer.belongsTo(Company, { as: "company", foreignKey: "companyId" });
+Company.hasMany(Costumer, { as: "costumers", foreignKey: "companyId" });
 
 module.exports = connection;
