@@ -75,13 +75,12 @@ module.exports = {
 
     //Verificando se o cliente pertence a empresa
     if (costumer) {
-      await Costumer.findByPk(costumer).then(result => {
-        if (costumer.companyId !== loggedUser.company.id) {
-          return res
-            .status(400)
-            .json({ error: "O cliente informado não pertence a sua empresa!" });
-        }
-      });
+      const _costumer = await Costumer.findByPk(costumer);
+      if (_costumer.companyId !== loggedUser.company.id) {
+        return res
+          .status(400)
+          .json({ error: "O cliente informado não pertence a sua empresa!" });
+      }
     }
 
     //Verficando se o vendedor pertence a empresa
