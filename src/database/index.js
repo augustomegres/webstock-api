@@ -46,7 +46,7 @@ Company.hasMany(Account, { as: "accounts", foreignKey: "companyId" });
 Sale.hasMany(ProductSold, { as: "productSold", foreignKey: "sellId" });
 ProductSold.belongsTo(Sale, { as: "sales", foreignKey: "sellId" });
 
-//RELAÇÃO DE VENDA - PRODUTO
+//RELAÇÃO DE VENDA - VENDEDOR
 Sale.belongsTo(Seller, { as: "saleOwner", foreignKey: "seller" });
 
 //RELAÇÃO DE EMPRESA - VENDEDOR
@@ -55,7 +55,7 @@ Company.hasMany(Seller, { as: "sellers", foreignKey: "companyId" });
 
 //RELAÇÃO DE PARCELA - VENDA
 Installments.belongsTo(Sale, { as: "sales", foreignKey: "saleId" });
-Sale.hasMany(Sale, { as: "sales", foreignKey: "saleId" });
+Sale.hasMany(Installments, { as: "sales", foreignKey: "saleId" });
 
 //RELAÇÃO DE CLIENTE - EMPRESA
 Costumer.belongsTo(Company, { as: "company", foreignKey: "companyId" });
