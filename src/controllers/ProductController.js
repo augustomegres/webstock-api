@@ -1,10 +1,12 @@
 const User = require("../models/User");
 const Product = require("../models/Product");
 const ProductSold = require("../models/ProductSold");
+const { Op } = require("sequelize");
 
 module.exports = {
   async index(req, res) {
     const { userId } = req;
+    let { enabled } = req.query;
 
     const loggedUser = await User.findByPk(userId, {
       include: {
@@ -16,7 +18,8 @@ module.exports = {
 
     const productList = await Product.findAll({
       where: {
-        companyId: loggedUser.company.id
+        companyId: loggedUser.company.id,
+        enabled: { [Op.or]: enabled ? [enabled] : [true, false] }
       }
     });
 
