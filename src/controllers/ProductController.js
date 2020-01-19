@@ -70,7 +70,7 @@ module.exports = {
   },
   async update(req, res) {
     const { userId } = req;
-    const { name, sku, type, price, quantity } = req.body;
+    const { name, sku, type, price, quantity, enabled } = req.body;
     let { productId } = req.params;
     productId = Number(productId);
 
@@ -94,7 +94,8 @@ module.exports = {
         sku,
         type,
         price,
-        quantity
+        quantity,
+        enabled
       },
       {
         where: {
