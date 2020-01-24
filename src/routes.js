@@ -10,6 +10,7 @@ const PasswordRecoverController = require("./controllers/PasswordRecoverControll
 const AccountController = require("./controllers/AccountController");
 const SellerController = require("./controllers/SellerController");
 const CostumerController = require("./controllers/CostumerController");
+const InstallmentController = require("./controllers/InstallmentController");
 
 const routes = express.Router();
 
@@ -29,6 +30,9 @@ routes.delete("/product/:productId", authMiddleware, ProductController.delete);
 routes.get("/sales", authMiddleware, SalesController.index);
 routes.post("/sales", authMiddleware, SalesController.store);
 routes.delete("/sales/:id", authMiddleware, SalesController.delete);
+
+/** PARCELAS */
+routes.get("/installments", authMiddleware, InstallmentController.index);
 
 /** VENDEDORES */
 routes.get("/sellers", authMiddleware, SellerController.index);

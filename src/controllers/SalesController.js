@@ -202,6 +202,7 @@ module.exports = {
       //Inserindo o id da venda dentro da parcela
       installments.map(installment => {
         installment.saleId = sale.id;
+        installment.companyId = loggedUser.company.id;
       });
 
       //Criando as parcelas no banco de dados
