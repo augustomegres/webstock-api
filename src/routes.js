@@ -32,6 +32,7 @@ routes.post("/sales", authMiddleware, SalesController.store);
 routes.delete("/sales/:id", authMiddleware, SalesController.delete);
 
 /** PARCELAS */
+routes.get("/installment/:sellId", authMiddleware, InstallmentController.show);
 routes.get("/installments", authMiddleware, InstallmentController.index);
 
 /** VENDEDORES */

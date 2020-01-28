@@ -49,13 +49,17 @@ ProductSold.belongsTo(Sale, { as: "sales", foreignKey: "sellId" });
 //RELAÇÃO DE VENDA - VENDEDOR
 Sale.belongsTo(Seller, { as: "saleOwner", foreignKey: "seller" });
 
+//RELAÇÃO DE VENDA - CLIENTE
+Sale.belongsTo(Costumer, { as: "costumers", foreignKey: "costumer" });
+Costumer.hasMany(Sale, { as: "sales", foreignKey: "costumer" });
+
 //RELAÇÃO DE EMPRESA - VENDEDOR
 Seller.belongsTo(Company, { as: "company", foreignKey: "companyId" });
 Company.hasMany(Seller, { as: "sellers", foreignKey: "companyId" });
 
 //RELAÇÃO DE PARCELA - VENDA
 Installments.belongsTo(Sale, { as: "sales", foreignKey: "saleId" });
-Sale.hasMany(Installments, { as: "sales", foreignKey: "saleId" });
+Sale.hasMany(Installments, { as: "installments", foreignKey: "saleId" });
 
 //RELAÇÃO DE PARCELA - EMPRESA
 Installments.belongsTo(Company, { as: "company", foreignKey: "companyId" });
