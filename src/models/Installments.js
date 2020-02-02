@@ -10,7 +10,6 @@ class Installment extends Model {
         installmentTotal: DataTypes.INTEGER,
         installmentValue: DataTypes.DECIMAL,
         dueDate: DataTypes.DATE,
-        paid: DataTypes.BOOLEAN,
         paymentDate: DataTypes.DATE
       },
       {
