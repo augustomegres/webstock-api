@@ -34,6 +34,7 @@ routes.delete("/sales/:id", authMiddleware, SalesController.delete);
 /** PARCELAS */
 routes.get("/installment/:sellId", authMiddleware, InstallmentController.show);
 routes.get("/installments", authMiddleware, InstallmentController.index);
+routes.put("/installment/:id", authMiddleware, InstallmentController.update);
 
 /** VENDEDORES */
 routes.get("/sellers", authMiddleware, SellerController.index);

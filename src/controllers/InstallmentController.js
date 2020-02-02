@@ -19,7 +19,14 @@ module.exports = {
   },
   async index(req, res) {
     const { userId } = req;
-    const { paid, start_date, finish_date } = req.query;
+    const {
+      paid,
+      start_date,
+      finish_date,
+      min_value,
+      max_value,
+      status
+    } = req.query;
 
     const user = await User.findByPk(userId, {
       include: [{ association: "company" }]
@@ -55,10 +62,54 @@ module.exports = {
       where.paymentDate = { ...where.paymentDate, [Op.lte]: new Date(finish) };
     }
 
-    var installments = await Installments.findAll({
-      where
-    });
+    //Insere o valor mínimo dos dados
+    if (min_value) {
+      let value = Number(min_value);
+      if (isNaN(value)) {
+        value = 0;
+      }
+
+      where.installmentValue = { ...where.installmentValue, [Op.gte]: value };
+    }
+
+    //Insere o valor máximo dos dados
+    if (max_value) {
+      let value = Number(max_value);
+      if (isNaN(value)) {
+        value = 9999999999999;
+      }
+
+      where.installmentValue = { ...where.installmentValue, [Op.lte]: value };
+    }
+
+    var installments = await Installments.findAll({ where });
 
     return res.status(200).json(installments);
+  },
+  async update(req, res) {
+    const { userId } = req;
+    const { id } = req.params;
+    const { paymentDate } = req.body;
+
+    new Date(paymentDate);
+
+    const loggedUser = await User.findByPk(userId, {
+      include: [{ association: "company" }]
+    });
+
+    const installment = await Installments.update(
+      { paymentDate },
+      {
+        where: { id, companyId: loggedUser.company.id }
+      }
+    );
+
+    if (!installment) {
+      return res
+        .status(400)
+        .json({ error: "Houve um erro ao atualizar as parcelas" });
+    }
+
+    return res.status(200).json(installment);
   }
 };

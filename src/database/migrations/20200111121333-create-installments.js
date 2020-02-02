@@ -32,10 +32,6 @@ module.exports = {
         type: Sequelize.DATE,
         allowNull: false
       },
-      paid: {
-        type: Sequelize.BOOLEAN,
-        allowNull: false
-      },
       paymentDate: {
         type: Sequelize.DATE,
         allowNull: true
