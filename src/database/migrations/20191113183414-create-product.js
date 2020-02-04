@@ -18,14 +18,12 @@ module.exports = {
         onDelete: "CASCADE"
       },
       providersIds: {
-        type: Sequelize.ARRAY({
-          type: Sequelize.INTEGER,
-          references: { model: "providers", key: "id" },
-          allowNull: true,
-          default: [],
-          onUpdate: "CASCADE",
-          onDelete: "CASCADE"
-        })
+        type: Sequelize.ARRAY(Sequelize.INTEGER),
+        references: { model: "providers", key: "id" },
+        allowNull: true,
+        default: [],
+        onUpdate: "CASCADE",
+        onDelete: "CASCADE"
       },
       enabled: {
         type: Sequelize.BOOLEAN,

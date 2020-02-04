@@ -63,6 +63,7 @@ module.exports = {
     const product = await Product.create({
       companyId: company.id,
       name,
+      providersIds: [],
       sku,
       type,
       price,
@@ -74,7 +75,15 @@ module.exports = {
   },
   async update(req, res) {
     const { userId } = req;
-    const { name, sku, type, price, quantity, enabled } = req.body;
+    const {
+      name,
+      sku,
+      type,
+      price,
+      quantity,
+      enabled,
+      providersIds
+    } = req.body;
     let { productId } = req.params;
     productId = Number(productId);
 
@@ -99,7 +108,8 @@ module.exports = {
         type,
         price,
         quantity,
-        enabled
+        enabled,
+        providersIds
       },
       {
         where: {

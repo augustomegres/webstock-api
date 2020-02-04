@@ -17,14 +17,12 @@ module.exports = {
         onDelete: "CASCADE"
       },
       productIds: {
-        type: Sequelize.ARRAY({
-          type: Sequelize.INTEGER,
-          references: { model: "products", key: "id" },
-          allowNull: true,
-          default: [],
-          onUpdate: "CASCADE",
-          onDelete: "CASCADE"
-        })
+        type: Sequelize.ARRAY(Sequelize.INTEGER),
+        references: { model: "products", key: "id" },
+        allowNull: true,
+        default: [],
+        onUpdate: "CASCADE",
+        onDelete: "CASCADE"
       },
       name: {
         type: Sequelize.STRING,
