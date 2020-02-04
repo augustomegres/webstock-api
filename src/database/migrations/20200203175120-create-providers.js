@@ -16,14 +16,6 @@ module.exports = {
         onUpdate: "CASCADE",
         onDelete: "CASCADE"
       },
-      productIds: {
-        type: Sequelize.ARRAY(Sequelize.INTEGER),
-        references: { model: "products", key: "id" },
-        allowNull: true,
-        default: [],
-        onUpdate: "CASCADE",
-        onDelete: "CASCADE"
-      },
       name: {
         type: Sequelize.STRING,
         allowNull: false
