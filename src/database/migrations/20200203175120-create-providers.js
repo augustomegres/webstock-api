@@ -2,7 +2,7 @@
 
 module.exports = {
   up: (queryInterface, Sequelize) => {
-    return queryInterface.createTable("customers", {
+    return queryInterface.createTable("providers", {
       id: {
         type: Sequelize.INTEGER,
         primaryKey: true,
@@ -12,14 +12,29 @@ module.exports = {
       },
       companyId: {
         type: Sequelize.INTEGER,
-        allowNull: false,
         references: { model: "companies", key: "id" },
+        onUpdate: "CASCADE",
+        onDelete: "CASCADE"
+      },
+      productIds: {
+        type: Sequelize.ARRAY(Sequelize.INTEGER),
+        references: { model: "products", key: "id" },
+        allowNull: true,
+        default: [],
         onUpdate: "CASCADE",
         onDelete: "CASCADE"
       },
       name: {
         type: Sequelize.STRING,
         allowNull: false
+      },
+      personType: {
+        type: Sequelize.STRING,
+        allowNull: true
+      },
+      companyName: {
+        type: Sequelize.STRING,
+        allowNull: true
       },
       cpf: {
         type: Sequelize.STRING,
@@ -29,15 +44,19 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: true
       },
-      email: {
+      cnpj: {
         type: Sequelize.STRING,
         allowNull: true
       },
-      phone: {
+      stateRegistration: {
         type: Sequelize.STRING,
         allowNull: true
       },
-      city: {
+      municipalRegistration: {
+        type: Sequelize.STRING,
+        allowNull: true
+      },
+      cep: {
         type: Sequelize.STRING,
         allowNull: true
       },
@@ -53,17 +72,26 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: true
       },
-      createdAt: {
-        type: Sequelize.DATE,
-        allowNull: false
+      city: {
+        type: Sequelize.STRING,
+        allowNull: true
       },
-      updatedAt: {
-        type: Sequelize.DATE,
-        allowNull: false
+      commercialPhone: {
+        type: Sequelize.STRING,
+        allowNull: true
+      },
+      privatePhone: {
+        type: Sequelize.STRING,
+        allowNull: true
+      },
+      email: {
+        type: Sequelize.STRING,
+        allowNull: true
       }
     });
   },
+
   down: queryInterface => {
-    return queryInterface.dropTable("customers");
+    return queryInterface.dropTable("providers");
   }
 };

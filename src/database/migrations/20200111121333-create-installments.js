@@ -10,6 +10,14 @@ module.exports = {
         allowNull: false,
         unique: true
       },
+      companyId: {
+        type: Sequelize.INTEGER,
+        references: { model: "companies", key: "id" },
+        allowNull: false,
+        default: 1,
+        onUpdate: "CASCADE",
+        onDelete: "CASCADE"
+      },
       saleId: {
         type: Sequelize.INTEGER,
         references: { model: "sales", key: "id" },

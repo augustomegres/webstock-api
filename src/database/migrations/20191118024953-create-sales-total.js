@@ -28,10 +28,10 @@ module.exports = {
         onUpdate: "CASCADE",
         onDelete: "RESTRICT"
       },
-      costumer: {
+      customer: {
         type: Sequelize.INTEGER,
         allowNull: true,
-        references: { model: "costumers", key: "id" },
+        references: { model: "customers", key: "id" },
         onUpdate: "CASCADE",
         onDelete: "CASCADE"
       },

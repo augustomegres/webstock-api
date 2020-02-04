@@ -7,7 +7,7 @@ class Sales extends Model {
         companyId: DataTypes.INTEGER,
         date: DataTypes.DATE,
         seller: DataTypes.STRING,
-        costumer: DataTypes.INTEGER,
+        customer: DataTypes.INTEGER,
         freight: DataTypes.DECIMAL,
         total: DataTypes.DECIMAL
       },
