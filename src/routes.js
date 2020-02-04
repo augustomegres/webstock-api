@@ -9,8 +9,9 @@ const LoggedController = require("./controllers/LoggedUserController");
 const PasswordRecoverController = require("./controllers/PasswordRecoverController");
 const AccountController = require("./controllers/AccountController");
 const SellerController = require("./controllers/SellerController");
-const CostumerController = require("./controllers/CostumerController");
+const CustomersController = require("./controllers/CustomersController");
 const InstallmentController = require("./controllers/InstallmentController");
+const ProviderController = require("./controllers/ProvidersController");
 
 const routes = express.Router();
 
@@ -41,15 +42,22 @@ routes.get("/sellers", authMiddleware, SellerController.index);
 routes.post("/sellers", authMiddleware, SellerController.store);
 
 /** CLIENTES */
-routes.get("/costumer", authMiddleware, CostumerController.index);
-routes.post("/costumer", authMiddleware, CostumerController.store);
-routes.delete("/costumer/:id", authMiddleware, CostumerController.delete);
+routes.get("/customer", authMiddleware, CustomersController.index);
+routes.post("/customer", authMiddleware, CustomersController.store);
+routes.delete("/customer/:id", authMiddleware, CustomersController.delete);
 
 /** CONTAS */
 routes.get("/accounts", authMiddleware, AccountController.index);
 routes.get("/accounts/:id", authMiddleware, AccountController.show);
 routes.post("/accounts", authMiddleware, AccountController.store);
 routes.delete("/accounts/:id", authMiddleware, AccountController.delete);
+
+/** FORNECEDORES */
+routes.get("/providers", authMiddleware, ProviderController.index);
+routes.get("/providers/:id", authMiddleware, ProviderController.show);
+routes.post("/providers", authMiddleware, ProviderController.store);
+routes.put("/providers/:id", authMiddleware, ProviderController.update);
+routes.delete("/providers/:id", authMiddleware, ProviderController.delete);
 
 /** AUTENTICAÇÃO */
 routes.post("/authenticate", AuthController.authenticate);

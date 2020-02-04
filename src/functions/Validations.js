@@ -73,5 +73,24 @@ module.exports = {
         expected: "12.345.678/0001-90"
       };
     }
+  },
+  email(email) {
+    if (!email) {
+      return {
+        error: "O email está vazio",
+        recieved: email,
+        expected: "joao@provedor.com"
+      };
+    }
+
+    const parts = email.split("@");
+
+    if (parts.length() !== 2) {
+      return {
+        error: "O email é inválido!",
+        recieved: email,
+        expected: "joao@provedor.com"
+      };
+    }
   }
 };

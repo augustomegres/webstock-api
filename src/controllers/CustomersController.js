@@ -1,6 +1,6 @@
 const User = require("../models/User");
 const Company = require("../models/Company");
-const Costumer = require("../models/Costumer");
+const Customer = require("../models/Customer");
 
 module.exports = {
   async index(req, res) {
@@ -19,7 +19,7 @@ module.exports = {
     });
 
     const company = await Company.findByPk(user.company.id, {
-      include: { association: "costumers" }
+      include: { association: "customers" }
     });
 
     return res.status(200).json(company);
@@ -51,7 +51,7 @@ module.exports = {
     });
 
     try {
-      await Costumer.create({
+      await Customer.create({
         companyId: user.company.id,
         name,
         cpf,
@@ -90,7 +90,7 @@ module.exports = {
     });
 
     try {
-      await Costumer.destroy({
+      await Customer.destroy({
         where: { id: id, companyId: user.company.id }
       });
 

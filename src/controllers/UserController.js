@@ -1,7 +1,7 @@
 const bcrypt = require("bcryptjs");
 const Yup = require("yup");
 const { Op } = require("sequelize");
-
+const validations = require("../functions/Validations");
 const User = require("../models/User");
 const Company = require("../models/Company");
 const Account = require("../models/Account");
@@ -169,9 +169,19 @@ module.exports = {
     }
 
     if (phone) phone = phone.replace(/[^0-9]/g, "");
-    if (cpf) cpf = cpf.replace(/[^0-9]/g, "");
-    if (cnpj) cnpj = cnpj.replace(/[^0-9]/g, "");
+
+    if (cpf) {
+      let validate = validations.cpf(cpf);
+      if (validate.error) return res.status(400).json(validate.error);
+    }
+
+    if (cnpj) {
+      let validate = validations.cnpj(cnpj);
+      if (validate.error) return res.status(400).json(validate.error);
+    }
+
     if (date_of_birth) date_of_birth = new Date(date_of_birth);
+
     if (/[^a-z éáíóúçàèìòùâêîôû]/gi.test(name)) {
       return res
         .status(400)
@@ -195,9 +205,7 @@ module.exports = {
       companyName: Yup.string()
         .min(2)
         .max(255),
-      cpf: Yup.string().length(11),
       date_of_birth: Yup.date(),
-      cnpj: Yup.string().length(14),
       city: Yup.string()
         .min(2)
         .max(100),
@@ -217,9 +225,7 @@ module.exports = {
       name,
       phone,
       companyName,
-      cpf,
       date_of_birth,
-      cnpj,
       city,
       address,
       street,

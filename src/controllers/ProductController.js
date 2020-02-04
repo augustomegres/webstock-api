@@ -17,6 +17,7 @@ module.exports = {
     });
 
     const productList = await Product.findAll({
+      include: [{ association: "providers" }],
       where: {
         companyId: loggedUser.company.id,
         enabled: { [Op.or]: enabled ? [enabled] : [true, false] }

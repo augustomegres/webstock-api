@@ -79,7 +79,7 @@ Providers.belongsTo(Company, { as: "company", foreignKey: "companyId" });
 Company.hasMany(Providers, { as: "providers", foreignKey: "companyId" });
 
 //RELAÇÃO DE FORNECEDOR - PRODUTOS
-Product.belongsToMany(Providers, { as: "provider", through: "productIds" });
+Product.hasOne(Providers, { as: "providers", foreignKey: "providerIds" });
 Providers.hasMany(Product, { as: "products", foreignKey: "productIds" });
 
 module.exports = connection;

@@ -17,6 +17,16 @@ module.exports = {
         onUpdate: "CASCADE",
         onDelete: "CASCADE"
       },
+      providersIds: {
+        type: Sequelize.ARRAY({
+          type: Sequelize.INTEGER,
+          references: { model: "providers", key: "id" },
+          allowNull: true,
+          default: [],
+          onUpdate: "CASCADE",
+          onDelete: "CASCADE"
+        })
+      },
       enabled: {
         type: Sequelize.BOOLEAN,
         default: true

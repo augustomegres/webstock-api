@@ -4,7 +4,7 @@ const User = require("../models/User");
 const Product = require("../models/Product");
 const Sales = require("../models/Sale");
 const ProductSold = require("../models/ProductSold");
-const Costumer = require("../models/Costumer");
+const Customer = require("../models/Customer");
 const Installments = require("../models/Installments");
 const Seller = require("../models/Seller");
 
@@ -20,7 +20,7 @@ module.exports = {
     try {
       var sales = await Sales.findAll({
         include: [
-          { association: "costumers" },
+          { association: "customers" },
           { association: "productSold" },
           { association: "saleOwner" },
           { association: "installments" }
@@ -55,7 +55,7 @@ module.exports = {
     const {
       date,
       seller,
-      costumer,
+      customer,
       freight,
       products,
       installments
@@ -79,9 +79,9 @@ module.exports = {
     });
 
     //Verificando se o cliente pertence a empresa
-    if (costumer) {
-      const _costumer = await Costumer.findByPk(costumer);
-      if (_costumer.companyId !== loggedUser.company.id) {
+    if (customer) {
+      const _customers = await Customer.findByPk(customer);
+      if (_customers.companyId !== loggedUser.company.id) {
         return res
           .status(400)
           .json({ error: "O cliente informado não pertence a sua empresa!" });
@@ -179,7 +179,7 @@ module.exports = {
         companyId: loggedUser.company.id,
         date,
         seller,
-        costumer,
+        customer,
         freight,
         total
       });
