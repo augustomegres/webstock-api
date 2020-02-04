@@ -7,8 +7,9 @@ const Sale = require("../models/Sale");
 const ProductSold = require("../models/ProductSold");
 const Account = require("../models/Account");
 const Seller = require("../models/Seller");
-const Costumer = require("../models/Costumer");
+const Customer = require("../models/Customer");
 const Installments = require("../models/Installments");
+const Providers = require("../models/Providers");
 
 var opts = {
   define: {
@@ -18,7 +19,10 @@ var opts = {
   }
 };
 
-const connection = new Sequelize(process.env.DATABASE_URL, opts);
+const connection = new Sequelize(
+  "postgres://qzwkwommienvgr:7db54b9a3c6659bf674b31b8e96408695f5a284fbacf3f79eb5094b4b2e182a2@ec2-50-16-197-244.compute-1.amazonaws.com:5432/d2qthv55qidkfs?ssl=on",
+  opts
+);
 
 User.init(connection);
 Company.init(connection);
@@ -27,8 +31,9 @@ Sale.init(connection);
 ProductSold.init(connection);
 Account.init(connection);
 Seller.init(connection);
-Costumer.init(connection);
+Customer.init(connection);
 Installments.init(connection);
+Providers.init(connection);
 
 //RELAÇÃO DE USUÁRIO - EMPRESA
 User.hasOne(Company, { as: "company", foreignKey: "ownerId" });
@@ -43,15 +48,15 @@ Account.belongsTo(Company, { as: "company", foreignKey: "companyId" });
 Company.hasMany(Account, { as: "accounts", foreignKey: "companyId" });
 
 //RELAÇÃO DE VENDA - PRODUTO
-Sale.hasMany(ProductSold, { as: "productSold", foreignKey: "sellId" });
 ProductSold.belongsTo(Sale, { as: "sales", foreignKey: "sellId" });
+Sale.hasMany(ProductSold, { as: "productSold", foreignKey: "sellId" });
 
 //RELAÇÃO DE VENDA - VENDEDOR
 Sale.belongsTo(Seller, { as: "saleOwner", foreignKey: "seller" });
 
 //RELAÇÃO DE VENDA - CLIENTE
-Sale.belongsTo(Costumer, { as: "costumers", foreignKey: "costumer" });
-Costumer.hasMany(Sale, { as: "sales", foreignKey: "costumer" });
+Sale.belongsTo(Customer, { as: "customers", foreignKey: "customer" });
+Customer.hasMany(Sale, { as: "sales", foreignKey: "customer" });
 
 //RELAÇÃO DE EMPRESA - VENDEDOR
 Seller.belongsTo(Company, { as: "company", foreignKey: "companyId" });
@@ -66,7 +71,15 @@ Installments.belongsTo(Company, { as: "company", foreignKey: "companyId" });
 Company.hasMany(Installments, { as: "installments", foreignKey: "companyId" });
 
 //RELAÇÃO DE CLIENTE - EMPRESA
-Costumer.belongsTo(Company, { as: "company", foreignKey: "companyId" });
-Company.hasMany(Costumer, { as: "costumers", foreignKey: "companyId" });
+Customer.belongsTo(Company, { as: "company", foreignKey: "companyId" });
+Company.hasMany(Customer, { as: "customers", foreignKey: "companyId" });
+
+//RELAÇÃO DE FORNECEDOR - EMPRESA
+Providers.belongsTo(Company, { as: "company", foreignKey: "companyId" });
+Company.hasMany(Providers, { as: "providers", foreignKey: "companyId" });
+
+//RELAÇÃO DE FORNECEDOR - PRODUTOS
+Product.belongsToMany(Providers, { as: "provider", through: "productIds" });
+Providers.hasMany(Product, { as: "products", foreignKey: "productIds" });
 
 module.exports = connection;
