@@ -1,5 +1,6 @@
 const User = require("../models/User");
 const Product = require("../models/Product");
+const Provider = require("../models/Providers");
 const ProductSold = require("../models/ProductSold");
 const { Op } = require("sequelize");
 
@@ -28,7 +29,7 @@ module.exports = {
   },
   async store(req, res) {
     const { userId } = req;
-    let { name, sku, type, price, quantity, minimum, enabled } = req.body;
+    let { name, sku, type, price, minimum, provider, enabled } = req.body;
 
     if (!minimum) {
       minimum = 0;
@@ -38,10 +39,18 @@ module.exports = {
       enabled = true;
     }
 
-    if (!name || !price || !quantity) {
+    if (!name || !price) {
       return res
         .status(400)
-        .json({ error: "O preço, nome e quantidade são obrigatórios!" });
+        .json({ error: "O preço e nome são obrigatórios!" });
+    }
+
+    if (provider) {
+      var _provider = await Provider.findByPk(provider);
+
+      if (!_provider) {
+        return res.status(400).json({ error: "O fornecedor é inválido" });
+      }
     }
 
     const loggedUser = await User.findByPk(userId, {
@@ -60,30 +69,28 @@ module.exports = {
 
     const company = loggedUser.company;
 
-    const product = await Product.create({
-      companyId: company.id,
-      name,
-      providersIds: [],
-      sku,
-      type,
-      price,
-      quantity,
-      minimum,
-      enabled
-    });
-    return res.status(200).json(product);
+    try {
+      var product = await Product.create({
+        companyId: company.id,
+        name,
+        sku,
+        type,
+        price,
+        minimum,
+        enabled
+      });
+
+      await product.addProvider(_provider);
+
+      return res.status(200).json(product);
+    } catch (e) {
+      await Product.destroy({ where: { id: product.id } });
+      return res.status(200).json({ error: "Erro ao cadastrar o produto" });
+    }
   },
   async update(req, res) {
     const { userId } = req;
-    const {
-      name,
-      sku,
-      type,
-      price,
-      quantity,
-      enabled,
-      providersIds
-    } = req.body;
+    const { name, sku, type, price, quantity, enabled, provider } = req.body;
     let { productId } = req.params;
     productId = Number(productId);
 
@@ -102,22 +109,22 @@ module.exports = {
     });
 
     const product = await Product.update(
-      {
-        name,
-        sku,
-        type,
-        price,
-        quantity,
-        enabled,
-        providersIds
-      },
-      {
-        where: {
-          id: productId,
-          companyId: loggedUser.company.id
-        }
-      }
+      { name, sku, type, price, quantity, enabled },
+      { where: { id: productId, companyId: loggedUser.company.id } }
     );
+
+    if (provider) {
+      const _product = await Product.findByPk(productId);
+      const _provider = await Provider.findByPk(provider);
+      if (!_provider) {
+        return res.status(400).json({
+          error:
+            "O produto foi atualizado, mas o fornecedor informado não foi encontrado"
+        });
+      }
+
+      await _product.addProvider(_provider);
+    }
 
     return res.status(200).json(product);
   },

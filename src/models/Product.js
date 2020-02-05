@@ -6,7 +6,6 @@ class Product extends Model {
       {
         companyId: DataTypes.INTEGER,
         name: DataTypes.STRING,
-        providersIds: DataTypes.ARRAY(DataTypes.INTEGER),
         sku: DataTypes.STRING,
         type: DataTypes.STRING,
         price: DataTypes.DECIMAL,

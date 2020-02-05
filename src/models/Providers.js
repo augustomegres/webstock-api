@@ -5,7 +5,6 @@ class Provider extends Model {
     super.init(
       {
         companyId: DataTypes.INTEGER,
-        productIds: DataTypes.ARRAY(DataTypes.INTEGER),
         name: DataTypes.STRING,
         personType: DataTypes.STRING,
         companyName: DataTypes.STRING,
