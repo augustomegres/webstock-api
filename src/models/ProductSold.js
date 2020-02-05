@@ -12,7 +12,7 @@ class ProductSold extends Model {
       },
       {
         sequelize,
-        modelName: "productSold"
+        modelName: "product_sold"
       }
     );
   }
