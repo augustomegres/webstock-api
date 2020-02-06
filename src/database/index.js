@@ -10,19 +10,17 @@ const Seller = require("../models/Seller");
 const Customer = require("../models/Customer");
 const Installments = require("../models/Installments");
 const Providers = require("../models/Providers");
+const Purchase = require("../models/Purchase");
+const PurchaseInstallments = require("../models/PurchaseInstallments");
 
 var opts = {
   define: {
     timestamps: true,
-    //prevent sequelize from pluralizing table names
     freezeTableName: true
   }
 };
 
-const connection = new Sequelize(
-  "postgres://qzwkwommienvgr:7db54b9a3c6659bf674b31b8e96408695f5a284fbacf3f79eb5094b4b2e182a2@ec2-50-16-197-244.compute-1.amazonaws.com:5432/d2qthv55qidkfs?ssl=on",
-  opts
-);
+const connection = new Sequelize(process.env.DATABASE_URL, opts);
 
 User.init(connection);
 Company.init(connection);
@@ -34,6 +32,8 @@ Seller.init(connection);
 Customer.init(connection);
 Installments.init(connection);
 Providers.init(connection);
+Purchase.init(connection);
+PurchaseInstallments.init(connection);
 
 //RELAÇÃO DE USUÁRIO - EMPRESA
 User.hasOne(Company, { as: "company", foreignKey: "ownerId" });
@@ -89,6 +89,27 @@ Providers.belongsToMany(Product, {
   as: "products",
   foreignKey: "providerId",
   through: "products_providers"
+});
+
+//RELAÇÃO DE COMPRA - FORNECEDOR
+Purchase.hasOne(Company, { as: "company", foreignKey: "id" });
+
+//RELAÇÃO DE COMPRA - PRODUTO
+Purchase.hasOne(Product, { as: "products", foreignKey: "id" });
+
+//RELAÇÃO DE COMPRA - FORNECEDOR
+Purchase.hasOne(Providers, { as: "provider", foreignKey: "id" });
+
+//RELAÇÃO DE COMPRA - PARCELAS
+PurchaseInstallments.belongsTo(Purchase, {
+  as: "purchase",
+  foreignKey: "purchaseId"
+});
+
+//RELAÇÃO DE COMPRA - PARCELAS
+PurchaseInstallments.belongsTo(Company, {
+  as: "purchases",
+  foreignKey: "companyId"
 });
 
 module.exports = connection;

@@ -17,10 +17,17 @@ module.exports = {
         onUpdate: "CASCADE",
         onDelete: "CASCADE"
       },
-      provider: {
+      providerId: {
         type: Sequelize.INTEGER,
         references: { model: "providers", key: "id" },
         allowNull: true,
+        onUpdate: "CASCADE",
+        onDelete: "CASCADE"
+      },
+      productId: {
+        type: Sequelize.INTEGER,
+        references: { model: "products", key: "id" },
+        allowNull: false,
         onUpdate: "CASCADE",
         onDelete: "CASCADE"
       },

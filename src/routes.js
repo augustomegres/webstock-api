@@ -12,6 +12,7 @@ const SellerController = require("./controllers/SellerController");
 const CustomersController = require("./controllers/CustomersController");
 const InstallmentController = require("./controllers/InstallmentController");
 const ProviderController = require("./controllers/ProvidersController");
+const PurchasingController = require("./controllers/PurchasingController");
 
 const routes = express.Router();
 
@@ -58,6 +59,16 @@ routes.get("/providers/:id", authMiddleware, ProviderController.show);
 routes.post("/providers", authMiddleware, ProviderController.store);
 routes.put("/providers/:id", authMiddleware, ProviderController.update);
 routes.delete("/providers/:id", authMiddleware, ProviderController.delete);
+
+/** COMPRAS */
+routes.get("/purchasings", authMiddleware, PurchasingController.index);
+routes.get("/purchasing/:id", authMiddleware, PurchasingController.show);
+routes.post(
+  "/purchasing/:productId",
+  authMiddleware,
+  PurchasingController.store
+);
+routes.delete("/purchasing/:id", authMiddleware, PurchasingController.delete);
 
 /** AUTENTICAÇÃO */
 routes.post("/authenticate", AuthController.authenticate);

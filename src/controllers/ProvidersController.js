@@ -89,11 +89,15 @@ module.exports = {
 
     //CPF
     if (cpf) cpf = Validations.cpf(cpf);
-    if (cpf.error) return res.status(400).json(cpf);
-
+    if (cpf) {
+      if (cpf.error) return res.status(400).json(cpf);
+    }
     //CNPJ
     if (cnpj) cnpj = Validations.cnpj(cnpj);
-    if (cnpj.error) return res.status(400).json(cnpj);
+
+    if (cpf) {
+      if (cnpj.error) return res.status(400).json(cnpj);
+    }
 
     //RG
 

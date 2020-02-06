@@ -5,7 +5,7 @@ class Installment extends Model {
     super.init(
       {
         companyId: DataTypes.INTEGER,
-        provider: DataTypes.INTEGER,
+        providerId: DataTypes.INTEGER,
         date: DataTypes.INTEGER,
         freight: DataTypes.INTEGER,
         quantity: DataTypes.DECIMAL,
