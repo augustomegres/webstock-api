@@ -7,9 +7,6 @@
     "dev": "nodemon src/app",
     "start": "node src/app"
   },
-  "engines": {
-    "node": "12.13.1"
-  },
   "dependencies": {
     "@sendgrid/mail": "^6.4.0",
     "bcryptjs": "^2.4.3",

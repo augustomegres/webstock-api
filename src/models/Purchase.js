@@ -6,10 +6,11 @@ class Installment extends Model {
       {
         companyId: DataTypes.INTEGER,
         providerId: DataTypes.INTEGER,
-        date: DataTypes.INTEGER,
+        productId: DataTypes.INTEGER,
+        date: DataTypes.DATE,
         freight: DataTypes.INTEGER,
         quantity: DataTypes.DECIMAL,
-        price: DataTypes.DATE
+        price: DataTypes.DECIMAL
       },
       {
         sequelize,
