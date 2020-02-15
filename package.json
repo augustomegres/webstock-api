@@ -5,7 +5,8 @@
   "license": "MIT",
   "scripts": {
     "dev": "nodemon src/app",
-    "start": "node src/app"
+    "start": "node src/app",
+    "postinstall": "npm install"
   },
   "dependencies": {
     "@sendgrid/mail": "^6.4.0",
