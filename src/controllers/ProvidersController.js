@@ -95,7 +95,7 @@ module.exports = {
     //CNPJ
     if (cnpj) cnpj = Validations.cnpj(cnpj);
 
-    if (cpf) {
+    if (cnpj) {
       if (cnpj.error) return res.status(400).json(cnpj);
     }
 

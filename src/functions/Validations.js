@@ -18,7 +18,7 @@ module.exports = {
       };
     }
 
-    if (cpf.replace(/[^0-9]/g, "").length() !== 11) {
+    if (cpf.replace(/[^0-9]/g, "").length !== 11) {
       return {
         error: "O cpf digitado é inválido!",
         recieved: cpf,
@@ -34,7 +34,7 @@ module.exports = {
       };
     }
 
-    return { success: cpf };
+    return cpf;
   },
   cnpj(cnpj) {
     if (!cnpj) {
@@ -53,7 +53,7 @@ module.exports = {
       };
     }
 
-    if (cnpj.replace(/[^0-9]/g, "").length() !== 14) {
+    if (cnpj.replace(/[^0-9]/g, "").length !== 14) {
       return {
         error: "O cnpj digitado é inválido!",
         recieved: cnpj,
@@ -73,6 +73,8 @@ module.exports = {
         expected: "12.345.678/0001-90"
       };
     }
+
+    return cnpj;
   },
   email(email) {
     if (!email) {
@@ -85,7 +87,7 @@ module.exports = {
 
     const parts = email.split("@");
 
-    if (parts.length() !== 2) {
+    if (parts.length !== 2) {
       return {
         error: "O email é inválido!",
         recieved: email,
