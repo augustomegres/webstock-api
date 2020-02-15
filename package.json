@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "nodemon src/app",
     "start": "node src/app",
+    "build": "npm install",
     "postinstall": "npm install"
   },
   "dependencies": {
