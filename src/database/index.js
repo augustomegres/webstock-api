@@ -1,5 +1,7 @@
 const Sequelize = require("sequelize");
 
+const sequelizePaginate = require("sequelize-paginate");
+
 const User = require("../models/User");
 const Company = require("../models/Company");
 const Product = require("../models/Product");
@@ -34,6 +36,8 @@ Installments.init(connection);
 Providers.init(connection);
 Purchase.init(connection);
 PurchaseInstallments.init(connection);
+
+sequelizePaginate.paginate(Sale);
 
 //RELAÇÃO DE USUÁRIO - EMPRESA
 User.hasOne(Company, { as: "company", foreignKey: "ownerId" });

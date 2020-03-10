@@ -11,39 +11,80 @@ const Seller = require("../models/Seller");
 module.exports = {
   async index(req, res) {
     const { userId } = req;
-    const { min, max, min_date_time, max_date_time } = req.query;
+    let {
+      min,
+      max,
+      min_date_time,
+      max_date_time,
+      seller,
+      customer,
+      order,
+      page,
+      pageSize
+    } = req.query;
 
     const loggedUser = await User.findByPk(userId, {
       include: [{ association: "company" }]
     });
 
+    let filter = {
+      companyId: loggedUser.company.id
+    };
+
+    if (!isNaN(seller)) {
+      let newSeller = { [Op.eq]: seller };
+
+      filter.seller = newSeller;
+    }
+
+    if (!isNaN(customer)) {
+      let newCustomer = { [Op.eq]: customer };
+
+      filter.customer = newCustomer;
+    }
+
+    if (min || max) {
+      let min_val = 0;
+      let max_val = 9999999999;
+      filter.total = {
+        [Op.and]: {
+          [Op.gte]: Number(min) || min_val,
+          [Op.lte]: Number(max) || max_val
+        }
+      };
+    }
+
+    if (min_date_time || max_date_time) {
+      let min_date = new Date("1980-01-01");
+      let max_date = new Date("2100-01-01");
+
+      filter.date = {
+        [Op.and]: {
+          [Op.gte]: new Date(`${min_date_time}`) || min_date,
+          [Op.lte]: new Date(`${max_date_time}`) || max_date
+        }
+      };
+    }
+
+    if (order) {
+      var searchOrder = [];
+      searchOrder.push(["id", order]);
+    } else {
+      var searchOrder = [];
+    }
+
     try {
-      var sales = await Sales.findAll({
+      var sales = await Sales.paginate({
+        page,
+        paginate: pageSize,
+        where: filter,
+        order: searchOrder,
         include: [
           { association: "customers" },
           { association: "productSold" },
           { association: "saleOwner" },
           { association: "installments" }
-        ],
-        where: {
-          companyId: loggedUser.company.id,
-          total: {
-            [Op.and]: {
-              [Op.gte]: min ? min : 0,
-              [Op.lte]: max ? max : 99999999999999
-            }
-          },
-          date: {
-            [Op.and]: {
-              [Op.gte]: min_date_time
-                ? new Date(`${min_date_time}`)
-                : new Date("1980-01-01"),
-              [Op.lte]: max_date_time
-                ? new Date(`${max_date_time}`)
-                : new Date("2100-01-01")
-            }
-          }
-        }
+        ]
       });
     } catch (err) {
       return res.status(400).json(err);
@@ -108,12 +149,16 @@ module.exports = {
     }
 
     //SE NÃO HOUVER O VALOR DO FRETE, ELE SERA IGUAL A 0
-    let total = freight ? freight : 0;
+    let total = freight ? Number(freight) : 0;
 
     let productIdList = [];
 
+    console.log(total);
     products.map(product => {
       //Calcula o valor total dos produtos
+
+      console.log(total);
+
       total = total + product.quantity * product.unityPrice;
 
       //Insere todos os ids dentro de um array

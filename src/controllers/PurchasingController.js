@@ -5,8 +5,6 @@ const PurchaseInstallments = require("../models/PurchaseInstallments");
 const Product = require("../models/Product");
 
 module.exports = {
-  async index(req, res) {},
-  async show(req, res) {},
   async store(req, res) {
     const { userId } = req;
     let { date, freight, quantity, installments, providerId, price } = req.body;
@@ -104,12 +102,10 @@ module.exports = {
         { where: { id: productId } }
       );
 
-      return res
-        .status(200)
-        .json({
-          success:
-            "Compra realizada com sucesso, os produtos já estão disponíveis para vendas no seu estoque!"
-        });
+      return res.status(200).json({
+        success:
+          "Compra realizada com sucesso, os produtos já estão disponíveis para vendas no seu estoque!"
+      });
     } catch (e) {
       await Purchase.destroy({ where: { id: newPurchase.id } });
 
@@ -118,7 +114,5 @@ module.exports = {
           "Não foi possível inserir os dados devido a um erro não identificado"
       });
     }
-  },
-  async update(req, res) {},
-  async delete(req, res) {}
+  }
 };

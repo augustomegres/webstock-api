@@ -9,6 +9,8 @@ module.exports = {
     const { userId } = req;
     let { enabled } = req.query;
 
+    enabled = Boolean(enabled);
+
     const loggedUser = await User.findByPk(userId, {
       include: {
         association: "company",

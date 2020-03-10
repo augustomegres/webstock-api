@@ -2,6 +2,7 @@ const bcrypt = require("bcryptjs");
 const Yup = require("yup");
 const { Op } = require("sequelize");
 const validations = require("../functions/Validations");
+const { cpf: cpfEval } = require("essential-validation");
 const User = require("../models/User");
 const Company = require("../models/Company");
 const Account = require("../models/Account");
@@ -171,7 +172,7 @@ module.exports = {
     if (phone) phone = phone.replace(/[^0-9]/g, "");
 
     if (cpf) {
-      let validate = validations.cpf(cpf);
+      let validate = cpfEval.cpfWithPunctuation(cpf);
       if (validate.error) return res.status(400).json(validate.error);
     }
 
