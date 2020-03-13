@@ -36,12 +36,12 @@ module.exports = {
         onDelete: "CASCADE"
       },
       freight: {
-        type: Sequelize.DECIMAL,
+        type: Sequelize.DECIMAL(10, 2),
         allowNull: true
       },
       total: {
         //COM O FRETE
-        type: Sequelize.DECIMAL,
+        type: Sequelize.DECIMAL(10, 2),
         allowNull: true
       },
       createdAt: {

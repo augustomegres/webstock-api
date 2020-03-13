@@ -36,15 +36,15 @@ module.exports = {
         allowNull: true
       },
       freight: {
-        type: Sequelize.DECIMAL,
+        type: Sequelize.DECIMAL(10, 2),
         allowNull: true
       },
       quantity: {
-        type: Sequelize.DECIMAL,
+        type: Sequelize.DECIMAL(10, 3),
         allowNull: false
       },
       price: {
-        type: Sequelize.DECIMAL,
+        type: Sequelize.DECIMAL(10, 2),
         allowNull: false
       },
       createdAt: {

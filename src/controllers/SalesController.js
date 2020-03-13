@@ -76,7 +76,7 @@ module.exports = {
     try {
       var sales = await Sales.paginate({
         page,
-        paginate: pageSize,
+        paginate: Number(pageSize),
         where: filter,
         order: searchOrder,
         include: [

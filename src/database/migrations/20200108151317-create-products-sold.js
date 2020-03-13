@@ -32,7 +32,7 @@ module.exports = {
       },
       unityPrice: {
         //PREÇO UNITÁRIO
-        type: Sequelize.DECIMAL,
+        type: Sequelize.DECIMAL(10, 2),
         allowNull: false
       },
       createdAt: {
