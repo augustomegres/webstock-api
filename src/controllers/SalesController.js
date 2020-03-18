@@ -153,11 +153,8 @@ module.exports = {
 
     let productIdList = [];
 
-    console.log(total);
     products.map(product => {
       //Calcula o valor total dos produtos
-
-      console.log(total);
 
       total = total + product.quantity * product.unityPrice;
 
