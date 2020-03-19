@@ -38,6 +38,7 @@ Purchase.init(connection);
 PurchaseInstallments.init(connection);
 
 sequelizePaginate.paginate(Sale);
+sequelizePaginate.paginate(Purchase);
 
 //RELAÇÃO DE USUÁRIO - EMPRESA
 User.hasOne(Company, { as: "company", foreignKey: "ownerId" });
@@ -104,15 +105,21 @@ Purchase.hasOne(Product, { as: "products", foreignKey: "id" });
 //RELAÇÃO DE COMPRA - FORNECEDOR
 Purchase.hasOne(Providers, { as: "provider", foreignKey: "id" });
 
+//RELAÇÃO DE COMPRA - FORNECEDOR
+Purchase.hasMany(PurchaseInstallments, {
+  as: "installments",
+  foreignKey: "purchaseId"
+});
+
 //RELAÇÃO DE COMPRA - PARCELAS
 PurchaseInstallments.belongsTo(Purchase, {
-  as: "purchase",
+  as: "installments",
   foreignKey: "purchaseId"
 });
 
 //RELAÇÃO DE COMPRA - PARCELAS
 PurchaseInstallments.belongsTo(Company, {
-  as: "purchases",
+  as: "purchasesInstallments",
   foreignKey: "companyId"
 });
 

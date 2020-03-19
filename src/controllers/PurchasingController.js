@@ -5,6 +5,90 @@ const PurchaseInstallments = require("../models/PurchaseInstallments");
 const Product = require("../models/Product");
 
 module.exports = {
+  async index(req, res) {
+    const { userId } = req;
+    let {
+      min,
+      max,
+      min_date_time,
+      max_date_time,
+      seller,
+      customer,
+      order,
+      page,
+      pageSize
+    } = req.query;
+
+    const loggedUser = await User.findByPk(userId, {
+      include: [{ association: "company" }]
+    });
+
+    let filter = {
+      companyId: loggedUser.company.id
+    };
+
+    //SE FOR UM NÚMERO
+    if (!isNaN(seller)) {
+      let newSeller = { [Op.eq]: seller };
+
+      filter.seller = newSeller;
+    }
+
+    //SE FOR UM NÚMERO
+    if (!isNaN(customer)) {
+      let newCustomer = { [Op.eq]: customer };
+
+      filter.customer = newCustomer;
+    }
+
+    if (min || max) {
+      let min_val = 0;
+      let max_val = 9999999999;
+      filter.total = {
+        [Op.and]: {
+          [Op.gte]: Number(min) || min_val,
+          [Op.lte]: Number(max) || max_val
+        }
+      };
+    }
+
+    if (min_date_time || max_date_time) {
+      let min_date = new Date("1980-01-01");
+      let max_date = new Date("2100-01-01");
+
+      filter.date = {
+        [Op.and]: {
+          [Op.gte]: new Date(`${min_date_time}`) || min_date,
+          [Op.lte]: new Date(`${max_date_time}`) || max_date
+        }
+      };
+    }
+
+    if (order) {
+      var searchOrder = [];
+      searchOrder.push(["id", order]);
+    } else {
+      var searchOrder = [];
+    }
+
+    try {
+      var purchases = await Purchase.paginate({
+        page: page || 1,
+        paginate: Number(pageSize) || 15,
+        where: filter,
+        order: searchOrder,
+        include: [
+          { association: "products" },
+          { association: "provider" },
+          { association: "installments" }
+        ]
+      });
+    } catch (err) {
+      return res.status(400).json(err);
+    }
+
+    return res.json(purchases);
+  },
   async store(req, res) {
     const { userId } = req;
     let { date, freight, quantity, installments, providerId, price } = req.body;

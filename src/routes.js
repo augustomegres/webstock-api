@@ -67,6 +67,7 @@ routes.post(
   authMiddleware,
   PurchasingController.store
 );
+routes.get("/purchases", authMiddleware, PurchasingController.index);
 
 /** PARCELAS DE COMPRAS */
 routes.get("/purchaseInstallments", authMiddleware, PurchaseInstallments.index);
