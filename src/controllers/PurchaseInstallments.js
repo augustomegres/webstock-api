@@ -13,7 +13,8 @@ module.exports = {
       max_value,
       page,
       pageSize,
-      dueDate
+      dueDate,
+      purchaseId
     } = req.query;
 
     if (!page) {
@@ -36,6 +37,7 @@ module.exports = {
       companyId: user.company.id
     };
 
+    /** FILTROS DE DATA DE PAGAMENTOS */
     if (paid == "true") {
       where.paymentDate = {
         [Op.ne]: null
@@ -48,6 +50,14 @@ module.exports = {
       };
     }
 
+    /** ID DA COMPRA */
+    if (purchaseId) {
+      where.purchaseId = {
+        [Op.eq]: purchaseId
+      };
+    }
+
+    /** FILTROS DE DATA DE VENCIMENTO */
     if (dueDate) {
       var searchOrder = [];
       searchOrder.push(["dueDate", dueDate]);
