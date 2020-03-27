@@ -5,7 +5,7 @@ const Product = require("../models/Product");
 const Sales = require("../models/Sale");
 const ProductSold = require("../models/ProductSold");
 const Customer = require("../models/Customer");
-const Installments = require("../models/Installments");
+const Installments = require("../models/SaleInstallments");
 const Seller = require("../models/Seller");
 
 module.exports = {
@@ -22,6 +22,10 @@ module.exports = {
       page,
       pageSize
     } = req.query;
+
+    if (!pageSize) {
+      pageSize = 15;
+    }
 
     const loggedUser = await User.findByPk(userId, {
       include: [{ association: "company" }]
@@ -85,6 +89,15 @@ module.exports = {
           { association: "saleOwner" },
           { association: "installments" }
         ]
+      });
+
+      sales.docs.map(sale => {
+        let total = 0;
+        sale.installments.map(installment => {
+          total += Number(installment.installmentValue);
+        });
+        sale.total = total;
+        sale.dataValues.total = total;
       });
     } catch (err) {
       return res.status(400).json(err);

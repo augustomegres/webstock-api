@@ -14,7 +14,7 @@ class Installment extends Model {
       },
       {
         sequelize,
-        modelName: "installments"
+        modelName: "sale_installments"
       }
     );
   }

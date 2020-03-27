@@ -35,9 +35,17 @@ routes.post("/sales", authMiddleware, SalesController.store);
 routes.delete("/sales/:id", authMiddleware, SalesController.delete);
 
 /** PARCELAS */
-routes.get("/installment/:sellId", authMiddleware, InstallmentController.show);
-routes.get("/installments", authMiddleware, InstallmentController.index);
-routes.put("/installment/:id", authMiddleware, InstallmentController.update);
+routes.get(
+  "/saleInstallments/:sellId",
+  authMiddleware,
+  InstallmentController.show
+);
+routes.get("/saleInstallments", authMiddleware, InstallmentController.index);
+routes.put(
+  "/saleInstallments/:id",
+  authMiddleware,
+  InstallmentController.update
+);
 
 /** VENDEDORES */
 routes.get("/sellers", authMiddleware, SellerController.index);
@@ -71,6 +79,11 @@ routes.get("/purchases", authMiddleware, PurchasingController.index);
 
 /** PARCELAS DE COMPRAS */
 routes.get("/purchaseInstallments", authMiddleware, PurchaseInstallments.index);
+routes.put(
+  "/purchaseInstallments/:id",
+  authMiddleware,
+  PurchaseInstallments.update
+);
 
 /** AUTENTICAÇÃO */
 routes.post("/authenticate", AuthController.authenticate);

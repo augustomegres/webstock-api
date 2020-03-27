@@ -17,6 +17,13 @@ module.exports = {
         onUpdate: "CASCADE",
         onDelete: "CASCADE"
       },
+      categoryId: {
+        type: Sequelize.INTEGER,
+        allowNull: true,
+        references: { model: "product_category", key: "id" },
+        onUpdate: "CASCADE",
+        onDelete: "CASCADE"
+      },
       enabled: {
         type: Sequelize.BOOLEAN,
         default: true
