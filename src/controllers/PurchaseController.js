@@ -10,8 +10,6 @@ module.exports = {
   async index(req, res) {
     const { userId } = req;
     let {
-      min,
-      max,
       min_date_time,
       max_date_time,
       product,
@@ -51,17 +49,6 @@ module.exports = {
       filter.providerId = newProvider;
     }
 
-    if (min || max) {
-      let min_val = 0;
-      let max_val = 9999999999;
-      filter.price = {
-        [Op.and]: {
-          [Op.gte]: Number(min) || min_val,
-          [Op.lte]: Number(max) || max_val
-        }
-      };
-    }
-
     if (min_date_time || max_date_time) {
       let min_date = new Date("1980-01-01");
       let max_date = new Date("2100-01-01");
@@ -88,15 +75,9 @@ module.exports = {
         where: filter,
         order: searchOrder,
         include: [
-          {
-            association: "products"
-          },
-          {
-            association: "provider"
-          },
-          {
-            association: "installments"
-          }
+          { association: "product" },
+          { association: "provider" },
+          { association: "installments" }
         ]
       });
 
@@ -108,11 +89,11 @@ module.exports = {
         purchase.total = total;
         purchase.dataValues.total = total;
       });
+
+      return res.json(purchases);
     } catch (err) {
       return res.status(400).json(err);
     }
-
-    return res.json(purchases);
   },
   async store(req, res) {
     const { userId } = req;
@@ -180,6 +161,7 @@ module.exports = {
           error: "O fornecedor informado não existe!"
         });
       }
+
       let cont = 0;
 
       provider.products.map(value => {
@@ -196,6 +178,7 @@ module.exports = {
         });
       }
     }
+
     try {
       var newPurchase = await Purchase.create({
         companyId: loggedUser.company.id,

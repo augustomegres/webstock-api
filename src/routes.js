@@ -12,7 +12,7 @@ const SellerController = require("./controllers/SellerController");
 const CustomersController = require("./controllers/CustomersController");
 const InstallmentController = require("./controllers/InstallmentController");
 const ProviderController = require("./controllers/ProvidersController");
-const PurchasingController = require("./controllers/PurchasingController");
+const PurchasingController = require("./controllers/PurchaseController");
 const PurchaseInstallments = require("./controllers/PurchaseInstallments");
 
 const routes = express.Router();
