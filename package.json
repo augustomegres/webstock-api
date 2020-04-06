@@ -4,9 +4,12 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "dev": "nodemon src/app",
-    "start": "npm install",
-    "postinstall": "node src/app"
+    "dev": "next",
+    "build": "npm run build",
+    "start": "yarn && npm run build",
+    "heroku-postbuild": "npm run build",
+    "postinstall": "node src/server",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
     "@sendgrid/mail": "^6.4.0",
