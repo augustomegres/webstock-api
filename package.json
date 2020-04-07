@@ -4,11 +4,11 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "dev": "next",
+    "dev": "nodemon src/app",
     "build": "npm run build",
-    "start": "yarn",
+    "start": "node src/app",
     "heroku-postbuild": "npm run build",
-    "postinstall": "node src/server",
+    "postinstall": "npm install",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
