@@ -6,9 +6,9 @@
   "scripts": {
     "dev": "nodemon src/app",
     "build": "npm run build",
-    "start": "node src/app",
+    "start": "npm install",
     "heroku-postbuild": "npm run build",
-    "postinstall": "npm install",
+    "postinstall": "node src/app",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
