@@ -101,19 +101,13 @@ Providers.belongsToMany(Product, {
 });
 
 //RELAÇÃO DE COMPRA - FORNECEDOR
-Purchase.belongsTo(Company, { as: "company", foreignKey: "companyId" });
+Purchase.hasOne(Company, { as: "company", foreignKey: "id" });
 
 //RELAÇÃO DE COMPRA - PRODUTO
-Purchase.belongsTo(Product, {
-  as: "product",
-  foreignKey: "productId"
-});
+Purchase.hasOne(Product, { as: "products", foreignKey: "id" });
 
 //RELAÇÃO DE COMPRA - FORNECEDOR
-Purchase.belongsTo(Providers, {
-  as: "provider",
-  foreignKey: "providerId"
-});
+Purchase.hasOne(Providers, { as: "provider", foreignKey: "id" });
 
 //RELAÇÃO DE COMPRA - FORNECEDOR
 Purchase.hasMany(PurchaseInstallments, {
@@ -123,7 +117,7 @@ Purchase.hasMany(PurchaseInstallments, {
 
 //RELAÇÃO DE COMPRA - PARCELAS
 PurchaseInstallments.belongsTo(Purchase, {
-  as: "purchase",
+  as: "installments",
   foreignKey: "purchaseId"
 });
 

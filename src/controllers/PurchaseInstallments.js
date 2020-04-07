@@ -1,5 +1,4 @@
 const User = require("../models/User");
-const Purchase = require("../models/Purchase");
 const PurchaseInstallments = require("../models/PurchaseInstallments");
 const { Op } = require("sequelize");
 
@@ -104,15 +103,8 @@ module.exports = {
       };
     }
 
-    //RETORNO DOS DADOS
     var installments = await PurchaseInstallments.paginate({
       page: page,
-      include: [
-        {
-          association: "purchase",
-          include: [{ association: "products" }]
-        }
-      ],
       paginate: Number(pageSize),
       where,
       order: searchOrder
