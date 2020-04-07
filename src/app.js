@@ -3,7 +3,7 @@ const routes = require("./routes");
 const cors = require("cors");
 const app = express();
 
-var whitelist = ['https://app.webstock.com.br/']
+var whitelist = ['https://app.webstock.com.br']
 var corsOptions = {
   origin: function (origin, callback) {
     if (whitelist.indexOf(origin) !== -1) {
