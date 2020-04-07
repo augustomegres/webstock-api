@@ -5,7 +5,7 @@ const Product = require("../models/Product");
 const Sales = require("../models/Sale");
 const ProductSold = require("../models/ProductSold");
 const Customer = require("../models/Customer");
-const Installments = require("../models/Installments");
+const Installments = require("../models/SaleInstallments");
 const Seller = require("../models/Seller");
 
 module.exports = {
@@ -18,10 +18,17 @@ module.exports = {
       max_date_time,
       seller,
       customer,
+      product,
+      id,
       order,
       page,
-      pageSize
+      pageSize,
+      selectOnly
     } = req.query;
+
+    if (!pageSize) {
+      pageSize = 15;
+    }
 
     const loggedUser = await User.findByPk(userId, {
       include: [{ association: "company" }]
@@ -31,16 +38,28 @@ module.exports = {
       companyId: loggedUser.company.id
     };
 
-    if (!isNaN(seller)) {
-      let newSeller = { [Op.eq]: seller };
+    if (seller) {
+      if (!isNaN(seller)) {
+        let newSeller = { [Op.eq]: seller };
 
-      filter.seller = newSeller;
+        filter.seller = newSeller;
+      }
     }
 
-    if (!isNaN(customer)) {
-      let newCustomer = { [Op.eq]: customer };
+    if (customer) {
+      if (!isNaN(customer)) {
+        let newCustomer = { [Op.eq]: customer };
 
-      filter.customer = newCustomer;
+        filter.customer = newCustomer;
+      }
+    }
+
+    if (id) {
+      if (!isNaN(id)) {
+        let newId = { [Op.eq]: id };
+
+        filter.id = newId;
+      }
     }
 
     if (min || max) {
@@ -73,6 +92,241 @@ module.exports = {
       var searchOrder = [];
     }
 
+    //Fazendo a seleção dos que conteem parcelas não pagas
+
+    switch (Number(selectOnly)) {
+      case 1: {
+        let select1 = await Sales.findAll({
+          where: filter,
+          include: [
+            { association: "installments" },
+            { association: "productSold" }
+          ]
+        });
+
+        var queryIncludeArr = [];
+        let newQueryArr = [];
+
+        select1.map(sale => {
+          sale.installments.map(installment => {
+            if (!installment.paymentDate) {
+              return queryIncludeArr.push(sale.id);
+            }
+          });
+        });
+
+        //VERIFICANDO SE O FILTRO DE PRODUTO FOI INCLUIDO E APLICANDO ELE
+        var productIncludeArr = [];
+        if (product) {
+          select1.map(sale => {
+            sale.productSold.map(saleProduct => {
+              if (saleProduct.productId == product)
+                return productIncludeArr.push(sale.id);
+            });
+          });
+        }
+
+        if (productIncludeArr.length) {
+          productIncludeArr.map(val => {
+            if (queryIncludeArr.indexOf(val) > -1) {
+              newQueryArr.push(val);
+            }
+          });
+        } else {
+          newQueryArr = queryIncludeArr;
+        }
+
+        if (!newQueryArr.length) {
+          filter.id = { [Op.eq]: null };
+        } else {
+          let notPaid = { [Op.or]: newQueryArr };
+          filter.id = notPaid;
+        }
+        break;
+      }
+      case 2: {
+        //Contém parcelas a vencer nos próximos 30 dias
+        let select2 = await Sales.findAll({
+          where: filter,
+          include: [
+            { association: "installments" },
+            { association: "productSold" }
+          ]
+        });
+
+        var queryIncludeArr = [];
+        var newQueryArr = [];
+        select2.map(sale => {
+          sale.installments.map(installment => {
+            let hoje = new Date();
+            let due = new Date(installment.dueDate);
+
+            if (
+              !installment.paymentDate &&
+              hoje.setDate(hoje.getDate() + 30) > due
+            ) {
+              return queryIncludeArr.push(sale.id);
+            }
+          });
+        });
+
+        //VERIFICANDO SE O FILTRO DE PRODUTO FOI INCLUIDO E APLICANDO ELE
+        var productIncludeArr = [];
+        if (product) {
+          select2.map(sale => {
+            sale.productSold.map(saleProduct => {
+              if (saleProduct.productId == product)
+                return productIncludeArr.push(sale.id);
+            });
+          });
+        }
+
+        if (productIncludeArr.length) {
+          productIncludeArr.map(val => {
+            if (queryIncludeArr.indexOf(val) > -1) {
+              newQueryArr.push(val);
+            }
+          });
+        } else {
+          newQueryArr = queryIncludeArr;
+        }
+
+        if (!newQueryArr.length) {
+          filter.id = { [Op.eq]: null };
+        } else {
+          let dueIn30Days = { [Op.or]: newQueryArr };
+          filter.id = dueIn30Days;
+        }
+        break;
+      }
+      case 3: {
+        //Contém parcelas a vencer nos próximos 30 dias
+        let select3 = await Sales.findAll({
+          where: filter,
+          include: [
+            { association: "installments" },
+            { association: "productSold" }
+          ]
+        });
+
+        var queryIncludeArr = [];
+        var newQueryArr = [];
+
+        select3.map(sale => {
+          sale.installments.map(installment => {
+            if (installment.paymentDate) {
+              return queryIncludeArr.push(sale.id);
+            }
+          });
+        });
+
+        //VERIFICANDO SE O FILTRO DE PRODUTO FOI INCLUIDO E APLICANDO ELE
+        var productIncludeArr = [];
+        if (product) {
+          select3.map(sale => {
+            sale.productSold.map(saleProduct => {
+              if (saleProduct.productId == product)
+                return productIncludeArr.push(sale.id);
+            });
+          });
+        }
+
+        if (productIncludeArr.length) {
+          productIncludeArr.map(val => {
+            if (queryIncludeArr.indexOf(val) > -1) {
+              newQueryArr.push(val);
+            }
+          });
+        } else {
+          newQueryArr = queryIncludeArr;
+        }
+
+        if (!newQueryArr.length) {
+          filter.id = { [Op.eq]: null };
+        } else {
+          let onlyPaid = { [Op.or]: newQueryArr };
+          filter.id = onlyPaid;
+        }
+        break;
+      }
+      case 4: {
+        let select4 = await Sales.findAll({
+          where: filter,
+          include: [
+            { association: "installments" },
+            { association: "productSold" }
+          ]
+        });
+
+        var queryIncludeArr = [];
+        var newQueryArr = [];
+
+        select4.map(sale => {
+          sale.installments.map(installment => {
+            if (
+              !installment.paymentDate &&
+              new Date(installment.dueDate) < new Date().setHours(0, 0, 0, 0)
+            ) {
+              return queryIncludeArr.push(sale.id);
+            }
+          });
+        });
+
+        //VERIFICANDO SE O FILTRO DE PRODUTO FOI INCLUIDO E APLICANDO ELE
+        var productIncludeArr = [];
+        if (product) {
+          select4.map(sale => {
+            sale.productSold.map(saleProduct => {
+              if (saleProduct.productId == product)
+                return productIncludeArr.push(sale.id);
+            });
+          });
+        }
+
+        if (productIncludeArr.length) {
+          productIncludeArr.map(val => {
+            if (queryIncludeArr.indexOf(val) > -1) {
+              newQueryArr.push(val);
+            }
+          });
+        } else {
+          newQueryArr = queryIncludeArr;
+        }
+
+        if (!newQueryArr.length) {
+          filter.id = { [Op.eq]: null };
+        } else {
+          let dueOnly = { [Op.or]: newQueryArr };
+          filter.id = dueOnly;
+        }
+        break;
+      }
+      default:
+        if (product) {
+          let selectDefault = await Sales.findAll({
+            where: filter,
+            include: [{ association: "productSold" }]
+          });
+
+          //VERIFICANDO SE O FILTRO DE PRODUTO FOI INCLUIDO E APLICANDO ELE
+          var productIncludeArr = [];
+          selectDefault.map(sale => {
+            sale.productSold.map(saleProduct => {
+              if (saleProduct.productId == product)
+                return productIncludeArr.push(sale.id);
+            });
+          });
+
+          if (!productIncludeArr.length) {
+            filter.id = { [Op.eq]: null };
+          } else {
+            let productFilter = { [Op.or]: productIncludeArr };
+            filter.id = productFilter;
+          }
+        }
+        break;
+    }
+
     try {
       var sales = await Sales.paginate({
         page,
@@ -83,8 +337,17 @@ module.exports = {
           { association: "customers" },
           { association: "productSold" },
           { association: "saleOwner" },
-          { association: "installments" }
+          { association: "installments", order: ["installment", "ASC"] }
         ]
+      });
+
+      sales.docs.map(sale => {
+        let total = 0;
+        sale.installments.map(installment => {
+          total += Number(installment.installmentValue);
+        });
+        sale.total = total;
+        sale.dataValues.total = total;
       });
     } catch (err) {
       return res.status(400).json(err);

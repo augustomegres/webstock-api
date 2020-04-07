@@ -39,11 +39,6 @@ module.exports = {
         type: Sequelize.DECIMAL(10, 2),
         allowNull: true
       },
-      total: {
-        //COM O FRETE
-        type: Sequelize.DECIMAL(10, 2),
-        allowNull: true
-      },
       createdAt: {
         type: Sequelize.DATE,
         allowNull: false

@@ -10,7 +10,7 @@ const ProductSold = require("../models/ProductSold");
 const Account = require("../models/Account");
 const Seller = require("../models/Seller");
 const Customer = require("../models/Customer");
-const Installments = require("../models/Installments");
+const SaleInstallments = require("../models/SaleInstallments");
 const Providers = require("../models/Providers");
 const Purchase = require("../models/Purchase");
 const PurchaseInstallments = require("../models/PurchaseInstallments");
@@ -32,12 +32,14 @@ ProductSold.init(connection);
 Account.init(connection);
 Seller.init(connection);
 Customer.init(connection);
-Installments.init(connection);
+SaleInstallments.init(connection);
 Providers.init(connection);
 Purchase.init(connection);
 PurchaseInstallments.init(connection);
 
 sequelizePaginate.paginate(Sale);
+sequelizePaginate.paginate(Purchase);
+sequelizePaginate.paginate(PurchaseInstallments);
 
 //RELAÇÃO DE USUÁRIO - EMPRESA
 User.hasOne(Company, { as: "company", foreignKey: "ownerId" });
@@ -67,12 +69,15 @@ Seller.belongsTo(Company, { as: "company", foreignKey: "companyId" });
 Company.hasMany(Seller, { as: "sellers", foreignKey: "companyId" });
 
 //RELAÇÃO DE PARCELA - VENDA
-Installments.belongsTo(Sale, { as: "sales", foreignKey: "saleId" });
-Sale.hasMany(Installments, { as: "installments", foreignKey: "saleId" });
+SaleInstallments.belongsTo(Sale, { as: "sales", foreignKey: "saleId" });
+Sale.hasMany(SaleInstallments, { as: "installments", foreignKey: "saleId" });
 
 //RELAÇÃO DE PARCELA - EMPRESA
-Installments.belongsTo(Company, { as: "company", foreignKey: "companyId" });
-Company.hasMany(Installments, { as: "installments", foreignKey: "companyId" });
+SaleInstallments.belongsTo(Company, { as: "company", foreignKey: "companyId" });
+Company.hasMany(SaleInstallments, {
+  as: "installments",
+  foreignKey: "companyId"
+});
 
 //RELAÇÃO DE CLIENTE - EMPRESA
 Customer.belongsTo(Company, { as: "company", foreignKey: "companyId" });
@@ -96,13 +101,25 @@ Providers.belongsToMany(Product, {
 });
 
 //RELAÇÃO DE COMPRA - FORNECEDOR
-Purchase.hasOne(Company, { as: "company", foreignKey: "id" });
+Purchase.belongsTo(Company, { as: "company", foreignKey: "companyId" });
 
 //RELAÇÃO DE COMPRA - PRODUTO
-Purchase.hasOne(Product, { as: "products", foreignKey: "id" });
+Purchase.belongsTo(Product, {
+  as: "product",
+  foreignKey: "productId"
+});
 
 //RELAÇÃO DE COMPRA - FORNECEDOR
-Purchase.hasOne(Providers, { as: "provider", foreignKey: "id" });
+Purchase.belongsTo(Providers, {
+  as: "provider",
+  foreignKey: "providerId"
+});
+
+//RELAÇÃO DE COMPRA - FORNECEDOR
+Purchase.hasMany(PurchaseInstallments, {
+  as: "installments",
+  foreignKey: "purchaseId"
+});
 
 //RELAÇÃO DE COMPRA - PARCELAS
 PurchaseInstallments.belongsTo(Purchase, {
@@ -112,7 +129,7 @@ PurchaseInstallments.belongsTo(Purchase, {
 
 //RELAÇÃO DE COMPRA - PARCELAS
 PurchaseInstallments.belongsTo(Company, {
-  as: "purchases",
+  as: "purchasesInstallments",
   foreignKey: "companyId"
 });
 

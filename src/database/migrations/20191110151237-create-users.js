@@ -36,6 +36,15 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false
       },
+      planType: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        defaultValue: 0
+      },
+      planExpirationDate: {
+        type: Sequelize.DATE,
+        allowNull: false
+      },
       isAdmin: {
         type: Sequelize.BOOLEAN,
         allowNull: false,

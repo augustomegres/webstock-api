@@ -8,8 +8,7 @@ class Sales extends Model {
         date: DataTypes.DATE,
         seller: DataTypes.STRING,
         customer: DataTypes.INTEGER,
-        freight: DataTypes.DECIMAL,
-        total: DataTypes.DECIMAL
+        freight: DataTypes.DECIMAL
       },
       {
         sequelize,

@@ -17,7 +17,11 @@ module.exports = {
     id = Number(id);
 
     const user = await User.findByPk(userId, {
-      include: [{ association: "company" }],
+      include: [
+        {
+          association: "company"
+        }
+      ],
       attributes: {
         exclude: [
           "passwordHash",
@@ -40,7 +44,11 @@ module.exports = {
     } else {
       return res.json(
         await User.findByPk(id, {
-          include: [{ association: "company" }],
+          include: [
+            {
+              association: "company"
+            }
+          ],
           attributes: {
             exclude: [
               "passwordHash",
@@ -90,15 +98,19 @@ module.exports = {
 
     /** CASO A VERIFICAÇÃO FALHE */
     if (!isValid) {
-      return res
-        .status(400)
-        .json({ error: "Por favor, verifique os dados enviados!" });
+      return res.status(400).json({
+        error: "Por favor, verifique os dados enviados!"
+      });
     }
 
     /** VERIFICANDO SE O USUÁRIO EXISTE */
     const userExists = await User.findOne({
       where: {
-        [Op.or]: [{ email }]
+        [Op.or]: [
+          {
+            email
+          }
+        ]
       }
     });
 
@@ -112,13 +124,20 @@ module.exports = {
     /** CRIPTOGRAFANDO SENHA */
     const passwordHash = await bcrypt.hash(password, 10);
 
+    let planExpirationDate = new Date();
+    planExpirationDate = planExpirationDate.setDate(
+      planExpirationDate.getDate() + 7
+    );
+
     /** CRIANDO O USUARIO NO BANCO DE DADOS */
     try {
       var user = await User.create({
         name,
         email,
         phone,
-        passwordHash
+        passwordHash,
+        planType: 0,
+        planExpirationDate
       });
 
       const newCompany = await Company.create({
@@ -139,8 +158,14 @@ module.exports = {
 
       Mail.sendWelcomeMsg(email);
     } catch (e) {
-      await User.destroy({ where: { id: user.id } });
-      return res.status(400).json({ error: e });
+      await User.destroy({
+        where: {
+          id: user.id
+        }
+      });
+      return res.status(400).json({
+        error: e
+      });
     }
     return res.status(200).json(user);
   },
@@ -164,9 +189,9 @@ module.exports = {
     id = Number(id);
 
     if (userId !== id) {
-      return res
-        .status(400)
-        .json({ error: "Você só pode editar o próprio perfil!" });
+      return res.status(400).json({
+        error: "Você só pode editar o próprio perfil!"
+      });
     }
 
     if (phone) phone = phone.replace(/[^0-9]/g, "");
@@ -184,9 +209,9 @@ module.exports = {
     if (date_of_birth) date_of_birth = new Date(date_of_birth);
 
     if (/[^a-z éáíóúçàèìòùâêîôû]/gi.test(name)) {
-      return res
-        .status(400)
-        .json({ error: "O nome deve conter apenas letras e espaços" });
+      return res.status(400).json({
+        error: "O nome deve conter apenas letras e espaços"
+      });
     }
 
     if (/[^a-z éáíóúçàèìòùâêîôû.-_]/gi.test(companyName)) {
@@ -263,11 +288,19 @@ module.exports = {
 
     try {
       if (user) {
-        await User.update(user, { where: { id } });
+        await User.update(user, {
+          where: {
+            id
+          }
+        });
       }
 
       if (company) {
-        await Company.update(company, { where: { ownerId: id } });
+        await Company.update(company, {
+          where: {
+            ownerId: id
+          }
+        });
       }
 
       return res.status(200).json({
