@@ -23,7 +23,7 @@ module.exports = {
       order,
       page,
       pageSize,
-      selectOnly
+      selectOnly,
     } = req.query;
 
     if (!pageSize) {
@@ -31,11 +31,11 @@ module.exports = {
     }
 
     const loggedUser = await User.findByPk(userId, {
-      include: [{ association: "company" }]
+      include: [{ association: "company" }],
     });
 
     let filter = {
-      companyId: loggedUser.company.id
+      companyId: loggedUser.company.id,
     };
 
     if (seller) {
@@ -68,8 +68,8 @@ module.exports = {
       filter.total = {
         [Op.and]: {
           [Op.gte]: Number(min) || min_val,
-          [Op.lte]: Number(max) || max_val
-        }
+          [Op.lte]: Number(max) || max_val,
+        },
       };
     }
 
@@ -80,8 +80,8 @@ module.exports = {
       filter.date = {
         [Op.and]: {
           [Op.gte]: new Date(`${min_date_time}`) || min_date,
-          [Op.lte]: new Date(`${max_date_time}`) || max_date
-        }
+          [Op.lte]: new Date(`${max_date_time}`) || max_date,
+        },
       };
     }
 
@@ -100,15 +100,15 @@ module.exports = {
           where: filter,
           include: [
             { association: "installments" },
-            { association: "productSold" }
-          ]
+            { association: "productSold" },
+          ],
         });
 
         var queryIncludeArr = [];
         let newQueryArr = [];
 
-        select1.map(sale => {
-          sale.installments.map(installment => {
+        select1.map((sale) => {
+          sale.installments.map((installment) => {
             if (!installment.paymentDate) {
               return queryIncludeArr.push(sale.id);
             }
@@ -118,8 +118,8 @@ module.exports = {
         //VERIFICANDO SE O FILTRO DE PRODUTO FOI INCLUIDO E APLICANDO ELE
         var productIncludeArr = [];
         if (product) {
-          select1.map(sale => {
-            sale.productSold.map(saleProduct => {
+          select1.map((sale) => {
+            sale.productSold.map((saleProduct) => {
               if (saleProduct.productId == product)
                 return productIncludeArr.push(sale.id);
             });
@@ -127,7 +127,7 @@ module.exports = {
         }
 
         if (productIncludeArr.length) {
-          productIncludeArr.map(val => {
+          productIncludeArr.map((val) => {
             if (queryIncludeArr.indexOf(val) > -1) {
               newQueryArr.push(val);
             }
@@ -150,14 +150,14 @@ module.exports = {
           where: filter,
           include: [
             { association: "installments" },
-            { association: "productSold" }
-          ]
+            { association: "productSold" },
+          ],
         });
 
         var queryIncludeArr = [];
         var newQueryArr = [];
-        select2.map(sale => {
-          sale.installments.map(installment => {
+        select2.map((sale) => {
+          sale.installments.map((installment) => {
             let hoje = new Date();
             let due = new Date(installment.dueDate);
 
@@ -173,8 +173,8 @@ module.exports = {
         //VERIFICANDO SE O FILTRO DE PRODUTO FOI INCLUIDO E APLICANDO ELE
         var productIncludeArr = [];
         if (product) {
-          select2.map(sale => {
-            sale.productSold.map(saleProduct => {
+          select2.map((sale) => {
+            sale.productSold.map((saleProduct) => {
               if (saleProduct.productId == product)
                 return productIncludeArr.push(sale.id);
             });
@@ -182,7 +182,7 @@ module.exports = {
         }
 
         if (productIncludeArr.length) {
-          productIncludeArr.map(val => {
+          productIncludeArr.map((val) => {
             if (queryIncludeArr.indexOf(val) > -1) {
               newQueryArr.push(val);
             }
@@ -205,15 +205,15 @@ module.exports = {
           where: filter,
           include: [
             { association: "installments" },
-            { association: "productSold" }
-          ]
+            { association: "productSold" },
+          ],
         });
 
         var queryIncludeArr = [];
         var newQueryArr = [];
 
-        select3.map(sale => {
-          sale.installments.map(installment => {
+        select3.map((sale) => {
+          sale.installments.map((installment) => {
             if (installment.paymentDate) {
               return queryIncludeArr.push(sale.id);
             }
@@ -223,8 +223,8 @@ module.exports = {
         //VERIFICANDO SE O FILTRO DE PRODUTO FOI INCLUIDO E APLICANDO ELE
         var productIncludeArr = [];
         if (product) {
-          select3.map(sale => {
-            sale.productSold.map(saleProduct => {
+          select3.map((sale) => {
+            sale.productSold.map((saleProduct) => {
               if (saleProduct.productId == product)
                 return productIncludeArr.push(sale.id);
             });
@@ -232,7 +232,7 @@ module.exports = {
         }
 
         if (productIncludeArr.length) {
-          productIncludeArr.map(val => {
+          productIncludeArr.map((val) => {
             if (queryIncludeArr.indexOf(val) > -1) {
               newQueryArr.push(val);
             }
@@ -254,15 +254,15 @@ module.exports = {
           where: filter,
           include: [
             { association: "installments" },
-            { association: "productSold" }
-          ]
+            { association: "productSold" },
+          ],
         });
 
         var queryIncludeArr = [];
         var newQueryArr = [];
 
-        select4.map(sale => {
-          sale.installments.map(installment => {
+        select4.map((sale) => {
+          sale.installments.map((installment) => {
             if (
               !installment.paymentDate &&
               new Date(installment.dueDate) < new Date().setHours(0, 0, 0, 0)
@@ -275,8 +275,8 @@ module.exports = {
         //VERIFICANDO SE O FILTRO DE PRODUTO FOI INCLUIDO E APLICANDO ELE
         var productIncludeArr = [];
         if (product) {
-          select4.map(sale => {
-            sale.productSold.map(saleProduct => {
+          select4.map((sale) => {
+            sale.productSold.map((saleProduct) => {
               if (saleProduct.productId == product)
                 return productIncludeArr.push(sale.id);
             });
@@ -284,7 +284,7 @@ module.exports = {
         }
 
         if (productIncludeArr.length) {
-          productIncludeArr.map(val => {
+          productIncludeArr.map((val) => {
             if (queryIncludeArr.indexOf(val) > -1) {
               newQueryArr.push(val);
             }
@@ -305,13 +305,13 @@ module.exports = {
         if (product) {
           let selectDefault = await Sales.findAll({
             where: filter,
-            include: [{ association: "productSold" }]
+            include: [{ association: "productSold" }],
           });
 
           //VERIFICANDO SE O FILTRO DE PRODUTO FOI INCLUIDO E APLICANDO ELE
           var productIncludeArr = [];
-          selectDefault.map(sale => {
-            sale.productSold.map(saleProduct => {
+          selectDefault.map((sale) => {
+            sale.productSold.map((saleProduct) => {
               if (saleProduct.productId == product)
                 return productIncludeArr.push(sale.id);
             });
@@ -337,13 +337,13 @@ module.exports = {
           { association: "customers" },
           { association: "productSold" },
           { association: "saleOwner" },
-          { association: "installments", order: ["installment", "ASC"] }
-        ]
+          { association: "installments", order: ["installment", "ASC"] },
+        ],
       });
 
-      sales.docs.map(sale => {
+      sales.docs.map((sale) => {
         let total = 0;
-        sale.installments.map(installment => {
+        sale.installments.map((installment) => {
           total += Number(installment.installmentValue);
         });
         sale.total = total;
@@ -362,7 +362,7 @@ module.exports = {
       customer,
       freight,
       products,
-      installments
+      installments,
     } = req.body;
     const { userId } = req;
 
@@ -377,9 +377,9 @@ module.exports = {
         exclude: [
           "passwordHash",
           "passwordRecoverToken",
-          "recoverPasswordTokenExpires"
-        ]
-      }
+          "recoverPasswordTokenExpires",
+        ],
+      },
     });
 
     //Verificando se o cliente pertence a empresa
@@ -416,7 +416,7 @@ module.exports = {
 
     let productIdList = [];
 
-    products.map(product => {
+    products.map((product) => {
       //Calcula o valor total dos produtos
 
       total = total + product.quantity * product.unityPrice;
@@ -431,31 +431,31 @@ module.exports = {
     const notUserCompanyProduct = await Product.findAll({
       where: {
         id: productIdList,
-        companyId: { [Op.ne]: loggedUser.company.id }
-      }
+        companyId: { [Op.ne]: loggedUser.company.id },
+      },
     });
 
     if (notUserCompanyProduct.length) {
       return res.status(400).json({
         error:
-          "Você está tentando cadastrar um produto que não pertence a sua empresa!"
+          "Você está tentando cadastrar um produto que não pertence a sua empresa!",
       });
     }
 
     let productsExists = await Product.findAll({
       where: {
-        id: productIdList
-      }
+        id: productIdList,
+      },
     });
 
     if (productsExists.length !== productIdList.length) {
       return res.status(400).json({
-        error: "Um ou mais dos produtos que você tentou cadastrar não existem"
+        error: "Um ou mais dos produtos que você tentou cadastrar não existem",
       });
     }
 
     const stockRemove = {};
-    products.map(product => {
+    products.map((product) => {
       if (!stockRemove[product.productId]) {
         stockRemove[product.productId] = 0;
       }
@@ -469,7 +469,7 @@ module.exports = {
         err.push({
           error: `Você não tem estoque o suficiente do produto "${product.name}"`,
           requested: stockRemove[product.id],
-          inStock: product.quantity
+          inStock: product.quantity,
         });
       }
     });
@@ -486,10 +486,10 @@ module.exports = {
         seller,
         customer,
         freight,
-        total
+        total,
       });
 
-      products.map(product => {
+      products.map((product) => {
         product.sellId = sale.id;
         product.unityPrice = product.unityPrice.toFixed(2);
       });
@@ -506,11 +506,11 @@ module.exports = {
 
       //Atualizando os produtos no banco de dados
       await Product.bulkCreate(JSON.parse(JSON.stringify(productsExists)), {
-        updateOnDuplicate: ["quantity"]
+        updateOnDuplicate: ["quantity"],
       });
 
       //Inserindo o id da venda dentro da parcela
-      installments.map(installment => {
+      installments.map((installment) => {
         installment.saleId = sale.id;
         installment.companyId = loggedUser.company.id;
       });
@@ -521,7 +521,7 @@ module.exports = {
       await Sales.destroy({ where: { id: sale.id } });
       return res.status(400).json({
         error: "Houve um erro ao tentar inserir o registro!",
-        detail: e
+        detail: e,
       });
     }
 
@@ -537,13 +537,13 @@ module.exports = {
         exclude: [
           "passwordHash",
           "passwordRecoverToken",
-          "recoverPasswordTokenExpires"
-        ]
-      }
+          "recoverPasswordTokenExpires",
+        ],
+      },
     });
 
     const sale = await Sales.destroy({
-      where: { [Op.and]: { id: id, companyId: user.company.id } }
+      where: { [Op.and]: { id: id, companyId: user.company.id } },
     });
 
     if (sale === 1) {
@@ -551,5 +551,5 @@ module.exports = {
     }
     if (sale === 0)
       return res.status(400).json({ error: "Esta venda não existe!" });
-  }
+  },
 };

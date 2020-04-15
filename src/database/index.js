@@ -18,8 +18,8 @@ const PurchaseInstallments = require("../models/PurchaseInstallments");
 var opts = {
   define: {
     timestamps: true,
-    freezeTableName: true
-  }
+    freezeTableName: true,
+  },
 };
 
 const connection = new Sequelize(process.env.DATABASE_URL, opts);
@@ -40,6 +40,7 @@ PurchaseInstallments.init(connection);
 sequelizePaginate.paginate(Sale);
 sequelizePaginate.paginate(Purchase);
 sequelizePaginate.paginate(PurchaseInstallments);
+sequelizePaginate.paginate(Product);
 
 //RELAÇÃO DE USUÁRIO - EMPRESA
 User.hasOne(Company, { as: "company", foreignKey: "ownerId" });
@@ -76,7 +77,7 @@ Sale.hasMany(SaleInstallments, { as: "installments", foreignKey: "saleId" });
 SaleInstallments.belongsTo(Company, { as: "company", foreignKey: "companyId" });
 Company.hasMany(SaleInstallments, {
   as: "installments",
-  foreignKey: "companyId"
+  foreignKey: "companyId",
 });
 
 //RELAÇÃO DE CLIENTE - EMPRESA
@@ -91,13 +92,13 @@ Company.hasMany(Providers, { as: "providers", foreignKey: "companyId" });
 Product.belongsToMany(Providers, {
   as: "providers",
   foreignKey: "productId",
-  through: "products_providers"
+  through: "products_providers",
 });
 
 Providers.belongsToMany(Product, {
   as: "products",
   foreignKey: "providerId",
-  through: "products_providers"
+  through: "products_providers",
 });
 
 //RELAÇÃO DE COMPRA - FORNECEDOR
@@ -112,19 +113,19 @@ Purchase.hasOne(Providers, { as: "provider", foreignKey: "id" });
 //RELAÇÃO DE COMPRA - FORNECEDOR
 Purchase.hasMany(PurchaseInstallments, {
   as: "installments",
-  foreignKey: "purchaseId"
+  foreignKey: "purchaseId",
 });
 
 //RELAÇÃO DE COMPRA - PARCELAS
 PurchaseInstallments.belongsTo(Purchase, {
   as: "installments",
-  foreignKey: "purchaseId"
+  foreignKey: "purchaseId",
 });
 
 //RELAÇÃO DE COMPRA - PARCELAS
 PurchaseInstallments.belongsTo(Company, {
   as: "purchasesInstallments",
-  foreignKey: "companyId"
+  foreignKey: "companyId",
 });
 
 module.exports = connection;
