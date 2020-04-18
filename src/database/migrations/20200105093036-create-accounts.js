@@ -8,51 +8,51 @@ module.exports = {
         primaryKey: true,
         autoIncrement: true,
         allowNull: false,
-        unique: true
+        unique: true,
       },
       companyId: {
         type: Sequelize.INTEGER,
         references: { model: "companies", key: "id" },
         onUpdate: "CASCADE",
-        onDelete: "CASCADE"
+        onDelete: "CASCADE",
       },
       name: {
         type: Sequelize.STRING,
-        allowNull: false
-      },
-      value: {
-        type: Sequelize.DECIMAL(10, 2),
         allowNull: false,
-        defaultValue: 0
+      },
+      main: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
       },
       accountType: {
         type: Sequelize.STRING,
-        allowNull: false
+        allowNull: false,
       },
       accountBank: {
         type: Sequelize.STRING,
-        allowNull: true
+        allowNull: true,
       },
       agencyNumber: {
         type: Sequelize.STRING,
-        allowNull: true
+        allowNull: true,
       },
       accountNumber: {
         type: Sequelize.STRING,
-        allowNull: true
+        allowNull: true,
       },
       createdAt: {
         type: Sequelize.DATE,
-        allowNull: false
+        allowNull: false,
       },
       updatedAt: {
         type: Sequelize.DATE,
-        allowNull: false
-      }
+        allowNull: false,
+      },
     });
   },
 
-  down: queryInterface => {
+  down: (queryInterface) => {
     return queryInterface.dropTable("accounts");
-  }
+  },
 };

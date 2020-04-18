@@ -8,11 +8,11 @@ module.exports = {
     const { sellId } = req.params;
 
     const loggedUser = await User.findByPk(userId, {
-      include: [{ association: "company" }]
+      include: [{ association: "company" }],
     });
 
     const installments = await Installments.findAll({
-      where: { saleId: sellId, companyId: loggedUser.company.id }
+      where: { saleId: sellId, companyId: loggedUser.company.id },
     });
 
     return res.status(200).json(installments);
@@ -25,11 +25,11 @@ module.exports = {
       finish_date,
       min_value,
       max_value,
-      status
+      accountId,
     } = req.query;
 
     const user = await User.findByPk(userId, {
-      include: [{ association: "company" }]
+      include: [{ association: "company" }],
     });
 
     const where = { companyId: user.company.id };
@@ -42,12 +42,17 @@ module.exports = {
       where.paymentDate = { [Op.eq]: null };
     }
 
+    if (accountId) {
+      where.accountId = { [Op.eq]: accountId };
+    }
+
     //Insere a data de início dos dados
     if (start_date) {
       let start = new Date(start_date);
 
-      start = `${start.getFullYear()}/${start.getMonth() +
-        1}/${start.getDate()} 00:00:00.000`;
+      start = `${start.getFullYear()}/${
+        start.getMonth() + 1
+      }/${start.getDate()} 00:00:00.000`;
 
       where.paymentDate = { ...where.paymentDate, [Op.gte]: new Date(start) };
     }
@@ -56,8 +61,9 @@ module.exports = {
     if (finish_date) {
       let finish = new Date(finish_date);
 
-      finish = `${finish.getFullYear()}/${finish.getMonth() +
-        1}/${finish.getDate()} 23:59:59.999`;
+      finish = `${finish.getFullYear()}/${
+        finish.getMonth() + 1
+      }/${finish.getDate()} 23:59:59.999`;
 
       where.paymentDate = { ...where.paymentDate, [Op.lte]: new Date(finish) };
     }
@@ -94,13 +100,13 @@ module.exports = {
     new Date(paymentDate);
 
     const loggedUser = await User.findByPk(userId, {
-      include: [{ association: "company" }]
+      include: [{ association: "company" }],
     });
 
     const installment = await Installments.update(
       { paymentDate },
       {
-        where: { id, companyId: loggedUser.company.id }
+        where: { id, companyId: loggedUser.company.id },
       }
     );
 
@@ -111,5 +117,5 @@ module.exports = {
     }
 
     return res.status(200).json(installment);
-  }
+  },
 };

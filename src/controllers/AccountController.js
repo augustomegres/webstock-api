@@ -1,6 +1,7 @@
 const User = require("../models/User");
 const Account = require("../models/Account");
 const Company = require("../models/Company");
+const { Op } = require("sequelize");
 const Yup = require("yup");
 
 module.exports = {
@@ -13,28 +14,16 @@ module.exports = {
       accountType,
       accountBank,
       agencyNumber,
-      accountNumber
+      accountNumber,
     } = req.body;
 
     const schema = Yup.object().shape({
-      name: Yup.string()
-        .min(3)
-        .max(64)
-        .required(),
+      name: Yup.string().min(3).max(64).required(),
       value: Yup.number(),
-      accountType: Yup.string()
-        .min(3)
-        .max(64)
-        .required(),
-      accountBank: Yup.string()
-        .min(3)
-        .max(64),
-      accountNumber: Yup.string()
-        .min(1)
-        .max(64),
-      agencyNumber: Yup.string()
-        .min(1)
-        .max(16)
+      accountType: Yup.string().min(3).max(64).required(),
+      accountBank: Yup.string().min(3).max(64),
+      accountNumber: Yup.string().min(1).max(64),
+      agencyNumber: Yup.string().min(1).max(16),
     });
 
     const isValid = await schema.isValid({
@@ -43,7 +32,7 @@ module.exports = {
       accountType,
       accountBank,
       accountNumber,
-      agencyNumber
+      agencyNumber,
     });
 
     if (!isValid)
@@ -57,9 +46,9 @@ module.exports = {
         exclude: [
           "passwordHash",
           "passwordRecoverToken",
-          "recoverPasswordTokenExpires"
-        ]
-      }
+          "recoverPasswordTokenExpires",
+        ],
+      },
     });
 
     try {
@@ -70,17 +59,18 @@ module.exports = {
         accountBank,
         agencyNumber,
         accountNumber,
-        companyId: user.company.id
+        companyId: user.company.id,
       });
       return res.status(200).json(newAccount);
     } catch (e) {
       return res.status(400).json({
-        error: "Não foi possível criar sua conta devido a um erro interno!"
+        error: "Não foi possível criar sua conta devido a um erro interno!",
       });
     }
   },
   async index(req, res) {
     const { userId } = req;
+    let { main } = req.query;
 
     const user = await User.findByPk(userId, {
       include: [{ association: "company" }],
@@ -88,15 +78,21 @@ module.exports = {
         exclude: [
           "passwordHash",
           "passwordRecoverToken",
-          "recoverPasswordTokenExpires"
-        ]
-      }
+          "recoverPasswordTokenExpires",
+        ],
+      },
     });
 
     if (!user) return res.status(400).json({ error: "Usuário não existe!" });
 
+    let where = { companyId: user.company.id };
+
+    if (main == "true" || main == 1) {
+      where.main = { [Op.eq]: true };
+    }
+
     const accounts = await Account.findAll({
-      where: { companyId: user.company.id }
+      where,
     });
 
     if (!accounts)
@@ -116,15 +112,15 @@ module.exports = {
         exclude: [
           "passwordHash",
           "passwordRecoverToken",
-          "recoverPasswordTokenExpires"
-        ]
-      }
+          "recoverPasswordTokenExpires",
+        ],
+      },
     });
 
     if (!user) return res.status(400).json({ error: "Usuário não encontrado" });
 
     const account = await Account.findOne({
-      where: { id: id, companyId: user.company.id }
+      where: { id: id, companyId: user.company.id },
     });
 
     if (!account)
@@ -144,19 +140,19 @@ module.exports = {
         exclude: [
           "passwordHash",
           "passwordRecoverToken",
-          "recoverPasswordTokenExpires"
-        ]
-      }
+          "recoverPasswordTokenExpires",
+        ],
+      },
     });
 
     const company = await Company.findByPk(user.company.id, {
-      include: [{ association: "accounts" }]
+      include: [{ association: "accounts" }],
     });
 
     if (company.accounts.length <= 1) {
       return res.status(400).json({
         error:
-          "Você não pode deletar todas suas contas, deve-se manter ao menos uma"
+          "Você não pode deletar todas suas contas, deve-se manter ao menos uma",
       });
     }
 
@@ -167,5 +163,5 @@ module.exports = {
     }
 
     return;
-  }
+  },
 };
