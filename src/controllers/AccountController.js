@@ -10,7 +10,6 @@ module.exports = {
 
     const {
       name,
-      value,
       accountType,
       accountBank,
       agencyNumber,
@@ -19,7 +18,6 @@ module.exports = {
 
     const schema = Yup.object().shape({
       name: Yup.string().min(3).max(64).required(),
-      value: Yup.number(),
       accountType: Yup.string().min(3).max(64).required(),
       accountBank: Yup.string().min(3).max(64),
       accountNumber: Yup.string().min(1).max(64),
@@ -28,7 +26,6 @@ module.exports = {
 
     const isValid = await schema.isValid({
       name,
-      value,
       accountType,
       accountBank,
       accountNumber,
@@ -54,7 +51,6 @@ module.exports = {
     try {
       const newAccount = await Account.create({
         name,
-        value,
         accountType,
         accountBank,
         agencyNumber,
@@ -156,10 +152,18 @@ module.exports = {
       });
     }
 
+    const account = await Account.findByPk(id);
+
+    if (!account) {
+      return res.status(404).json({ error: "A conta informada não existe" });
+    }
+
     try {
       await Account.destroy({ where: { id, companyId: company.id } });
+
+      return res.status(200).json({ success: "Conta deletada com sucesso!" });
     } catch (e) {
-      res.status(400).json({ error: "Houve um erro inesperado" });
+      return res.status(400).json({ error: "Houve um erro inesperado" });
     }
 
     return;
