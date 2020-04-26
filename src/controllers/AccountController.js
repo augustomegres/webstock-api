@@ -48,6 +48,9 @@ module.exports = {
       },
     });
 
+    if (!user)
+      return res.status(400).json({ error: "O usuário informado é inválido!" });
+
     try {
       const newAccount = await Account.create({
         name,
@@ -165,7 +168,64 @@ module.exports = {
     } catch (e) {
       return res.status(400).json({ error: "Houve um erro inesperado" });
     }
+  },
+  async update(req, res) {
+    const { userId } = req;
 
-    return;
+    const {
+      name,
+      main,
+      accountType,
+      accountBank,
+      agencyNumber,
+      accountNumber,
+    } = req.body;
+
+    const { id } = req.params;
+
+    const user = await User.findByPk(userId, {
+      include: [{ association: "company" }],
+      attributes: {
+        exclude: [
+          "passwordHash",
+          "passwordRecoverToken",
+          "recoverPasswordTokenExpires",
+        ],
+      },
+    });
+
+    if (!user)
+      return res
+        .status(400)
+        .json({ error: "Verifique os dados enviados e tente novamente!" });
+
+    const accountExist = await Account.findOne({
+      where: { id, companyId: user.company.id },
+    });
+
+    if (!accountExist) {
+      return res.status(400).json({
+        error: "A conta informada não existe.",
+      });
+    }
+
+    try {
+      if (main == "true") {
+        await Account.update(
+          { main: false },
+          { where: { companyId: user.company.id } }
+        );
+      }
+
+      let account = await Account.update(
+        { name, main, accountType, accountBank, agencyNumber, accountNumber },
+        { where: { companyId: user.company.id, id } }
+      );
+      return res.status(200).json(account);
+    } catch (e) {
+      return res
+        .status(400)
+        .json({ error: "Houve um erro ao atualizar a conta", e });
+    }
   },
 };
