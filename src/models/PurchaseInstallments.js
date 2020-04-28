@@ -6,15 +6,16 @@ class Installment extends Model {
       {
         purchaseId: DataTypes.INTEGER,
         companyId: DataTypes.INTEGER,
+        accountId: DataTypes.INTEGER,
         installmentNumber: DataTypes.INTEGER,
         installmentTotal: DataTypes.INTEGER,
         installmentValue: DataTypes.DECIMAL,
         dueDate: DataTypes.DATE,
-        paymentDate: DataTypes.DATE
+        paymentDate: DataTypes.DATE,
       },
       {
         sequelize,
-        modelName: "purchase_installments"
+        modelName: "purchase_installments",
       }
     );
   }

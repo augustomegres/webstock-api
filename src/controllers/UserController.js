@@ -19,22 +19,22 @@ module.exports = {
     const user = await User.findByPk(userId, {
       include: [
         {
-          association: "company"
-        }
+          association: "company",
+        },
       ],
       attributes: {
         exclude: [
           "passwordHash",
           "passwordRecoverToken",
-          "recoverPasswordTokenExpires"
-        ]
-      }
+          "recoverPasswordTokenExpires",
+        ],
+      },
     });
 
     if (!user.isAdmin) {
       if (userId !== id) {
         return res.status(400).json({
-          error: "Você não pode visualizar um perfil que não é seu"
+          error: "Você não pode visualizar um perfil que não é seu",
         });
       }
     }
@@ -46,16 +46,16 @@ module.exports = {
         await User.findByPk(id, {
           include: [
             {
-              association: "company"
-            }
+              association: "company",
+            },
           ],
           attributes: {
             exclude: [
               "passwordHash",
               "passwordRecoverToken",
-              "recoverPasswordTokenExpires"
-            ]
-          }
+              "recoverPasswordTokenExpires",
+            ],
+          },
         })
       );
     }
@@ -68,23 +68,11 @@ module.exports = {
     /** TRATANDO TODOS OS DADOS DA APLICAÇÃO */
     //OS DADOS RECEBIDOS ESTÃO SENDO TRATADOS PELA BIBLIOTECA "YUP"
     const schema = Yup.object().shape({
-      name: Yup.string()
-        .required()
-        .min(5)
-        .max(255),
-      email: Yup.string()
-        .email()
-        .required(),
-      phone: Yup.string()
-        .min(10)
-        .max(20),
-      company: Yup.string()
-        .required()
-        .min(2)
-        .max(255),
-      password: Yup.string()
-        .required()
-        .min(6)
+      name: Yup.string().required().min(5).max(255),
+      email: Yup.string().email().required(),
+      phone: Yup.string().min(10).max(20),
+      company: Yup.string().required().min(2).max(255),
+      password: Yup.string().required().min(6),
     });
 
     /** VERIFICANDO SE OS DADOS RECEBIDOS SÃO VÁLIDOS */
@@ -93,13 +81,13 @@ module.exports = {
       email,
       phone,
       company,
-      password
+      password,
     });
 
     /** CASO A VERIFICAÇÃO FALHE */
     if (!isValid) {
       return res.status(400).json({
-        error: "Por favor, verifique os dados enviados!"
+        error: "Por favor, verifique os dados enviados!",
       });
     }
 
@@ -108,16 +96,16 @@ module.exports = {
       where: {
         [Op.or]: [
           {
-            email
-          }
-        ]
-      }
+            email,
+          },
+        ],
+      },
     });
 
     /** SE EXISTIR RETORNA UM ERRO */
     if (userExists) {
       return res.status(400).json({
-        error: "O email informado ja está cadastrado em nosso banco de dados"
+        error: "O email informado ja está cadastrado em nosso banco de dados",
       });
     }
 
@@ -137,34 +125,35 @@ module.exports = {
         phone,
         passwordHash,
         planType: 0,
-        planExpirationDate
+        planExpirationDate,
       });
 
       const newCompany = await Company.create({
         name: company,
-        ownerId: user.id
+        ownerId: user.id,
       });
 
       await Account.create({
-        name: "Valor em caixa",
+        name: "Caixa",
         accountType: "Caixa",
-        companyId: newCompany.id
+        main: true,
+        companyId: newCompany.id,
       });
 
       await Seller.create({
         name,
-        companyId: newCompany.id
+        companyId: newCompany.id,
       });
 
       Mail.sendWelcomeMsg(email);
     } catch (e) {
       await User.destroy({
         where: {
-          id: user.id
-        }
+          id: user.id,
+        },
       });
       return res.status(400).json({
-        error: e
+        error: e,
       });
     }
     return res.status(200).json(user);
@@ -182,7 +171,7 @@ module.exports = {
       city,
       address,
       street,
-      number
+      number,
     } = req.body;
 
     const { userId } = req;
@@ -190,7 +179,7 @@ module.exports = {
 
     if (userId !== id) {
       return res.status(400).json({
-        error: "Você só pode editar o próprio perfil!"
+        error: "Você só pode editar o próprio perfil!",
       });
     }
 
@@ -210,40 +199,26 @@ module.exports = {
 
     if (/[^a-z éáíóúçàèìòùâêîôû]/gi.test(name)) {
       return res.status(400).json({
-        error: "O nome deve conter apenas letras e espaços"
+        error: "O nome deve conter apenas letras e espaços",
       });
     }
 
     if (/[^a-z éáíóúçàèìòùâêîôû.-_]/gi.test(companyName)) {
       return res.status(400).json({
-        error: "O nome da empresa deve conter apenas letras e espaços"
+        error: "O nome da empresa deve conter apenas letras e espaços",
       });
     }
 
     //VALIDAÇÕES
     const schema = Yup.object().shape({
-      name: Yup.string()
-        .min(5)
-        .max(255),
-      phone: Yup.string()
-        .min(10)
-        .max(11),
-      companyName: Yup.string()
-        .min(2)
-        .max(255),
+      name: Yup.string().min(5).max(255),
+      phone: Yup.string().min(10).max(11),
+      companyName: Yup.string().min(2).max(255),
       date_of_birth: Yup.date(),
-      city: Yup.string()
-        .min(2)
-        .max(100),
-      address: Yup.string()
-        .min(2)
-        .max(255),
-      street: Yup.string()
-        .min(2)
-        .max(255),
-      number: Yup.string()
-        .min(1)
-        .max(24)
+      city: Yup.string().min(2).max(100),
+      address: Yup.string().min(2).max(255),
+      street: Yup.string().min(2).max(255),
+      number: Yup.string().min(1).max(24),
     });
 
     /** VERIFICANDO SE OS DADOS RECEBIDOS SÃO VÁLIDOS */
@@ -255,12 +230,12 @@ module.exports = {
       city,
       address,
       street,
-      number
+      number,
     });
 
     if (!isValid) {
       return res.status(400).json({
-        error: "Houve um erro nos dados enviados, verifique e tente novamente"
+        error: "Houve um erro nos dados enviados, verifique e tente novamente",
       });
     }
 
@@ -290,27 +265,27 @@ module.exports = {
       if (user) {
         await User.update(user, {
           where: {
-            id
-          }
+            id,
+          },
         });
       }
 
       if (company) {
         await Company.update(company, {
           where: {
-            ownerId: id
-          }
+            ownerId: id,
+          },
         });
       }
 
       return res.status(200).json({
-        success: `Os dados foram atualizados com sucesso!`
+        success: `Os dados foram atualizados com sucesso!`,
       });
     } catch (e) {
       return res.status(400).json({
         error: "Houve um erro ao atualizar suas informações!",
-        e: e
+        e: e,
       });
     }
-  }
+  },
 };

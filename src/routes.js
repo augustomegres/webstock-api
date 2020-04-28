@@ -61,6 +61,7 @@ routes.get("/accounts", authMiddleware, AccountController.index);
 routes.get("/accounts/:id", authMiddleware, AccountController.show);
 routes.post("/accounts", authMiddleware, AccountController.store);
 routes.delete("/accounts/:id", authMiddleware, AccountController.delete);
+routes.put("/accounts/:id", authMiddleware, AccountController.update);
 
 /** FORNECEDORES */
 routes.get("/providers", authMiddleware, ProviderController.index);

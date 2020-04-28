@@ -5,16 +5,16 @@ class Account extends Model {
     super.init(
       {
         name: DataTypes.STRING,
-        value: DataTypes.DECIMAL,
+        main: DataTypes.BOOLEAN,
         accountType: DataTypes.STRING,
         accountBank: DataTypes.STRING,
         agencyNumber: DataTypes.STRING,
         accountNumber: DataTypes.STRING,
-        companyId: DataTypes.INTEGER
+        companyId: DataTypes.INTEGER,
       },
       {
         sequelize,
-        modelName: "accounts"
+        modelName: "accounts",
       }
     );
   }

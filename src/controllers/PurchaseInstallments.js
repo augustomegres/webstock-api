@@ -14,7 +14,8 @@ module.exports = {
       page,
       pageSize,
       dueDate,
-      purchaseId
+      purchaseId,
+      accountId,
     } = req.query;
 
     if (!page) {
@@ -28,32 +29,36 @@ module.exports = {
     const user = await User.findByPk(userId, {
       include: [
         {
-          association: "company"
-        }
-      ]
+          association: "company",
+        },
+      ],
     });
 
     const where = {
-      companyId: user.company.id
+      companyId: user.company.id,
     };
 
     /** FILTROS DE DATA DE PAGAMENTOS */
     if (paid == "true") {
       where.paymentDate = {
-        [Op.ne]: null
+        [Op.ne]: null,
       };
+    }
+
+    if (accountId) {
+      where.accountId = { [Op.eq]: accountId };
     }
 
     if (paid == "false") {
       where.paymentDate = {
-        [Op.eq]: null
+        [Op.eq]: null,
       };
     }
 
     /** ID DA COMPRA */
     if (purchaseId) {
       where.purchaseId = {
-        [Op.eq]: purchaseId
+        [Op.eq]: purchaseId,
       };
     }
 
@@ -72,8 +77,8 @@ module.exports = {
       where.dueDate = {
         [Op.and]: {
           [Op.gte]: new Date(`${min_date_time}`) || min_date,
-          [Op.lte]: new Date(`${max_date_time}`) || max_date
-        }
+          [Op.lte]: new Date(`${max_date_time}`) || max_date,
+        },
       };
     }
 
@@ -86,7 +91,7 @@ module.exports = {
 
       where.installmentValue = {
         ...where.installmentValue,
-        [Op.gte]: value
+        [Op.gte]: value,
       };
     }
 
@@ -99,7 +104,7 @@ module.exports = {
 
       where.installmentValue = {
         ...where.installmentValue,
-        [Op.lte]: value
+        [Op.lte]: value,
       };
     }
 
@@ -107,7 +112,7 @@ module.exports = {
       page: page,
       paginate: Number(pageSize),
       where,
-      order: searchOrder
+      order: searchOrder,
     });
 
     return res.status(200).json(installments);
@@ -122,29 +127,29 @@ module.exports = {
     const loggedUser = await User.findByPk(userId, {
       include: [
         {
-          association: "company"
-        }
-      ]
+          association: "company",
+        },
+      ],
     });
 
     const installment = await PurchaseInstallments.update(
       {
-        paymentDate
+        paymentDate,
       },
       {
         where: {
           id,
-          companyId: loggedUser.company.id
-        }
+          companyId: loggedUser.company.id,
+        },
       }
     );
 
     if (!installment) {
       return res.status(400).json({
-        error: "Houve um erro ao atualizar as parcelas"
+        error: "Houve um erro ao atualizar as parcelas",
       });
     }
 
     return res.status(200).json(installment);
-  }
+  },
 };

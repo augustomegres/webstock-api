@@ -1,6 +1,7 @@
 const User = require("../models/User");
 const Account = require("../models/Account");
 const Company = require("../models/Company");
+const { Op } = require("sequelize");
 const Yup = require("yup");
 
 module.exports = {
@@ -9,41 +10,26 @@ module.exports = {
 
     const {
       name,
-      value,
       accountType,
       accountBank,
       agencyNumber,
-      accountNumber
+      accountNumber,
     } = req.body;
 
     const schema = Yup.object().shape({
-      name: Yup.string()
-        .min(3)
-        .max(64)
-        .required(),
-      value: Yup.number(),
-      accountType: Yup.string()
-        .min(3)
-        .max(64)
-        .required(),
-      accountBank: Yup.string()
-        .min(3)
-        .max(64),
-      accountNumber: Yup.string()
-        .min(1)
-        .max(64),
-      agencyNumber: Yup.string()
-        .min(1)
-        .max(16)
+      name: Yup.string().min(3).max(64).required(),
+      accountType: Yup.string().min(3).max(64).required(),
+      accountBank: Yup.string().min(3).max(64),
+      accountNumber: Yup.string().min(1).max(64),
+      agencyNumber: Yup.string().min(1).max(16),
     });
 
     const isValid = await schema.isValid({
       name,
-      value,
       accountType,
       accountBank,
       accountNumber,
-      agencyNumber
+      agencyNumber,
     });
 
     if (!isValid)
@@ -57,30 +43,33 @@ module.exports = {
         exclude: [
           "passwordHash",
           "passwordRecoverToken",
-          "recoverPasswordTokenExpires"
-        ]
-      }
+          "recoverPasswordTokenExpires",
+        ],
+      },
     });
+
+    if (!user)
+      return res.status(400).json({ error: "O usuário informado é inválido!" });
 
     try {
       const newAccount = await Account.create({
         name,
-        value,
         accountType,
         accountBank,
         agencyNumber,
         accountNumber,
-        companyId: user.company.id
+        companyId: user.company.id,
       });
       return res.status(200).json(newAccount);
     } catch (e) {
       return res.status(400).json({
-        error: "Não foi possível criar sua conta devido a um erro interno!"
+        error: "Não foi possível criar sua conta devido a um erro interno!",
       });
     }
   },
   async index(req, res) {
     const { userId } = req;
+    let { main } = req.query;
 
     const user = await User.findByPk(userId, {
       include: [{ association: "company" }],
@@ -88,15 +77,21 @@ module.exports = {
         exclude: [
           "passwordHash",
           "passwordRecoverToken",
-          "recoverPasswordTokenExpires"
-        ]
-      }
+          "recoverPasswordTokenExpires",
+        ],
+      },
     });
 
     if (!user) return res.status(400).json({ error: "Usuário não existe!" });
 
+    let where = { companyId: user.company.id };
+
+    if (main == "true" || main == 1) {
+      where.main = { [Op.eq]: true };
+    }
+
     const accounts = await Account.findAll({
-      where: { companyId: user.company.id }
+      where,
     });
 
     if (!accounts)
@@ -116,15 +111,15 @@ module.exports = {
         exclude: [
           "passwordHash",
           "passwordRecoverToken",
-          "recoverPasswordTokenExpires"
-        ]
-      }
+          "recoverPasswordTokenExpires",
+        ],
+      },
     });
 
     if (!user) return res.status(400).json({ error: "Usuário não encontrado" });
 
     const account = await Account.findOne({
-      where: { id: id, companyId: user.company.id }
+      where: { id: id, companyId: user.company.id },
     });
 
     if (!account)
@@ -144,28 +139,93 @@ module.exports = {
         exclude: [
           "passwordHash",
           "passwordRecoverToken",
-          "recoverPasswordTokenExpires"
-        ]
-      }
+          "recoverPasswordTokenExpires",
+        ],
+      },
     });
 
     const company = await Company.findByPk(user.company.id, {
-      include: [{ association: "accounts" }]
+      include: [{ association: "accounts" }],
     });
 
     if (company.accounts.length <= 1) {
       return res.status(400).json({
         error:
-          "Você não pode deletar todas suas contas, deve-se manter ao menos uma"
+          "Você não pode deletar todas suas contas, deve-se manter ao menos uma",
       });
+    }
+
+    const account = await Account.findByPk(id);
+
+    if (!account) {
+      return res.status(404).json({ error: "A conta informada não existe" });
     }
 
     try {
       await Account.destroy({ where: { id, companyId: company.id } });
+
+      return res.status(200).json({ success: "Conta deletada com sucesso!" });
     } catch (e) {
-      res.status(400).json({ error: "Houve um erro inesperado" });
+      return res.status(400).json({ error: "Houve um erro inesperado" });
+    }
+  },
+  async update(req, res) {
+    const { userId } = req;
+
+    const {
+      name,
+      main,
+      accountType,
+      accountBank,
+      agencyNumber,
+      accountNumber,
+    } = req.body;
+
+    const { id } = req.params;
+
+    const user = await User.findByPk(userId, {
+      include: [{ association: "company" }],
+      attributes: {
+        exclude: [
+          "passwordHash",
+          "passwordRecoverToken",
+          "recoverPasswordTokenExpires",
+        ],
+      },
+    });
+
+    if (!user)
+      return res
+        .status(400)
+        .json({ error: "Verifique os dados enviados e tente novamente!" });
+
+    const accountExist = await Account.findOne({
+      where: { id, companyId: user.company.id },
+    });
+
+    if (!accountExist) {
+      return res.status(400).json({
+        error: "A conta informada não existe.",
+      });
     }
 
-    return;
-  }
+    try {
+      if (main == "true") {
+        await Account.update(
+          { main: false },
+          { where: { companyId: user.company.id } }
+        );
+      }
+
+      let account = await Account.update(
+        { name, main, accountType, accountBank, agencyNumber, accountNumber },
+        { where: { companyId: user.company.id, id } }
+      );
+      return res.status(200).json(account);
+    } catch (e) {
+      return res
+        .status(400)
+        .json({ error: "Houve um erro ao atualizar a conta", e });
+    }
+  },
 };
