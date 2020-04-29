@@ -2,6 +2,49 @@ const Category = require("../models/Category");
 const User = require("../models/User");
 
 module.exports = {
+  async index(req, res) {
+    const { userId } = req;
+    let { page, limit, name } = req.query;
+
+    page = Number(page);
+    limit = Number(limit);
+
+    if (!page) {
+      page = 1;
+    }
+
+    if (!limit) {
+      limit = 15;
+    }
+
+    const user = await User.findByPk(userId, {
+      attributes: {
+        exclude: [
+          "passwordHash",
+          "isAdmin",
+          "recoverPasswordToken",
+          "recoverPasswordTokenExpires",
+        ],
+      },
+      include: { association: "company" },
+    });
+
+    const where = { companyId: { [Op.eq]: user.company.id } };
+
+    if (name) {
+      where.name = { [Op.like]: `%${name}%` };
+    }
+
+    const categories = await Category.paginate({
+      page,
+      paginate: limit,
+      where,
+    });
+
+    categories.page = 1;
+
+    return res.json(categories);
+  },
   async store(req, res) {
     const { userId } = req;
     let { name, enabled } = req.body;
