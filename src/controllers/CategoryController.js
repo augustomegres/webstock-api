@@ -117,4 +117,68 @@ module.exports = {
       });
     }
   },
+  async update(req, res) {
+    const { userId } = req;
+    const { id } = req.params;
+    let { name, enabled } = req.body;
+
+    if (!name && !enabled) {
+      return res.status(400).json({
+        error: "Os dados para atualização não foram enviados",
+      });
+    }
+
+    if (!id) {
+      return res.status(400).json({
+        error: "O id não foi informado!",
+      });
+    }
+
+    if (enabled == 1 || enabled == "1" || enabled == "true") {
+      enabled = true;
+    } else if (enabled == 0 || enabled == "0" || enabled == "false") {
+      enabled = false;
+    }
+
+    if (enabled !== undefined) {
+      if (typeof enabled !== "boolean") {
+        return res
+          .status(400)
+          .json({ error: "A opção de habilitado deve ser um booleano!" });
+      }
+    }
+
+    const user = await User.findByPk(userId, {
+      attributes: {
+        exclude: [
+          "passwordHash",
+          "isAdmin",
+          "recoverPasswordToken",
+          "recoverPasswordTokenExpires",
+        ],
+      },
+      include: { association: "company" },
+    });
+
+    const category = await Category.findOne({
+      where: { id, companyId: user.company.id },
+    });
+
+    if (!category) {
+      return res
+        .status(400)
+        .json({ error: "A categoria informada não existe!" });
+    }
+
+    try {
+      await Category.update({ name, enabled }, { where: { id } });
+      return res
+        .status(200)
+        .json({ success: "Categoria atualizada com sucesso!" });
+    } catch (e) {
+      return res
+        .status(400)
+        .json({ error: "Houve um erro ao atualizar a categoria!" });
+    }
+  },
 };
