@@ -181,4 +181,42 @@ module.exports = {
         .json({ error: "Houve um erro ao atualizar a categoria!" });
     }
   },
+  async delete(req, res) {
+    const { userId } = req;
+    const { id } = req.params;
+
+    const user = await User.findByPk(userId, {
+      attributes: {
+        exclude: [
+          "passwordHash",
+          "isAdmin",
+          "recoverPasswordToken",
+          "recoverPasswordTokenExpires",
+        ],
+      },
+      include: { association: "company" },
+    });
+
+    const category = await Category.findOne({
+      where: { id, companyId: user.company.id },
+    });
+
+    if (!category) {
+      return res
+        .status(400)
+        .json({ error: "A categoria informada não existe!" });
+    }
+
+    try {
+      await Category.destroy({ where: { id, companyId: user.company.id } });
+
+      return res
+        .status(400)
+        .json({ success: "A categoria foi deletada com sucesso!" });
+    } catch (e) {
+      return res
+        .status(400)
+        .json({ error: "Houve um erro ao deletar a categoria!" });
+    }
+  },
 };
