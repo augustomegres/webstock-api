@@ -33,6 +33,7 @@ routes.delete("/product/:productId", authMiddleware, ProductController.delete);
 /** CATEGORIAS */
 routes.post("/category", authMiddleware, CategoryController.store);
 routes.get("/category", authMiddleware, CategoryController.index);
+routes.get("/category/:id", authMiddleware, CategoryController.show);
 
 /** VENDAS */
 routes.get("/sales", authMiddleware, SalesController.index);

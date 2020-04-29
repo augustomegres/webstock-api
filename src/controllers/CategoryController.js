@@ -1,7 +1,31 @@
 const Category = require("../models/Category");
 const User = require("../models/User");
 
+const { Op } = require("sequelize");
+
 module.exports = {
+  async show(req, res) {
+    const { userId } = req;
+    const { id } = req.params;
+
+    const user = await User.findByPk(userId, {
+      attributes: {
+        exclude: [
+          "passwordHash",
+          "isAdmin",
+          "recoverPasswordToken",
+          "recoverPasswordTokenExpires",
+        ],
+      },
+      include: { association: "company" },
+    });
+
+    const category = await Category.findOne({
+      where: { id, companyId: user.company.id },
+    });
+
+    return res.status(200).json(category);
+  },
   async index(req, res) {
     const { userId } = req;
     let { page, limit, name } = req.query;
