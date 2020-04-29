@@ -5,6 +5,7 @@ const sequelizePaginate = require("sequelize-paginate");
 const User = require("../models/User");
 const Company = require("../models/Company");
 const Product = require("../models/Product");
+const Category = require("../models/Category");
 const Sale = require("../models/Sale");
 const ProductSold = require("../models/ProductSold");
 const Account = require("../models/Account");
@@ -27,6 +28,7 @@ const connection = new Sequelize(process.env.DATABASE_URL, opts);
 User.init(connection);
 Company.init(connection);
 Product.init(connection);
+Category.init(connection);
 Sale.init(connection);
 ProductSold.init(connection);
 Account.init(connection);
@@ -41,6 +43,7 @@ sequelizePaginate.paginate(Sale);
 sequelizePaginate.paginate(Purchase);
 sequelizePaginate.paginate(PurchaseInstallments);
 sequelizePaginate.paginate(Product);
+sequelizePaginate.paginate(Category);
 
 //RELAÇÃO DE USUÁRIO - EMPRESA
 User.hasOne(Company, { as: "company", foreignKey: "ownerId" });

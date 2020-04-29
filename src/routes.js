@@ -3,6 +3,7 @@ const authMiddleware = require("./middlewares/authMiddleware");
 
 const UserController = require("./controllers/UserController");
 const ProductController = require("./controllers/ProductController");
+const CategoryController = require("./controllers/CategoryController");
 const SalesController = require("./controllers/SalesController");
 const AuthController = require("./controllers/AuthController");
 const LoggedController = require("./controllers/LoggedUserController");
@@ -28,6 +29,13 @@ routes.get("/products", authMiddleware, ProductController.index);
 routes.post("/product", authMiddleware, ProductController.store);
 routes.put("/product/:productId", authMiddleware, ProductController.update);
 routes.delete("/product/:productId", authMiddleware, ProductController.delete);
+
+/** CATEGORIAS */
+routes.post("/category", authMiddleware, CategoryController.store);
+routes.get("/category", authMiddleware, CategoryController.index);
+routes.get("/category/:id", authMiddleware, CategoryController.show);
+routes.put("/category/:id", authMiddleware, CategoryController.update);
+routes.delete("/category/:id", authMiddleware, CategoryController.delete);
 
 /** VENDAS */
 routes.get("/sales", authMiddleware, SalesController.index);
