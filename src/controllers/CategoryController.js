@@ -122,7 +122,7 @@ module.exports = {
     const { id } = req.params;
     let { name, enabled } = req.body;
 
-    if (!name && !enabled) {
+    if ((!name && enabled === undefined) || enabled === "") {
       return res.status(400).json({
         error: "Os dados para atualização não foram enviados",
       });
@@ -211,7 +211,7 @@ module.exports = {
       await Category.destroy({ where: { id, companyId: user.company.id } });
 
       return res
-        .status(400)
+        .status(200)
         .json({ success: "A categoria foi deletada com sucesso!" });
     } catch (e) {
       return res
