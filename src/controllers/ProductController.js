@@ -7,7 +7,15 @@ const { Op, Sequelize } = require("sequelize");
 module.exports = {
   async index(req, res) {
     const { userId } = req;
-    let { enabled, page, pageSize, lowStock, type, sku, name } = req.query;
+    let {
+      enabled,
+      page,
+      pageSize,
+      lowStock,
+      categoryId,
+      sku,
+      name,
+    } = req.query;
     if (!page) page = 1;
     if (!pageSize) pageSize = 15;
 
@@ -42,11 +50,6 @@ module.exports = {
       filter.quantity = { [Op.lt]: Sequelize.col("minimum") };
     }
 
-    //DEMAIS FILTROS
-    if (type) {
-      filter.type = { [Op.substring]: type };
-    }
-
     if (sku) {
       filter.sku = { [Op.substring]: sku };
     }
@@ -58,7 +61,7 @@ module.exports = {
     const productList = await Product.paginate({
       page,
       paginate: Number(pageSize),
-      include: [{ association: "providers" }],
+      include: [{ association: "providers" }, { association: "category" }],
       where: filter,
     });
 
@@ -66,7 +69,7 @@ module.exports = {
   },
   async store(req, res) {
     const { userId } = req;
-    let { name, sku, type, price, minimum, provider, enabled } = req.body;
+    let { name, sku, categoryId, price, minimum, provider, enabled } = req.body;
 
     if (!minimum) {
       minimum = 0;
@@ -111,7 +114,7 @@ module.exports = {
         companyId: company.id,
         name,
         sku,
-        type,
+        categoryId,
         price,
         minimum,
         enabled,
@@ -127,7 +130,15 @@ module.exports = {
   },
   async update(req, res) {
     const { userId } = req;
-    const { name, sku, type, price, quantity, enabled, provider } = req.body;
+    const {
+      name,
+      sku,
+      categoryId,
+      price,
+      quantity,
+      enabled,
+      provider,
+    } = req.body;
     let { productId } = req.params;
     productId = Number(productId);
 
@@ -146,7 +157,7 @@ module.exports = {
     });
 
     const product = await Product.update(
-      { name, sku, type, price, quantity, enabled },
+      { name, sku, categoryId, price, quantity, enabled },
       { where: { id: productId, companyId: loggedUser.company.id } }
     );
 

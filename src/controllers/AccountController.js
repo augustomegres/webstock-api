@@ -2,7 +2,6 @@ const User = require("../models/User");
 const Account = require("../models/Account");
 const Company = require("../models/Company");
 const { Op } = require("sequelize");
-const Yup = require("yup");
 
 module.exports = {
   async store(req, res) {
@@ -16,26 +15,15 @@ module.exports = {
       accountNumber,
     } = req.body;
 
-    const schema = Yup.object().shape({
-      name: Yup.string().min(3).max(64).required(),
-      accountType: Yup.string().min(3).max(64).required(),
-      accountBank: Yup.string().min(3).max(64),
-      accountNumber: Yup.string().min(1).max(64),
-      agencyNumber: Yup.string().min(1).max(16),
-    });
+    if (!name) {
+      return res.status(400).json({ error: "O nome deve ser informado!" });
+    }
 
-    const isValid = await schema.isValid({
-      name,
-      accountType,
-      accountBank,
-      accountNumber,
-      agencyNumber,
-    });
-
-    if (!isValid)
+    if (!accountType) {
       return res
         .status(400)
-        .json({ error: "Verifique os dados enviados e tente novamente!" });
+        .json({ error: "O tipo de conta deve ser informado!" });
+    }
 
     const user = await User.findByPk(userId, {
       include: [{ association: "company" }],

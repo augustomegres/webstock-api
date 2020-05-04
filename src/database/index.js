@@ -104,6 +104,9 @@ Providers.belongsToMany(Product, {
   through: "products_providers",
 });
 
+//RELAÇÃO DE PRODUTO - CATEGORIA
+Product.belongsTo(Category, { as: "category", foreignKey: "categoryId" });
+
 //RELAÇÃO DE COMPRA - FORNECEDOR
 Purchase.hasOne(Company, { as: "company", foreignKey: "id" });
 

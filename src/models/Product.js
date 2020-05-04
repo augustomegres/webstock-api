@@ -5,17 +5,17 @@ class Product extends Model {
     super.init(
       {
         companyId: DataTypes.INTEGER,
+        categoryId: DataTypes.INTEGER,
         name: DataTypes.STRING,
         sku: DataTypes.STRING,
-        type: DataTypes.STRING,
         price: DataTypes.DECIMAL,
         quantity: DataTypes.DECIMAL,
         minimum: DataTypes.DECIMAL,
-        enabled: DataTypes.BOOLEAN
+        enabled: DataTypes.BOOLEAN,
       },
       {
         sequelize,
-        modelName: "products"
+        modelName: "products",
       }
     );
   }
