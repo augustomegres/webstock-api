@@ -11,15 +11,15 @@ module.exports = {
         exclude: [
           "passwordHash",
           "passwordRecoverToken",
-          "recoverPasswordTokenExpires"
-        ]
-      }
+          "recoverPasswordTokenExpires",
+        ],
+      },
     });
 
     if (!user) return res.status(400).json({ error: "O usuário não existe!" });
 
     const sellers = await Seller.findAll({
-      where: { companyId: user.company.id }
+      where: { companyId: user.company.id },
     });
 
     return res.status(200).json(sellers);
@@ -34,18 +34,18 @@ module.exports = {
         exclude: [
           "passwordHash",
           "passwordRecoverToken",
-          "recoverPasswordTokenExpires"
-        ]
-      }
+          "recoverPasswordTokenExpires",
+        ],
+      },
     });
 
     if (!user) return res.status(400).json({ error: "O usuário não existe!" });
 
     const newSeller = await Seller.create({
       name,
-      companyId: user.company.id
+      companyId: user.company.id,
     });
 
     return res.status(200).json({ newSeller });
-  }
+  },
 };

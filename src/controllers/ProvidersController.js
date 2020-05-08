@@ -16,9 +16,9 @@ module.exports = {
         exclude: [
           "passwordHash",
           "passwordRecoverToken",
-          "recoverPasswordTokenExpires"
-        ]
-      }
+          "recoverPasswordTokenExpires",
+        ],
+      },
     });
 
     let includes = [];
@@ -35,7 +35,7 @@ module.exports = {
 
     const providers = await Provider.findAll({
       where: where,
-      include: includes
+      include: includes,
     });
 
     return res.status(200).json(providers);
@@ -50,14 +50,14 @@ module.exports = {
         exclude: [
           "passwordHash",
           "passwordRecoverToken",
-          "recoverPasswordTokenExpires"
-        ]
-      }
+          "recoverPasswordTokenExpires",
+        ],
+      },
     });
 
     const provider = await Provider.findOne({
       where: { id, companyId: user.company.id },
-      include: [{ association: "products" }]
+      include: [{ association: "products" }],
     });
 
     return res.status(400).json(provider);
@@ -80,7 +80,7 @@ module.exports = {
       city,
       commercialPhone,
       privatePhone,
-      email
+      email,
     } = req.body;
 
     /**
@@ -117,9 +117,9 @@ module.exports = {
         exclude: [
           "passwordHash",
           "passwordRecoverToken",
-          "recoverPasswordTokenExpires"
-        ]
-      }
+          "recoverPasswordTokenExpires",
+        ],
+      },
     });
 
     try {
@@ -140,7 +140,7 @@ module.exports = {
         city,
         commercialPhone,
         privatePhone,
-        email
+        email,
       });
       return res.status(200).json(newProvider);
     } catch (e) {
@@ -168,7 +168,7 @@ module.exports = {
       city,
       commercialPhone,
       privatePhone,
-      email
+      email,
     } = req.body;
 
     const user = await User.findByPk(userId, {
@@ -177,9 +177,9 @@ module.exports = {
         exclude: [
           "passwordHash",
           "passwordRecoverToken",
-          "recoverPasswordTokenExpires"
-        ]
-      }
+          "recoverPasswordTokenExpires",
+        ],
+      },
     });
 
     const provider = await Provider.update(
@@ -199,10 +199,10 @@ module.exports = {
         city,
         commercialPhone,
         privatePhone,
-        email
+        email,
       },
       {
-        where: { companyId: user.company.id, id }
+        where: { companyId: user.company.id, id },
       }
     );
 
@@ -210,5 +210,5 @@ module.exports = {
       await Provider.findOne({ where: { id, companyId: user.company.id } })
     );
   },
-  async delete(req, res) {}
+  async delete(req, res) {},
 };
