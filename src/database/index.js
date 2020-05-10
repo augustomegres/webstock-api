@@ -11,10 +11,10 @@ const ProductSold = require("../models/ProductSold");
 const Account = require("../models/Account");
 const Seller = require("../models/Seller");
 const Customer = require("../models/Customer");
-const SaleInstallments = require("../models/SaleInstallments");
+const SaleInstallments = require("../models/InflowInstallments");
 const Providers = require("../models/Providers");
 const Purchase = require("../models/Purchase");
-const PurchaseInstallments = require("../models/PurchaseInstallments");
+const OutflowInstallmentsController = require("../models/OutflowInstallments");
 
 var opts = {
   define: {
@@ -37,11 +37,11 @@ Customer.init(connection);
 SaleInstallments.init(connection);
 Providers.init(connection);
 Purchase.init(connection);
-PurchaseInstallments.init(connection);
+OutflowInstallmentsController.init(connection);
 
 sequelizePaginate.paginate(Sale);
 sequelizePaginate.paginate(Purchase);
-sequelizePaginate.paginate(PurchaseInstallments);
+sequelizePaginate.paginate(OutflowInstallmentsController);
 sequelizePaginate.paginate(Product);
 sequelizePaginate.paginate(Category);
 
@@ -117,19 +117,19 @@ Purchase.hasOne(Product, { as: "products", foreignKey: "id" });
 Purchase.hasOne(Providers, { as: "provider", foreignKey: "id" });
 
 //RELAÇÃO DE COMPRA - FORNECEDOR
-Purchase.hasMany(PurchaseInstallments, {
+Purchase.hasMany(OutflowInstallmentsController, {
   as: "installments",
   foreignKey: "purchaseId",
 });
 
 //RELAÇÃO DE COMPRA - PARCELAS
-PurchaseInstallments.belongsTo(Purchase, {
+OutflowInstallmentsController.belongsTo(Purchase, {
   as: "installments",
   foreignKey: "purchaseId",
 });
 
 //RELAÇÃO DE COMPRA - PARCELAS
-PurchaseInstallments.belongsTo(Company, {
+OutflowInstallmentsController.belongsTo(Company, {
   as: "purchasesInstallments",
   foreignKey: "companyId",
 });

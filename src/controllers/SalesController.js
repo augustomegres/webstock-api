@@ -5,7 +5,7 @@ const Product = require("../models/Product");
 const Sales = require("../models/Sale");
 const ProductSold = require("../models/ProductSold");
 const Customer = require("../models/Customer");
-const Installments = require("../models/SaleInstallments");
+const Installments = require("../models/InflowInstallments");
 const Seller = require("../models/Seller");
 
 module.exports = {

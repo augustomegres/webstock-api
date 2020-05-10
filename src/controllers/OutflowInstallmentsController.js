@@ -1,5 +1,5 @@
 const User = require("../models/User");
-const PurchaseInstallments = require("../models/PurchaseInstallments");
+const OutflowInstallmentsController = require("../models/OutflowInstallments");
 const { Op } = require("sequelize");
 
 module.exports = {
@@ -108,7 +108,7 @@ module.exports = {
       };
     }
 
-    var installments = await PurchaseInstallments.paginate({
+    var installments = await OutflowInstallmentsController.paginate({
       page: page,
       paginate: Number(pageSize),
       where,
@@ -132,7 +132,7 @@ module.exports = {
       ],
     });
 
-    const installment = await PurchaseInstallments.update(
+    const installment = await OutflowInstallmentsController.update(
       {
         paymentDate,
       },

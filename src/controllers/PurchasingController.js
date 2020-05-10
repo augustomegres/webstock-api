@@ -3,7 +3,7 @@ const { Op } = require("sequelize");
 const User = require("../models/User");
 const Provider = require("../models/Providers");
 const Purchase = require("../models/Purchase");
-const PurchaseInstallments = require("../models/PurchaseInstallments");
+const OutflowInstallmentsController = require("../models/OutflowInstallments");
 const Product = require("../models/Product");
 
 module.exports = {
@@ -214,7 +214,7 @@ module.exports = {
         value.purchaseId = newPurchase.id;
       });
 
-      await PurchaseInstallments.bulkCreate(installments);
+      await OutflowInstallmentsController.bulkCreate(installments);
 
       await Product.update(
         {
