@@ -50,6 +50,10 @@ module.exports = {
       include: { association: "company" },
     });
 
+    if (!name) {
+      return res.status(400).json({ error: "O nome deve ser informado!" });
+    }
+
     try {
       await Customer.create({
         companyId: user.company.id,
@@ -65,7 +69,7 @@ module.exports = {
       });
 
       return res
-        .status(400)
+        .status(200)
         .json({ success: "Cliente cadastrado com sucesso!" });
     } catch (e) {
       return res
