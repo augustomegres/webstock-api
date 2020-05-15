@@ -8,68 +8,59 @@ module.exports = {
         primaryKey: true,
         autoIncrement: true,
         allowNull: false,
-        unique: true
+        unique: true,
       },
       name: {
         type: Sequelize.STRING,
-        allowNull: false
+        allowNull: false,
       },
       email: {
         type: Sequelize.STRING,
         allowNull: false,
-        unique: true
+        unique: true,
       },
       cpf: {
         type: Sequelize.STRING,
         allowNull: true,
-        unique: true
+        unique: true,
       },
       date_of_birth: {
         type: Sequelize.DATE,
-        allowNull: true
+        allowNull: true,
       },
       phone: {
         type: Sequelize.STRING,
-        allowNull: true
+        allowNull: true,
       },
       passwordHash: {
         type: Sequelize.STRING,
-        allowNull: false
-      },
-      planType: {
-        type: Sequelize.INTEGER,
         allowNull: false,
-        defaultValue: 0
-      },
-      planExpirationDate: {
-        type: Sequelize.DATE,
-        allowNull: false
       },
       isAdmin: {
         type: Sequelize.BOOLEAN,
         allowNull: false,
-        defaultValue: false
+        defaultValue: false,
       },
       recoverPasswordToken: {
         type: Sequelize.STRING,
-        allowNull: true
+        allowNull: true,
       },
       recoverPasswordTokenExpires: {
         type: Sequelize.DATE,
-        allowNull: true
+        allowNull: true,
       },
       createdAt: {
         type: Sequelize.DATE,
-        allowNull: false
+        allowNull: false,
       },
       updatedAt: {
         type: Sequelize.DATE,
-        allowNull: false
-      }
+        allowNull: false,
+      },
     });
   },
 
-  down: queryInterface => {
+  down: (queryInterface) => {
     return queryInterface.dropTable("users");
-  }
+  },
 };
