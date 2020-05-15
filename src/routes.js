@@ -15,6 +15,7 @@ const InflowInstallmentsController = require("./controllers/InflowInstallmentsCo
 const ProviderController = require("./controllers/ProvidersController");
 const PurchasingController = require("./controllers/PurchasingController");
 const OutflowInstallmentsController = require("./controllers/OutflowInstallmentsController");
+const SubscriptionController = require("./controllers/SubscriptionController");
 
 const routes = express.Router();
 
@@ -107,5 +108,10 @@ routes.get("/loggedUser", authMiddleware, LoggedController.show);
 /** RECUPERAÇÃO DE SENHA */
 routes.post("/password-recover", PasswordRecoverController.store);
 routes.post("/password-update", PasswordRecoverController.update);
+
+routes.get("/subscription", authMiddleware, SubscriptionController.show);
+routes.get("/subscriptions", authMiddleware, SubscriptionController.index);
+routes.post("/subscription", authMiddleware, SubscriptionController.store);
+routes.put("/subscription", authMiddleware, SubscriptionController.update);
 
 module.exports = routes;

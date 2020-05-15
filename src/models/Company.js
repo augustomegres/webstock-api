@@ -10,11 +10,11 @@ class Company extends Model {
         number: DataTypes.STRING,
         street: DataTypes.STRING,
         city: DataTypes.STRING,
-        ownerId: DataTypes.INTEGER
+        ownerId: DataTypes.INTEGER,
       },
       {
         sequelize,
-        modelName: "companies"
+        modelName: "companies",
       }
     );
   }
