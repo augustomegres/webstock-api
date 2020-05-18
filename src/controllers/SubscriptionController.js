@@ -92,26 +92,30 @@ module.exports = {
         { where: { id: userId } }
       );
     } catch (e) {
-      return { error: "Houve um erro ao atualizar os dados do seu usuário!" };
+      return res
+        .status(400)
+        .json({ error: "Houve um erro ao atualizar os dados do seu usuário!" });
     }
 
     //Validando se o cliente tem uma assinatura ativa
-    let subscription = await pagarme.client
-      .connect({ api_key: process.env.PAGARME_KEY })
-      .then((client) =>
-        client.subscriptions.find({
-          id: loggedUser.subscription_id.toString(),
-        })
-      )
-      .then((subscription, reject) => {
-        if (subscription.status != "canceled") {
-          return { error: "Você já possui uma assinatura ativa!" };
-        }
-      });
+    if (loggedUser.subscription_id) {
+      let subscription = await pagarme.client
+        .connect({ api_key: process.env.PAGARME_KEY })
+        .then((client) =>
+          client.subscriptions.find({
+            id: loggedUser.subscription_id,
+          })
+        )
+        .then((subscription, reject) => {
+          if (subscription.status != "canceled") {
+            return { error: "Você já possui uma assinatura ativa!" };
+          }
+        });
 
-    if (subscription) {
-      if (subscription.error) {
-        return res.status(400).json(subscription);
+      if (subscription) {
+        if (subscription.error) {
+          return res.status(400).json(subscription);
+        }
       }
     }
 
@@ -130,10 +134,12 @@ module.exports = {
       email: loggedUser.email,
       document_number: cpf,
       birthday: date_of_birth,
-      phone: {
-        ddd: ddd,
-        number: number,
-      },
+      phone: loggedUser.phone
+        ? {
+            ddd: ddd,
+            number: number,
+          }
+        : undefined,
     };
 
     if (loggedUser.customer_id) customer.id = Number(loggedUser.customer_id);

@@ -22,7 +22,6 @@ module.exports = {
       cpf: {
         type: Sequelize.STRING,
         allowNull: true,
-        unique: true,
       },
       date_of_birth: {
         type: Sequelize.DATE,
