@@ -3,7 +3,7 @@ const { Op } = require("sequelize");
 const User = require("../models/User");
 const Provider = require("../models/Providers");
 const Purchase = require("../models/Purchase");
-const PurchaseInstallments = require("../models/PurchaseInstallments");
+const OutflowInstallmentsController = require("../models/OutflowInstallments");
 const Product = require("../models/Product");
 
 module.exports = {
@@ -18,25 +18,25 @@ module.exports = {
       provider,
       order,
       page,
-      pageSize
+      pageSize,
     } = req.query;
 
     const loggedUser = await User.findByPk(userId, {
       include: [
         {
-          association: "company"
-        }
-      ]
+          association: "company",
+        },
+      ],
     });
 
     let filter = {
-      companyId: loggedUser.company.id
+      companyId: loggedUser.company.id,
     };
 
     //SE FOR UM NÚMERO
     if (!isNaN(product)) {
       let newProduct = {
-        [Op.eq]: product
+        [Op.eq]: product,
       };
 
       filter.productId = newProduct;
@@ -45,7 +45,7 @@ module.exports = {
     //SE FOR UM NÚMERO
     if (!isNaN(provider)) {
       let newProvider = {
-        [Op.eq]: provider
+        [Op.eq]: provider,
       };
 
       filter.providerId = newProvider;
@@ -57,8 +57,8 @@ module.exports = {
       filter.price = {
         [Op.and]: {
           [Op.gte]: Number(min) || min_val,
-          [Op.lte]: Number(max) || max_val
-        }
+          [Op.lte]: Number(max) || max_val,
+        },
       };
     }
 
@@ -69,8 +69,8 @@ module.exports = {
       filter.date = {
         [Op.and]: {
           [Op.gte]: new Date(`${min_date_time}`) || min_date,
-          [Op.lte]: new Date(`${max_date_time}`) || max_date
-        }
+          [Op.lte]: new Date(`${max_date_time}`) || max_date,
+        },
       };
     }
 
@@ -89,20 +89,20 @@ module.exports = {
         order: searchOrder,
         include: [
           {
-            association: "products"
+            association: "products",
           },
           {
-            association: "provider"
+            association: "provider",
           },
           {
-            association: "installments"
-          }
-        ]
+            association: "installments",
+          },
+        ],
       });
 
-      purchases.docs.map(purchase => {
+      purchases.docs.map((purchase) => {
         let total = 0;
-        purchase.installments.map(installment => {
+        purchase.installments.map((installment) => {
           total += Number(installment.installmentValue);
         });
         purchase.total = total;
@@ -123,46 +123,46 @@ module.exports = {
 
     if (!installments) {
       return res.status(400).json({
-        error: "É necessário enviar as parcelas na requisição!"
+        error: "É necessário enviar as parcelas na requisição!",
       });
     }
 
     if (!date) {
       return res.status(400).json({
-        error: "A data da compra é obrigatória!"
+        error: "A data da compra é obrigatória!",
       });
     }
 
     if (Number(quantity) <= 0) {
       return res.status(400).json({
-        error: "A quantidade de produtos deve ser maior que 0!"
+        error: "A quantidade de produtos deve ser maior que 0!",
       });
     }
 
     if (!productId) {
       return res.status(400).json({
-        error: "É necessário informar um produto!"
+        error: "É necessário informar um produto!",
       });
     }
 
     const loggedUser = await User.findByPk(userId, {
       include: [
         {
-          association: "company"
-        }
+          association: "company",
+        },
       ],
       attributes: {
         exclude: [
           "passwordHash",
           "passwordRecoverToken",
-          "recoverPasswordTokenExpires"
-        ]
-      }
+          "recoverPasswordTokenExpires",
+        ],
+      },
     });
 
     if (!loggedUser) {
       return res.status(400).json({
-        error: "Usuário inexistente, erro inesperado!"
+        error: "Usuário inexistente, erro inesperado!",
       });
     }
 
@@ -170,19 +170,19 @@ module.exports = {
       const provider = await Provider.findByPk(providerId, {
         include: [
           {
-            association: "products"
-          }
-        ]
+            association: "products",
+          },
+        ],
       });
 
       if (!provider) {
         return res.status(400).json({
-          error: "O fornecedor informado não existe!"
+          error: "O fornecedor informado não existe!",
         });
       }
       let cont = 0;
 
-      provider.products.map(value => {
+      provider.products.map((value) => {
         if (value.id == productId) {
           cont++;
 
@@ -192,7 +192,7 @@ module.exports = {
 
       if (cont === 0) {
         return res.status(400).json({
-          error: "O produto informado não pertence a este fornecedor!"
+          error: "O produto informado não pertence a este fornecedor!",
         });
       }
     }
@@ -204,44 +204,44 @@ module.exports = {
         date,
         freight,
         quantity,
-        total
+        price: total,
       });
 
       var initialProduct = await Product.findByPk(productId);
 
-      installments.map(value => {
+      installments.map((value) => {
         value.companyId = loggedUser.company.id;
         value.purchaseId = newPurchase.id;
       });
 
-      await PurchaseInstallments.bulkCreate(installments);
+      await OutflowInstallmentsController.bulkCreate(installments);
 
       await Product.update(
         {
-          quantity: Number(initialProduct.quantity) + quantity
+          quantity: Number(initialProduct.quantity) + quantity,
         },
         {
           where: {
-            id: productId
-          }
+            id: productId,
+          },
         }
       );
 
       return res.status(200).json({
         success:
-          "Compra realizada com sucesso, os produtos já estão disponíveis para vendas no seu estoque!"
+          "Compra realizada com sucesso, os produtos já estão disponíveis para vendas no seu estoque!",
       });
     } catch (e) {
       await Purchase.destroy({
         where: {
-          id: newPurchase.id
-        }
+          id: newPurchase.id,
+        },
       });
 
       return res.status(400).json({
         error:
-          "Não foi possível inserir os dados devido a um erro não identificado"
+          "Não foi possível inserir os dados devido a um erro não identificado",
       });
     }
-  }
+  },
 };

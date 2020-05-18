@@ -14,11 +14,13 @@ class User extends Model {
         recoverPasswordTokenExpires: DataTypes.DATE,
         planType: DataTypes.INTEGER,
         planExpirationDate: DataTypes.DATE,
-        isAdmin: DataTypes.BOOLEAN
+        subscription_id: DataTypes.STRING,
+        customer_id: DataTypes.STRING,
+        isAdmin: DataTypes.BOOLEAN,
       },
       {
         sequelize,
-        modelName: "users"
+        modelName: "users",
       }
     );
   }

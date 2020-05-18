@@ -71,7 +71,7 @@ module.exports = {
   },
   async store(req, res) {
     const { userId } = req;
-    let { name, enabled } = req.body;
+    let { name, description, enabled } = req.body;
 
     if (!name) {
       return res
@@ -79,9 +79,27 @@ module.exports = {
         .json({ error: "O nome da categoria deve ser informado!" });
     }
 
-    if (enabled == 1 || enabled == "1" || enabled == "true") {
+    if (description.length > 500) {
+      return res
+        .status(400)
+        .json({ error: "O valor máximo da descrição é de 500 caracteres!" });
+    }
+
+    if (
+      enabled == 1 ||
+      enabled == "1" ||
+      enabled == "true" ||
+      enabled == undefined ||
+      enabled == "" ||
+      enabled == true
+    ) {
       enabled = true;
-    } else if (enabled == 0 || enabled == "0" || enabled == "false") {
+    } else if (
+      enabled == 0 ||
+      enabled == "0" ||
+      enabled == "false" ||
+      enabled == false
+    ) {
       enabled = false;
     }
 
@@ -107,6 +125,7 @@ module.exports = {
       const category = await Category.create({
         name,
         enabled,
+        description,
         companyId: user.company.id,
       });
 
@@ -120,12 +139,16 @@ module.exports = {
   async update(req, res) {
     const { userId } = req;
     const { id } = req.params;
-    let { name, enabled } = req.body;
+    let { name, enabled, description } = req.body;
 
     if ((!name && enabled === undefined) || enabled === "") {
       return res.status(400).json({
         error: "Os dados para atualização não foram enviados",
       });
+    }
+
+    if (!name) {
+      return res.status(400).json({ error: "O nome não foi informado!" });
     }
 
     if (!id) {
@@ -171,7 +194,7 @@ module.exports = {
     }
 
     try {
-      await Category.update({ name, enabled }, { where: { id } });
+      await Category.update({ name, enabled, description }, { where: { id } });
       return res
         .status(200)
         .json({ success: "Categoria atualizada com sucesso!" });

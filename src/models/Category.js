@@ -6,6 +6,7 @@ class Category extends Model {
       {
         companyId: DataTypes.INTEGER,
         name: DataTypes.STRING,
+        description: DataTypes.TEXT,
         enabled: DataTypes.BOOLEAN,
       },
       {

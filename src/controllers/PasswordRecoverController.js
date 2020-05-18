@@ -10,13 +10,11 @@ module.exports = {
 
     //O módulo yup cria uma verificação para saber se o email é válido
     const schema = Yup.object().shape({
-      email: Yup.string()
-        .email()
-        .required()
+      email: Yup.string().email().required(),
     });
 
     const isValid = await schema.isValid({
-      email
+      email,
     });
 
     if (!isValid) {
@@ -41,7 +39,7 @@ module.exports = {
     await User.update(
       {
         recoverPasswordToken: token,
-        recoverPasswordTokenExpires: now
+        recoverPasswordTokenExpires: now,
       },
       { where: { email: email } }
     );
@@ -57,13 +55,11 @@ module.exports = {
     const { password } = req.body;
 
     const schema = Yup.object().shape({
-      password: Yup.string()
-        .required()
-        .min(6)
+      password: Yup.string().required().min(6),
     });
 
     const isValid = await schema.isValid({
-      password
+      password,
     });
 
     if (!isValid) {
@@ -92,10 +88,10 @@ module.exports = {
           .status(200)
           .json({ success: "Senha atualizada com sucesso!" });
       })
-      .catch(err => {
+      .catch((err) => {
         return res
           .status(400)
           .json({ error: "Houve um erro ao atualizar a sua senha." });
       });
-  }
+  },
 };

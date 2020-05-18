@@ -11,10 +11,11 @@ const PasswordRecoverController = require("./controllers/PasswordRecoverControll
 const AccountController = require("./controllers/AccountController");
 const SellerController = require("./controllers/SellerController");
 const CustomersController = require("./controllers/CustomersController");
-const InstallmentController = require("./controllers/InstallmentController");
+const InflowInstallmentsController = require("./controllers/InflowInstallmentsController");
 const ProviderController = require("./controllers/ProvidersController");
 const PurchasingController = require("./controllers/PurchasingController");
-const PurchaseInstallments = require("./controllers/PurchaseInstallments");
+const OutflowInstallmentsController = require("./controllers/OutflowInstallmentsController");
+const SubscriptionController = require("./controllers/SubscriptionController");
 
 const routes = express.Router();
 
@@ -44,15 +45,19 @@ routes.delete("/sales/:id", authMiddleware, SalesController.delete);
 
 /** PARCELAS */
 routes.get(
-  "/saleInstallments/:sellId",
+  "/inflowInstallment/:sellId",
   authMiddleware,
-  InstallmentController.show
+  InflowInstallmentsController.show
 );
-routes.get("/saleInstallments", authMiddleware, InstallmentController.index);
-routes.put(
-  "/saleInstallments/:id",
+routes.get(
+  "/inflowInstallment",
   authMiddleware,
-  InstallmentController.update
+  InflowInstallmentsController.index
+);
+routes.put(
+  "/inflowInstallment/:id",
+  authMiddleware,
+  InflowInstallmentsController.update
 );
 
 /** VENDEDORES */
@@ -79,19 +84,19 @@ routes.put("/providers/:id", authMiddleware, ProviderController.update);
 routes.delete("/providers/:id", authMiddleware, ProviderController.delete);
 
 /** COMPRAS */
-routes.post(
-  "/purchasing/:productId",
-  authMiddleware,
-  PurchasingController.store
-);
-routes.get("/purchases", authMiddleware, PurchasingController.index);
+routes.post("/purchase/:productId", authMiddleware, PurchasingController.store);
+routes.get("/purchase", authMiddleware, PurchasingController.index);
 
 /** PARCELAS DE COMPRAS */
-routes.get("/purchaseInstallments", authMiddleware, PurchaseInstallments.index);
-routes.put(
-  "/purchaseInstallments/:id",
+routes.get(
+  "/outflowInstallment",
   authMiddleware,
-  PurchaseInstallments.update
+  OutflowInstallmentsController.index
+);
+routes.put(
+  "/outflowInstallment/:id",
+  authMiddleware,
+  OutflowInstallmentsController.update
 );
 
 /** AUTENTICAÇÃO */
@@ -103,5 +108,10 @@ routes.get("/loggedUser", authMiddleware, LoggedController.show);
 /** RECUPERAÇÃO DE SENHA */
 routes.post("/password-recover", PasswordRecoverController.store);
 routes.post("/password-update", PasswordRecoverController.update);
+
+routes.get("/subscription", authMiddleware, SubscriptionController.show);
+routes.get("/subscriptions", authMiddleware, SubscriptionController.index);
+routes.post("/subscription", authMiddleware, SubscriptionController.store);
+routes.put("/subscription", authMiddleware, SubscriptionController.update);
 
 module.exports = routes;

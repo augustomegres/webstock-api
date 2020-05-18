@@ -10,13 +10,13 @@ module.exports = {
         exclude: [
           "passwordHash",
           "passwordRecoverToken",
-          "recoverPasswordTokenExpires"
-        ]
-      }
+          "recoverPasswordTokenExpires",
+        ],
+      },
     });
 
     user.passwordHash = undefined;
 
     return res.status(200).json(user);
-  }
+  },
 };

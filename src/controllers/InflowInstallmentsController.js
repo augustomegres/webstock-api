@@ -1,5 +1,5 @@
 const User = require("../models/User");
-const Installments = require("../models/SaleInstallments");
+const Installments = require("../models/InflowInstallments");
 const { Op } = require("sequelize");
 
 module.exports = {

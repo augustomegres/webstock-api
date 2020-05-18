@@ -12,14 +12,14 @@ module.exports = {
           "passwordHash",
           "isAdmin",
           "recoverPasswordToken",
-          "recoverPasswordTokenExpires"
-        ]
+          "recoverPasswordTokenExpires",
+        ],
       },
-      include: { association: "company" }
+      include: { association: "company" },
     });
 
     const company = await Company.findByPk(user.company.id, {
-      include: { association: "customers" }
+      include: { association: "customers" },
     });
 
     return res.status(200).json(company);
@@ -35,7 +35,7 @@ module.exports = {
       city,
       address,
       number,
-      street
+      street,
     } = req.body;
 
     const user = await User.findByPk(userId, {
@@ -44,11 +44,15 @@ module.exports = {
           "passwordHash",
           "isAdmin",
           "recoverPasswordToken",
-          "recoverPasswordTokenExpires"
-        ]
+          "recoverPasswordTokenExpires",
+        ],
       },
-      include: { association: "company" }
+      include: { association: "company" },
     });
+
+    if (!name) {
+      return res.status(400).json({ error: "O nome deve ser informado!" });
+    }
 
     try {
       await Customer.create({
@@ -61,11 +65,11 @@ module.exports = {
         city,
         address,
         number,
-        street
+        street,
       });
 
       return res
-        .status(400)
+        .status(200)
         .json({ success: "Cliente cadastrado com sucesso!" });
     } catch (e) {
       return res
@@ -83,15 +87,15 @@ module.exports = {
           "passwordHash",
           "isAdmin",
           "recoverPasswordToken",
-          "recoverPasswordTokenExpires"
-        ]
+          "recoverPasswordTokenExpires",
+        ],
       },
-      include: { association: "company" }
+      include: { association: "company" },
     });
 
     try {
       await Customer.destroy({
-        where: { id: id, companyId: user.company.id }
+        where: { id: id, companyId: user.company.id },
       });
 
       return res.status(200).json({ sucess: "Cliente deletado com sucesso!" });
@@ -100,5 +104,5 @@ module.exports = {
         .status(400)
         .json({ error: "Houveu um erro ao tentar deletar este cliente" });
     }
-  }
+  },
 };
