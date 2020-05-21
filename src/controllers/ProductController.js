@@ -13,6 +13,7 @@ module.exports = {
       pageSize,
       lowStock,
       categoryId,
+      providerId,
       sku,
       name,
     } = req.query;
@@ -58,10 +59,18 @@ module.exports = {
       filter.name = { [Op.substring]: name };
     }
 
+    providerWhere = {};
+    if (providerId) {
+      providerWhere.id = providerId;
+    }
+
     const productList = await Product.paginate({
       page,
       paginate: Number(pageSize),
-      include: [{ association: "providers" }, { association: "category" }],
+      include: [
+        { association: "providers", where: providerWhere },
+        { association: "category" },
+      ],
       where: filter,
     });
 
