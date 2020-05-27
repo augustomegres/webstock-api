@@ -12,8 +12,6 @@ class User extends Model {
         passwordHash: DataTypes.STRING,
         recoverPasswordToken: DataTypes.STRING,
         recoverPasswordTokenExpires: DataTypes.DATE,
-        planType: DataTypes.INTEGER,
-        planExpirationDate: DataTypes.DATE,
         subscription_id: DataTypes.STRING,
         customer_id: DataTypes.STRING,
         isAdmin: DataTypes.BOOLEAN,
