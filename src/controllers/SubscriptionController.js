@@ -18,6 +18,10 @@ module.exports = {
       },
     });
 
+    if (!loggedUser.subscription_id) {
+      return;
+    }
+
     pagarme.client
       .connect({ api_key: process.env.PAGARME_KEY })
       .then((client) =>
@@ -41,6 +45,12 @@ module.exports = {
         ],
       },
     });
+
+    if (!loggedUser.subscription_id) {
+      return res
+        .status(400)
+        .json({ error: "O usuário ainda não tem um plano ativo!" });
+    }
 
     pagarme.client
       .connect({ api_key: process.env.PAGARME_KEY })

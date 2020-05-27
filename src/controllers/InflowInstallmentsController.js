@@ -95,7 +95,7 @@ module.exports = {
   async update(req, res) {
     const { userId } = req;
     const { id } = req.params;
-    const { paymentDate } = req.body;
+    const { paymentDate, installmentValue } = req.body;
 
     new Date(paymentDate);
 
@@ -104,7 +104,7 @@ module.exports = {
     });
 
     const installment = await Installments.update(
-      { paymentDate },
+      { paymentDate, installmentValue },
       {
         where: { id, companyId: loggedUser.company.id },
       }
