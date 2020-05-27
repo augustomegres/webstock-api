@@ -7,7 +7,7 @@ const User = require("../models/User");
 const Company = require("../models/Company");
 const Account = require("../models/Account");
 const Seller = require("../models/Seller");
-
+const pagarme = require("pagarme");
 const Mail = require("../services/sendgrid");
 
 module.exports = {
@@ -112,11 +112,6 @@ module.exports = {
     /** CRIPTOGRAFANDO SENHA */
     const passwordHash = await bcrypt.hash(password, 10);
 
-    let planExpirationDate = new Date();
-    planExpirationDate = planExpirationDate.setDate(
-      planExpirationDate.getDate() + 7
-    );
-
     /** CRIANDO O USUARIO NO BANCO DE DADOS */
     try {
       var user = await User.create({
@@ -124,8 +119,6 @@ module.exports = {
         email,
         phone,
         passwordHash,
-        planType: 0,
-        planExpirationDate,
       });
 
       const newCompany = await Company.create({
