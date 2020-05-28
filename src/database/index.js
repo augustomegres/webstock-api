@@ -21,6 +21,7 @@ var opts = {
     timestamps: true,
     freezeTableName: true,
   },
+  logging: false,
 };
 
 const connection = new Sequelize(process.env.DATABASE_URL, opts);
@@ -106,6 +107,7 @@ Providers.belongsToMany(Product, {
 
 //RELAÇÃO DE PRODUTO - CATEGORIA
 Product.belongsTo(Category, { as: "category", foreignKey: "categoryId" });
+Category.hasMany(Product, { as: "products", foreignKey: "id" });
 
 //RELAÇÃO DE COMPRA - FORNECEDOR
 Purchase.hasOne(Company, { as: "company", foreignKey: "id" });
