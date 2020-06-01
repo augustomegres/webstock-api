@@ -110,13 +110,13 @@ Product.belongsTo(Category, { as: "category", foreignKey: "categoryId" });
 Category.hasMany(Product, { as: "products", foreignKey: "id" });
 
 //RELAÇÃO DE COMPRA - FORNECEDOR
-Purchase.hasOne(Company, { as: "company", foreignKey: "id" });
+Purchase.belongsTo(Company, { as: "company", foreignKey: "companyId" });
 
 //RELAÇÃO DE COMPRA - PRODUTO
-Purchase.hasOne(Product, { as: "products", foreignKey: "id" });
+Purchase.belongsTo(Product, { as: "products", foreignKey: "productId" });
 
 //RELAÇÃO DE COMPRA - FORNECEDOR
-Purchase.hasOne(Providers, { as: "provider", foreignKey: "id" });
+Purchase.belongsTo(Providers, { as: "provider", foreignKey: "providerId" });
 
 //RELAÇÃO DE COMPRA - FORNECEDOR
 Purchase.hasMany(OutflowInstallmentsController, {
