@@ -5,6 +5,7 @@ const Provider = require("../models/Providers");
 const Purchase = require("../models/Purchase");
 const OutflowInstallmentsController = require("../models/OutflowInstallments");
 const Product = require("../models/Product");
+const Account = require("../models/Account");
 
 module.exports = {
   async index(req, res) {
@@ -141,7 +142,14 @@ module.exports = {
   },
   async store(req, res) {
     const { userId } = req;
-    let { date, freight, quantity, installments, providerId, total } = req.body;
+    let {
+      date,
+      freight,
+      quantity,
+      installments,
+      providerId,
+      accountId,
+    } = req.body;
     const { productId } = req.params;
 
     date = new Date(date).toISOString();
@@ -221,20 +229,38 @@ module.exports = {
         });
       }
     }
+
+    if (!accountId) {
+      return res.status(400).json({
+        error: "É necessário informar a conta!",
+      });
+    } else {
+      const account = await Account.findOne({
+        where: { id: accountId, companyId: loggedUser.company.id },
+      });
+
+      if (!account) {
+        return res
+          .status(400)
+          .json({ error: "A conta informada não pode ser identificada!" });
+      }
+    }
+
     try {
       var newPurchase = await Purchase.create({
         companyId: loggedUser.company.id,
         providerId,
         productId,
+        accountId,
         date,
         freight,
         quantity,
-        price: total,
       });
 
       var initialProduct = await Product.findByPk(productId);
 
       installments.map((value) => {
+        value.accountId = accountId;
         value.companyId = loggedUser.company.id;
         value.purchaseId = newPurchase.id;
       });

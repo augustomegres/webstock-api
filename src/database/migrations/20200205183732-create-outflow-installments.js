@@ -26,9 +26,9 @@ module.exports = {
       accountId: {
         type: Sequelize.INTEGER,
         references: { model: "accounts", key: "id" },
-        allowNull: true,
+        allowNull: false,
         onUpdate: "CASCADE",
-        onDelete: "SET NULL",
+        onDelete: "RESTRICT",
       },
       installmentNumber: {
         type: Sequelize.INTEGER,
