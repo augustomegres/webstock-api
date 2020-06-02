@@ -63,13 +63,10 @@ module.exports = {
     }
 
     if (min_date_time || max_date_time) {
-      let min_date = new Date("1980-01-01");
-      let max_date = new Date("2100-01-01");
-
       filter.date = {
         [Op.and]: {
-          [Op.gte]: new Date(`${min_date_time}`) || min_date,
-          [Op.lte]: new Date(`${max_date_time}`) || max_date,
+          [Op.gte]: min_date_time || "1970-01-01",
+          [Op.lte]: max_date_time || "2100-01-01",
         },
       };
     }
