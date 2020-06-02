@@ -147,7 +147,7 @@ module.exports = {
       });
     }
 
-    if (!name) {
+    if (!name && enabled == undefined) {
       return res.status(400).json({ error: "O nome não foi informado!" });
     }
 
@@ -222,6 +222,7 @@ module.exports = {
 
     const category = await Category.findOne({
       where: { id, companyId: user.company.id },
+      include: [{ association: "products" }],
     });
 
     if (!category) {
@@ -230,16 +231,24 @@ module.exports = {
         .json({ error: "A categoria informada não existe!" });
     }
 
-    try {
-      await Category.destroy({ where: { id, companyId: user.company.id } });
+    let category_products = category.products;
 
-      return res
-        .status(200)
-        .json({ success: "A categoria foi deletada com sucesso!" });
-    } catch (e) {
+    if (category_products.length) {
       return res
         .status(400)
-        .json({ error: "Houve um erro ao deletar a categoria!" });
+        .json({ error: "Esta categoria contém produtos cadastrados!" });
     }
+
+    await Category.destroy({ where: { id, companyId: user.company.id } })
+      .then(() => {
+        return res
+          .status(200)
+          .json({ success: "A categoria foi deletada com sucesso!" });
+      })
+      .catch(() => {
+        return res
+          .status(400)
+          .json({ error: "Houve um erro ao deletar a categoria!" });
+      });
   },
 };
