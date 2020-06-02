@@ -97,6 +97,34 @@ module.exports = {
         ],
       });
 
+      //CONTAGEM DE DADOS
+      //ULTIMO MES
+      let date = new Date();
+      date.setDate(date.getDate() - 30);
+
+      var last30days = await Purchase.count({
+        where: { companyId: loggedUser.company.id, date: { [Op.gte]: date } },
+      });
+
+      purchases.lastMonth = last30days;
+
+      //ULTIMO ANO
+      date = new Date();
+      date.setDate(date.getDate() - 365);
+
+      var last365days = await Purchase.count({
+        where: { companyId: loggedUser.company.id, date: { [Op.gte]: date } },
+      });
+
+      purchases.lastYear = last365days;
+
+      //DESDE O INICIO
+      var allTime = await Purchase.count({
+        where: { companyId: loggedUser.company.id },
+      });
+
+      purchases.allTime = allTime;
+
       purchases.docs.map((purchase) => {
         let total = 0;
         purchase.installments.map((installment) => {
