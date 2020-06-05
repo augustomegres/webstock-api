@@ -74,13 +74,10 @@ module.exports = {
     }
 
     if (min_date_time || max_date_time) {
-      let min_date = new Date("1980-01-01");
-      let max_date = new Date("2100-01-01");
-
       filter.date = {
         [Op.and]: {
-          [Op.gte]: new Date(`${min_date_time}`) || min_date,
-          [Op.lte]: new Date(`${max_date_time}`) || max_date,
+          [Op.gte]: min_date_time || "1970-01-01",
+          [Op.lte]: max_date_time || "2100-01-01",
         },
       };
     }
@@ -93,7 +90,6 @@ module.exports = {
     }
 
     //Fazendo a seleção dos que conteem parcelas não pagas
-
     switch (Number(selectOnly)) {
       case 1: {
         let select1 = await Sales.findAll({
@@ -200,7 +196,7 @@ module.exports = {
         break;
       }
       case 3: {
-        //Contém parcelas a vencer nos próximos 30 dias
+        //Contém parcelas pagas
         let select3 = await Sales.findAll({
           where: filter,
           include: [
@@ -250,6 +246,7 @@ module.exports = {
         break;
       }
       case 4: {
+        //
         let select4 = await Sales.findAll({
           where: filter,
           include: [
