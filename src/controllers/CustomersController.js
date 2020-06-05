@@ -18,11 +18,12 @@ module.exports = {
       include: { association: "company" },
     });
 
-    const company = await Company.findByPk(user.company.id, {
-      include: { association: "customers" },
+    const customers = await Customer.findAll({
+      where: { companyId: user.company.id },
+      include: { association: "company" },
     });
 
-    return res.status(200).json(company);
+    return res.status(200).json(customers);
   },
   async store(req, res) {
     const { userId } = req;

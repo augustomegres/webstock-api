@@ -4,7 +4,7 @@ Sistema de gestão de estoque
 
 VARIAVEIS AMBIENTE
 
-API_URL=mysql://root:senha@host/database
+DATABASE_URL=mysql://root:senha@host/database
 
 SECRET=1234
 
