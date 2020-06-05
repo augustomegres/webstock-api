@@ -10,11 +10,10 @@ class Purchase extends Model {
         date: DataTypes.DATE,
         freight: DataTypes.INTEGER,
         quantity: DataTypes.DECIMAL,
-        price: DataTypes.DECIMAL
       },
       {
         sequelize,
-        modelName: "purchases"
+        modelName: "purchases",
       }
     );
   }

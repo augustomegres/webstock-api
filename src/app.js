@@ -9,6 +9,4 @@ app.use(routes);
 
 require("./database/index");
 
-app.listen(process.env.PORT || 3333, () => {
-  console.log("Servidor online!");
-});
+app.listen(process.env.PORT || 3333);

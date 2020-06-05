@@ -85,8 +85,8 @@ Company.hasMany(SaleInstallments, {
 });
 
 //RELAÇÃO DE CLIENTE - EMPRESA
-Customer.belongsTo(Company, { as: "company", foreignKey: "companyId" });
 Company.hasMany(Customer, { as: "customers", foreignKey: "companyId" });
+Customer.belongsTo(Company, { as: "company", foreignKey: "companyId" });
 
 //RELAÇÃO DE FORNECEDOR - EMPRESA
 Providers.belongsTo(Company, { as: "company", foreignKey: "companyId" });

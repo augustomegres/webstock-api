@@ -8,57 +8,53 @@ module.exports = {
         primaryKey: true,
         autoIncrement: true,
         allowNull: false,
-        unique: true
+        unique: true,
       },
       companyId: {
         type: Sequelize.INTEGER,
         references: { model: "companies", key: "id" },
         allowNull: false,
         onUpdate: "CASCADE",
-        onDelete: "CASCADE"
+        onDelete: "CASCADE",
       },
       providerId: {
         type: Sequelize.INTEGER,
         references: { model: "providers", key: "id" },
         allowNull: true,
         onUpdate: "CASCADE",
-        onDelete: "CASCADE"
+        onDelete: "CASCADE",
       },
       productId: {
         type: Sequelize.INTEGER,
         references: { model: "products", key: "id" },
         allowNull: false,
         onUpdate: "CASCADE",
-        onDelete: "CASCADE"
+        onDelete: "CASCADE",
       },
       date: {
         type: Sequelize.DATE,
-        allowNull: true
+        allowNull: true,
       },
       freight: {
         type: Sequelize.DECIMAL(10, 2),
-        allowNull: true
+        allowNull: true,
       },
       quantity: {
         type: Sequelize.DECIMAL(10, 3),
-        allowNull: false
-      },
-      price: {
-        type: Sequelize.DECIMAL(10, 2),
-        allowNull: false
+        allowNull: false,
       },
       createdAt: {
         type: Sequelize.DATE,
-        allowNull: false
+        allowNull: false,
       },
       updatedAt: {
         type: Sequelize.DATE,
-        allowNull: false
-      }
+        allowNull: false,
+      },
     });
   },
 
-  down: queryInterface => {
+  down: (queryInterface) => {
     return queryInterface.dropTable("purchases");
-  }
+  },
 };
