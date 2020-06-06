@@ -1,13 +1,26 @@
-# webstock-api
+# Webstock-api
+
 Sistema de gestão de estoque
 
+- As configurações abaixo estão otimizadas para deploy na Google APP engine
 
-VARIAVEIS AMBIENTE
+### Crie um arquivo app.yaml na raiz do projeto
 
-DATABASE_URL=mysql://root:senha@host/database
+### [START app.yaml]
 
-SECRET=1234
+```yaml
+runtime: nodejs10
 
-SENDGRID=KEY
+env_variables:
+  DB_HOST: /cloudsql/socketPath
+  DB_PATH: /cloudsql/socketPath
+  DB_USER: user
+  DB_PASS: pass
+  DB_DATABASE: webstock
+  DATABASE_URL: mysql://user:pass@hostip/webstock
+  SECRET: 1234
+  SENDGRID: KEY
+  PAGARME_KEY: KEY
+```
 
-PAGARME_KEY=KEY
+### [END app.yaml]

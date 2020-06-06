@@ -1,4 +1,4 @@
-const Sequelize = require("sequelize");
+const { Sequelize } = require("sequelize");
 
 const sequelizePaginate = require("sequelize-paginate");
 
@@ -16,15 +16,23 @@ const Providers = require("../models/Providers");
 const Purchase = require("../models/Purchase");
 const OutflowInstallmentsController = require("../models/OutflowInstallments");
 
-var opts = {
-  define: {
-    timestamps: true,
-    freezeTableName: true,
-  },
-  logging: false,
-};
-
-const connection = new Sequelize(process.env.DATABASE_URL, opts);
+const connection = new Sequelize(
+  process.env.DB_DATABASE,
+  process.env.DB_USER,
+  process.env.DB_PASS,
+  {
+    dialect: "mysql",
+    host: process.env.DB_HOST,
+    dialectOptions: {
+      socketPath: process.env.DB_PATH,
+    },
+    logging: false,
+    define: {
+      timestamps: true,
+      freezeTableName: true,
+    },
+  }
+);
 
 User.init(connection);
 Company.init(connection);
