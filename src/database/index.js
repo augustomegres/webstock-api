@@ -53,6 +53,7 @@ sequelizePaginate.paginate(Purchase);
 sequelizePaginate.paginate(OutflowInstallmentsController);
 sequelizePaginate.paginate(Product);
 sequelizePaginate.paginate(Category);
+sequelizePaginate.paginate(Customer);
 
 //RELAÇÃO DE USUÁRIO - EMPRESA
 User.hasOne(Company, { as: "company", foreignKey: "ownerId" });

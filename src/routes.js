@@ -66,6 +66,8 @@ routes.post("/sellers", authMiddleware, SellerController.store);
 
 /** CLIENTES */
 routes.get("/customer", authMiddleware, CustomersController.index);
+routes.get("/customer/:id", authMiddleware, CustomersController.show);
+routes.put("/customer/:id", authMiddleware, CustomersController.update);
 routes.post("/customer", authMiddleware, CustomersController.store);
 routes.delete("/customer/:id", authMiddleware, CustomersController.delete);
 

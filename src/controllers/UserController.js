@@ -176,83 +176,60 @@ module.exports = {
       });
     }
 
-    if (phone) phone = phone.replace(/[^0-9]/g, "");
+    /*******************************/
+    /*VALIDANDO OS DADOS DO USUARIO*/
+    /*******************************/
 
-    if (cpf) {
-      let validate = cpfEval.cpfWithPunctuation(cpf);
-      if (validate.error) return res.status(400).json(validate.error);
-    }
-
-    if (cnpj) {
-      let validate = validations.cnpj(cnpj);
-      if (validate.error) return res.status(400).json(validate.error);
-    }
-
-    if (date_of_birth) date_of_birth = new Date(date_of_birth);
-
+    //NOME DE USUARIO
+    var user = {};
+    if (name) name = name.replace(/\s\s+/g, " "); //ESTE REPLACE REMOVE ESPAÇOS DUPLOS
     if (/[^a-z éáíóúçàèìòùâêîôû]/gi.test(name)) {
       return res.status(400).json({
         error: "O nome deve conter apenas letras e espaços",
       });
     }
 
+    //TELEFONE
+    if (phone) phone = phone.replace(/[^0-9]/g, "");
+    if (phone) user.phone = phone;
+
+    //CPF
+    if (cpf) {
+      let validate = cpfEval.cpfWithPunctuation(cpf);
+      if (validate.error) return res.status(400).json(validate.error);
+      if (cpf) user.cpf = cpf;
+    }
+
+    //DATA DE NASCIMENTO
+    if (date_of_birth) date_of_birth = new Date(date_of_birth);
+    if (date_of_birth) user.date_of_birth = date_of_birth;
+
+    /*******************************/
+    /*VALIDANDO OS DADOS DA EMPRESA*/
+    /*******************************/
+    var company = {};
+    //NOME DA EMPRESA
     if (/[^a-z éáíóúçàèìòùâêîôû.-_]/gi.test(companyName)) {
       return res.status(400).json({
         error: "O nome da empresa deve conter apenas letras e espaços",
       });
     }
+    if (companyName) company.name = companyName.replace(/\s\s+/g, " ");
 
-    //VALIDAÇÕES
-    const schema = Yup.object().shape({
-      name: Yup.string().min(5).max(255),
-      phone: Yup.string().min(10).max(11),
-      companyName: Yup.string().min(2).max(255),
-      date_of_birth: Yup.date(),
-      city: Yup.string().min(2).max(100),
-      address: Yup.string().min(2).max(255),
-      street: Yup.string().min(2).max(255),
-      number: Yup.string().min(1).max(24),
-    });
-
-    /** VERIFICANDO SE OS DADOS RECEBIDOS SÃO VÁLIDOS */
-    const isValid = await schema.isValid({
-      name,
-      phone,
-      companyName,
-      date_of_birth,
-      city,
-      address,
-      street,
-      number,
-    });
-
-    if (!isValid) {
-      return res.status(400).json({
-        error: "Houve um erro nos dados enviados, verifique e tente novamente",
-      });
+    //CNPJ
+    if (cnpj) {
+      let validate = validations.cnpj(cnpj);
+      if (validate.error) return res.status(400).json(validate.error);
     }
+    if (cnpj) company.cnpj = cnpj;
 
-    //VALIDANDO DADOS DE USUARIO
-    if (name || phone || date_of_birth || cpf) {
-      var user = {};
+    if (city) company.city = city.replace(/\s\s+/g, " "); //ESTE REPLACE REMOVE ESPAÇOS DUPLOS
 
-      if (name) user.name = name.replace(/\s\s+/g, " "); //ESTE REPLACE REMOVE ESPAÇOS DUPLOS
-      if (phone) user.phone = phone;
-      if (date_of_birth) user.date_of_birth = date_of_birth;
-      if (cpf) user.cpf = cpf;
-    }
+    if (address) company.address = address.replace(/\s\s+/g, " ");
 
-    //VALIDANDO DADOS DE EMPRESA
-    if (companyName || cnpj || city || address || street || number) {
-      var company = {};
+    if (street) company.street = street.replace(/\s\s+/g, " ");
 
-      if (cnpj) company.cnpj = cnpj;
-      if (companyName) company.name = companyName.replace(/\s\s+/g, " ");
-      if (city) company.city = city.replace(/\s\s+/g, " "); //ESTE REPLACE REMOVE ESPAÇOS DUPLOS
-      if (address) company.address = address.replace(/\s\s+/g, " ");
-      if (street) company.street = street.replace(/\s\s+/g, " ");
-      if (number) company.number = number.replace(/\s\s+/g, " ");
-    }
+    if (number) company.number = number.replace(/\s\s+/g, " ");
 
     try {
       if (user) {
