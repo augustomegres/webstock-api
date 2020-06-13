@@ -95,6 +95,11 @@ routes.get(
   authMiddleware,
   OutflowInstallmentsController.index
 );
+routes.post(
+  "/outflowInstallment",
+  authMiddleware,
+  OutflowInstallmentsController.store
+);
 routes.put(
   "/outflowInstallment/:id",
   authMiddleware,

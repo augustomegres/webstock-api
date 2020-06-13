@@ -134,9 +134,17 @@ module.exports = {
     let number;
 
     if (loggedUser.phone) {
-      ddd = loggedUser.phone.substring(0, 2);
-      number = loggedUser.phone.substring(2);
+      phoneNumber = loggedUser.phone;
+      phoneNumber = phoneNumber
+        .replace("(", "")
+        .replace(")", "")
+        .replace(" ", "")
+        .replace("-", "");
+      ddd = phoneNumber.substring(0, 2);
+      number = phoneNumber.substring(2);
     }
+
+    console.log(ddd, number);
 
     let customer = {
       external_id: loggedUser.id,

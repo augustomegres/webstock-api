@@ -30,6 +30,14 @@ module.exports = {
         onUpdate: "CASCADE",
         onDelete: "RESTRICT",
       },
+      type: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      reason: {
+        type: Sequelize.TEXT,
+        allowNull: true,
+      },
       installmentNumber: {
         type: Sequelize.INTEGER,
         allowNull: false,

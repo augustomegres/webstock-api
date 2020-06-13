@@ -1,7 +1,7 @@
 const bcrypt = require("bcryptjs");
 const Yup = require("yup");
 const { Op } = require("sequelize");
-const validations = require("../functions/Validations");
+const validations = require("../functions/Eval");
 const { cpf: cpfEval } = require("essential-validation");
 const User = require("../models/User");
 const Company = require("../models/Company");

@@ -1,6 +1,28 @@
 const User = require("../models/User");
-const OutflowInstallmentsController = require("../models/OutflowInstallments");
+const {
+  validateMoney,
+  validateType,
+  validateReason,
+  validateDate,
+} = require("../functions/validations");
+const OutflowInstallments = require("../models/OutflowInstallments");
 const { Op } = require("sequelize");
+
+/**
+ {
+  purchaseId: DataTypes.INTEGER,
+  companyId: DataTypes.INTEGER,
+  accountId: DataTypes.INTEGER,
+  installmentNumber: DataTypes.INTEGER,
+  installmentTotal: DataTypes.INTEGER,
+  installmentValue: DataTypes.DECIMAL,
+  type: DataTypes.STRING,
+  reason: DataTypes.TEXT,
+  dueDate: DataTypes.DATE,
+  paymentDate: DataTypes.DATE,
+  type: DataTypes.STRING,
+ }
+ */
 
 module.exports = {
   async index(req, res) {
@@ -108,7 +130,7 @@ module.exports = {
       };
     }
 
-    var installments = await OutflowInstallmentsController.paginate({
+    var installments = await OutflowInstallments.paginate({
       page: page,
       paginate: Number(pageSize),
       where,
@@ -116,6 +138,115 @@ module.exports = {
     });
 
     return res.status(200).json(installments);
+  },
+  async store(req, res) {
+    const { userId } = req;
+    let {
+      accountId,
+      installmentValue,
+      type,
+      reason,
+      dueDate,
+      paymentDate,
+    } = req.body;
+
+    let validation = {};
+
+    /*--------------------------------------------------------------------------------------*/
+    /*-------------------------- Validando o formato dos valores ---------------------------*/
+    /*--------------------------------------------------------------------------------------*/
+    if (!accountId) {
+      return res.status(400).json({ error: "A conta deve ser informada!" });
+    }
+
+    validation = validateMoney(installmentValue, true);
+    if (validation.error) {
+      return res.status(400).json({ error: validation.error });
+    }
+
+    validation = validateType(type, true);
+    if (validation.error) {
+      return res.status(400).json({ error: validation.error });
+    }
+
+    validation = validateReason(reason);
+    if (validation.error) {
+      return res.status(400).json({ error: validation.error });
+    }
+
+    validation = validateDate(dueDate, true);
+    if (validation.error) {
+      return res.status(400).json({ error: validation.error });
+    }
+
+    validation = validateDate(paymentDate);
+    if (validation.error) {
+      return res.status(400).json({ error: validation.error });
+    }
+
+    /*--------------------------------------------------------------------------------------*/
+    /*---------------------- Capturando informações do usuário logado ----------------------*/
+    /*--------------------------------------------------------------------------------------*/
+    const user = await User.findByPk(userId, {
+      attributes: {
+        exclude: [
+          "passwordHash",
+          "isAdmin",
+          "recoverPasswordToken",
+          "recoverPasswordTokenExpires",
+        ],
+      },
+      include: [
+        {
+          association: "company",
+          include: { association: "accounts", where: { id: accountId } },
+        },
+      ],
+    });
+
+    /*--------------------------------------------------------------------------------------*/
+    /*--------------------- Verificando se a conta pertence a empresa ----------------------*/
+    /*--------------------------------------------------------------------------------------*/
+    if (!user.company) {
+      return res
+        .status(400)
+        .json({ error: "A conta informada não percente a sua empresa" });
+    }
+
+    /*--------------------------------------------------------------------------------------*/
+    /*---------------------- Armazenando valores fixos em variáveis ------------------------*/
+    /*--------------------------------------------------------------------------------------*/
+    let companyId = user.company.id;
+    let installmentNumber = 1;
+    let installmentTotal = 1;
+
+    /*--------------------------------------------------------------------------------------*/
+    /*------------------------------- Cadastrando parcela ----------------------------------*/
+    /*--------------------------------------------------------------------------------------*/
+    await OutflowInstallments.create({
+      accountId,
+      companyId,
+      type,
+      reason,
+      dueDate,
+      paymentDate,
+      installmentValue,
+      installmentNumber,
+      installmentTotal,
+    })
+      .then((e) => {
+        return res
+          .status(200)
+          .json({ success: "Pagamento realizado com sucesso!", info: e });
+      })
+      .catch((e) => {
+        return res
+          .status(400)
+          .json({
+            error: "Houve um erro não esperado ao tentar cadastrar a parcela",
+            info: e,
+          });
+      });
   },
   async update(req, res) {
     const { userId } = req;
@@ -132,7 +263,7 @@ module.exports = {
       ],
     });
 
-    const installment = await OutflowInstallmentsController.update(
+    const installment = await OutflowInstallments.update(
       {
         paymentDate,
         installmentValue,
