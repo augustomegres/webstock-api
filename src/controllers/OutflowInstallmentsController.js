@@ -25,6 +25,46 @@ const { Op } = require("sequelize");
  */
 
 module.exports = {
+  async show(req, res) {
+    const { userId } = req;
+    let { id } = req.params;
+
+    /* -------------------------------------------------------------------------- */
+    /*                  Capturando informações do usuário logado                  */
+    /* -------------------------------------------------------------------------- */
+
+    const user = await User.findByPk(userId, {
+      attributes: {
+        exclude: [
+          "passwordHash",
+          "isAdmin",
+          "recoverPasswordToken",
+          "recoverPasswordTokenExpires",
+        ],
+      },
+      include: [
+        {
+          association: "company",
+        },
+      ],
+    });
+
+    /* -------------------------------------------------------------------------- */
+    /*                            Retornando a parcela                            */
+    /* -------------------------------------------------------------------------- */
+
+    OutflowInstallments.findOne({
+      where: { id, companyId: user.company.id },
+    })
+      .then((e) => {
+        return res.status(200).json(e);
+      })
+      .catch((e) => {
+        return res
+          .status(400)
+          .json({ error: "Houve um erro inesperado na sua solicitação", e });
+      });
+  },
   async index(req, res) {
     const { userId } = req;
     let {
@@ -152,9 +192,10 @@ module.exports = {
 
     let validation = {};
 
-    /*--------------------------------------------------------------------------------------*/
-    /*-------------------------- Validando o formato dos valores ---------------------------*/
-    /*--------------------------------------------------------------------------------------*/
+    /* -------------------------------------------------------------------------- */
+    /*                       Validando o formato dos valores                      */
+    /* -------------------------------------------------------------------------- */
+
     if (!accountId) {
       return res.status(400).json({ error: "A conta deve ser informada!" });
     }
@@ -184,9 +225,10 @@ module.exports = {
       return res.status(400).json({ error: validation.error });
     }
 
-    /*--------------------------------------------------------------------------------------*/
-    /*---------------------- Capturando informações do usuário logado ----------------------*/
-    /*--------------------------------------------------------------------------------------*/
+    /* -------------------------------------------------------------------------- */
+    /*                  Capturando informações do usuário logado                  */
+    /* -------------------------------------------------------------------------- */
+
     const user = await User.findByPk(userId, {
       attributes: {
         exclude: [
@@ -204,25 +246,28 @@ module.exports = {
       ],
     });
 
-    /*--------------------------------------------------------------------------------------*/
-    /*--------------------- Verificando se a conta pertence a empresa ----------------------*/
-    /*--------------------------------------------------------------------------------------*/
+    /* -------------------------------------------------------------------------- */
+    /*                  Verificando se a conta pertence a empresa                 */
+    /* -------------------------------------------------------------------------- */
+
     if (!user.company) {
       return res
         .status(400)
         .json({ error: "A conta informada não percente a sua empresa" });
     }
 
-    /*--------------------------------------------------------------------------------------*/
-    /*---------------------- Armazenando valores fixos em variáveis ------------------------*/
-    /*--------------------------------------------------------------------------------------*/
+    /* -------------------------------------------------------------------------- */
+    /*                   Armazenando valores fixos em variáveis                   */
+    /* -------------------------------------------------------------------------- */
+
     let companyId = user.company.id;
     let installmentNumber = 1;
     let installmentTotal = 1;
 
-    /*--------------------------------------------------------------------------------------*/
-    /*------------------------------- Cadastrando parcela ----------------------------------*/
-    /*--------------------------------------------------------------------------------------*/
+    /* -------------------------------------------------------------------------- */
+    /*                             Cadastrando parcela                            */
+    /* -------------------------------------------------------------------------- */
+
     await OutflowInstallments.create({
       accountId,
       companyId,
@@ -240,48 +285,86 @@ module.exports = {
           .json({ success: "Pagamento realizado com sucesso!", info: e });
       })
       .catch((e) => {
-        return res
-          .status(400)
-          .json({
-            error: "Houve um erro não esperado ao tentar cadastrar a parcela",
-            info: e,
-          });
+        return res.status(400).json({
+          error: "Houve um erro não esperado ao tentar cadastrar a parcela",
+          info: e,
+        });
       });
   },
   async update(req, res) {
     const { userId } = req;
     const { id } = req.params;
-    const { paymentDate, installmentValue } = req.body;
+    const {
+      dueDate,
+      paymentDate,
+      installmentValue,
+      accountId,
+      type,
+      reason,
+    } = req.body;
 
-    new Date(paymentDate);
+    /* -------------------------------------------------------------------------- */
+    /*                       Validando o formato dos valores                      */
+    /* -------------------------------------------------------------------------- */
 
-    const loggedUser = await User.findByPk(userId, {
+    validation = validateDate(dueDate, true);
+    if (validation.error) {
+      return res.status(400).json({ error: validation.error });
+    }
+
+    validation = validateDate(paymentDate);
+    if (validation.error) {
+      return res.status(400).json({ error: validation.error });
+    }
+
+    /* -------------------------------------------------------------------------- */
+    /*                  Capturando informações do usuário logado                  */
+    /* -------------------------------------------------------------------------- */
+
+    const user = await User.findByPk(userId, {
+      attributes: {
+        exclude: [
+          "passwordHash",
+          "isAdmin",
+          "recoverPasswordToken",
+          "recoverPasswordTokenExpires",
+        ],
+      },
       include: [
         {
           association: "company",
+          include: { association: "accounts", where: { id: accountId } },
         },
       ],
     });
 
-    const installment = await OutflowInstallments.update(
-      {
-        paymentDate,
-        installmentValue,
-      },
-      {
-        where: {
-          id,
-          companyId: loggedUser.company.id,
-        },
-      }
-    );
+    /* -------------------------------------------------------------------------- */
+    /*                  Verificando se a conta pertence a empresa                 */
+    /* -------------------------------------------------------------------------- */
 
-    if (!installment) {
-      return res.status(400).json({
-        error: "Houve um erro ao atualizar as parcelas",
-      });
+    if (!user.company) {
+      return res
+        .status(400)
+        .json({ error: "A conta informada não percente a sua empresa!" });
     }
 
-    return res.status(200).json(installment);
+    /* -------------------------------------------------------------------------- */
+    /*                            Atualizando a parcela                           */
+    /* -------------------------------------------------------------------------- */
+
+    OutflowInstallments.update(
+      { dueDate, paymentDate, installmentValue, accountId, type, reason },
+      { where: { id, companyId: user.company.id } }
+    )
+      .then((e) => {
+        return res
+          .status(200)
+          .json({ success: "Parcela atualizada com sucesso!", info: e });
+      })
+      .catch((e) => {
+        return res
+          .status(400)
+          .json({ error: "Houve um erro ao atualizar as parcelas", info: e });
+      });
   },
 };

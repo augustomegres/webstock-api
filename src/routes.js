@@ -91,6 +91,11 @@ routes.get("/purchase", authMiddleware, PurchasingController.index);
 
 /** PARCELAS DE COMPRAS */
 routes.get(
+  "/outflowInstallment/:id",
+  authMiddleware,
+  OutflowInstallmentsController.show
+);
+routes.get(
   "/outflowInstallment",
   authMiddleware,
   OutflowInstallmentsController.index
