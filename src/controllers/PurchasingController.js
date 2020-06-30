@@ -152,6 +152,8 @@ module.exports = {
     } = req.body;
     const { productId } = req.params;
 
+    quantity = Number(quantity);
+
     date = new Date(date).toISOString();
 
     if (!installments) {
@@ -166,7 +168,7 @@ module.exports = {
       });
     }
 
-    if (Number(quantity) <= 0) {
+    if (quantity <= 0) {
       return res.status(400).json({
         error: "A quantidade de produtos deve ser maior que 0!",
       });
@@ -213,12 +215,11 @@ module.exports = {
           error: "O fornecedor informado não existe!",
         });
       }
-      let cont = 0;
 
+      let cont = 0;
       provider.products.map((value) => {
         if (value.id == productId) {
           cont++;
-
           return;
         }
       });
@@ -229,6 +230,10 @@ module.exports = {
         });
       }
     }
+
+    /* -------------------------------------------------------------------------- */
+    /*                        FAZENDO VERIFICAÇÃO DE CONTA                        */
+    /* -------------------------------------------------------------------------- */
 
     if (!accountId) {
       return res.status(400).json({
@@ -245,6 +250,10 @@ module.exports = {
           .json({ error: "A conta informada não pode ser identificada!" });
       }
     }
+
+    /* -------------------------------------------------------------------------- */
+    /*                           CADASTRANDO UMA COMPRA                           */
+    /* -------------------------------------------------------------------------- */
 
     try {
       var newPurchase = await Purchase.create({

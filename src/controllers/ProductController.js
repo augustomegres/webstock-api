@@ -9,27 +9,19 @@ module.exports = {
     const { userId } = req;
     let {
       enabled,
+      paginate,
       page,
       pageSize,
-      lowStock,
+      minimum,
       categoryId,
       providerId,
       sku,
       name,
     } = req.query;
     if (!page) page = 1;
-    if (!pageSize) pageSize = 15;
+    if (!pageSize) pageSize = 12;
 
-    //FILTRO DE HABILITADO
-    if (enabled == "false" || enabled == "0") {
-      enabled = false;
-    } else if (enabled == "true" || enabled == "1") {
-      enabled = true;
-    } else {
-      enabled = undefined;
-    }
-
-    const loggedUser = await User.findByPk(userId, {
+    const user = await User.findByPk(userId, {
       include: {
         association: "company",
         attributes: ["id", "name", "cnpj"],
@@ -37,19 +29,28 @@ module.exports = {
       attributes: ["id", "name", "email", "phone"],
     });
 
-    filter = { companyId: loggedUser.company.id };
+    /* -------------------------------------------------------------------------- */
+    /*                                   FILTROS                                  */
+    /* -------------------------------------------------------------------------- */
 
-    //FILTRO PARA RETORNAR APENAS PRODUTOS HABILITADOS OU DESABILITADOS
-    if (enabled == true) {
-      filter.enabled = true;
-    } else if (enabled == false) {
-      filter.enabled = false;
+    filter = { companyId: user.company.id };
+
+    /* ---------------------- FILTRO DE PRODUTO HABILITADO ---------------------- */
+
+    if (enabled && (enabled !== "true" || enabled !== "false")) {
+      return res.status(400).json({
+        error: "O filtro enabled deve ser true ou false",
+        info: { provided: enabled },
+      });
     }
 
-    //FILTRO CASO O ESTOQUE SEJA BAIXO
-    if (lowStock == "true" || lowStock == "1") {
+    /* -------------------- FILTRO CASO O ESTOQUE SEJA BAIXO -------------------- */
+
+    if (minimum == "true") {
       filter.quantity = { [Op.lt]: Sequelize.col("minimum") };
     }
+
+    /* ----------------------------- FILTROS DE NOME ---------------------------- */
 
     if (sku) {
       filter.sku = { [Op.substring]: sku };
@@ -59,22 +60,45 @@ module.exports = {
       filter.name = { [Op.substring]: name };
     }
 
+    /* -------------------------- FILTRO DE FORNECEDOR -------------------------- */
+
     providerWhere = {};
     if (providerId) {
       providerWhere.id = providerId;
     }
 
-    const productList = await Product.paginate({
-      page,
-      paginate: Number(pageSize),
-      include: [
-        { association: "providers", where: providerWhere },
-        { association: "category" },
-      ],
-      where: filter,
-    });
+    /* -------------------------------------------------------------------------- */
+    /*                            REQUISITANDO PRODUTOS                           */
+    /* -------------------------------------------------------------------------- */
 
-    return res.status(200).json(productList);
+    switch (paginate) {
+      case "true":
+        Product.paginate({
+          page,
+          paginate: Number(pageSize),
+          include: [
+            { association: "providers", where: providerWhere },
+            { association: "category" },
+          ],
+          where: filter,
+        }).then((e) => {
+          res.status(200).json(e);
+        });
+        break;
+
+      default:
+        Product.findAll({
+          include: [
+            { association: "providers", where: providerWhere },
+            { association: "category" },
+          ],
+          where: filter,
+        }).then((e) => {
+          res.status(200).json(e);
+        });
+
+        break;
+    }
   },
   async store(req, res) {
     const { userId } = req;

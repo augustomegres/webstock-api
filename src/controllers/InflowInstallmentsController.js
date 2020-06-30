@@ -1,71 +1,247 @@
 const User = require("../models/User");
-const Installments = require("../models/InflowInstallments");
+const InflowInstallments = require("../models/InflowInstallments");
 const { Op } = require("sequelize");
+const {
+  validateMoney,
+  validateType,
+  validateReason,
+  validateDate,
+} = require("../functions/validations");
 
 module.exports = {
   async show(req, res) {
     const { userId } = req;
-    const { sellId } = req.params;
+    let { id } = req.params;
 
-    const loggedUser = await User.findByPk(userId, {
-      include: [{ association: "company" }],
+    /* -------------------------------------------------------------------------- */
+    /*                  Capturando informações do usuário logado                  */
+    /* -------------------------------------------------------------------------- */
+
+    const user = await User.findByPk(userId, {
+      attributes: {
+        exclude: [
+          "passwordHash",
+          "isAdmin",
+          "recoverPasswordToken",
+          "recoverPasswordTokenExpires",
+        ],
+      },
+      include: [
+        {
+          association: "company",
+        },
+      ],
     });
 
-    const installments = await Installments.findAll({
-      where: { saleId: sellId, companyId: loggedUser.company.id },
+    /* -------------------------------------------------------------------------- */
+    /*                            Retornando a parcela                            */
+    /* -------------------------------------------------------------------------- */
+    InflowInstallments.findOne({
+      where: { id, companyId: user.company.id },
+    })
+      .then((e) => {
+        if (!e) {
+          throw { error: "A parcela informada não existe" };
+        }
+
+        return res.status(200).json(e);
+      })
+      .catch((e) => {
+        return res.status(400).json({
+          error: "Houve um erro inesperado na sua solicitação",
+          info: e,
+        });
+      });
+  },
+  async store(req, res) {
+    const { userId } = req;
+    let {
+      accountId,
+      installmentValue,
+      type,
+      reason,
+      dueDate,
+      paymentDate,
+    } = req.body;
+
+    let validation = {};
+
+    /* -------------------------------------------------------------------------- */
+    /*                       Validando o formato dos valores                      */
+    /* -------------------------------------------------------------------------- */
+
+    if (!accountId) {
+      return res.status(400).json({ error: "A conta deve ser informada!" });
+    }
+
+    validation = validateMoney(installmentValue, true);
+    if (validation.error) {
+      return res.status(400).json({ error: validation.error });
+    }
+
+    validation = validateType(type, true);
+    if (validation.error) {
+      return res.status(400).json({ error: validation.error });
+    }
+
+    validation = validateReason(reason);
+    if (validation.error) {
+      return res.status(400).json({ error: validation.error });
+    }
+
+    validation = validateDate(dueDate, true);
+    if (validation.error) {
+      return res.status(400).json({ error: validation.error });
+    }
+
+    validation = validateDate(paymentDate);
+    if (validation.error) {
+      return res.status(400).json({ error: validation.error });
+    }
+
+    /* -------------------------------------------------------------------------- */
+    /*                  Capturando informações do usuário logado                  */
+    /* -------------------------------------------------------------------------- */
+
+    const user = await User.findByPk(userId, {
+      attributes: {
+        exclude: [
+          "passwordHash",
+          "isAdmin",
+          "recoverPasswordToken",
+          "recoverPasswordTokenExpires",
+        ],
+      },
+      include: [
+        {
+          association: "company",
+          include: { association: "accounts", where: { id: accountId } },
+        },
+      ],
     });
 
-    return res.status(200).json(installments);
+    /* -------------------------------------------------------------------------- */
+    /*                  Verificando se a conta pertence a empresa                 */
+    /* -------------------------------------------------------------------------- */
+
+    if (!user.company) {
+      return res
+        .status(400)
+        .json({ error: "A conta informada não percente a sua empresa" });
+    }
+
+    /* -------------------------------------------------------------------------- */
+    /*                   Armazenando valores fixos em variáveis                   */
+    /* -------------------------------------------------------------------------- */
+
+    let companyId = user.company.id;
+    let installmentNumber = 1;
+    let installmentTotal = 1;
+
+    /* -------------------------------------------------------------------------- */
+    /*                             Cadastrando parcela                            */
+    /* -------------------------------------------------------------------------- */
+
+    await InflowInstallments.create({
+      accountId,
+      companyId,
+      type,
+      reason,
+      dueDate,
+      paymentDate,
+      installmentValue,
+      installmentNumber,
+      installmentTotal,
+    })
+      .then((e) => {
+        return res
+          .status(200)
+          .json({ success: "Recebimento cadastrado com sucesso!", info: e });
+      })
+      .catch((e) => {
+        return res.status(400).json({
+          error: "Houve um erro não esperado ao tentar cadastrar a parcela",
+          info: e,
+        });
+      });
   },
   async index(req, res) {
     const { userId } = req;
-    const {
+    let {
       paid,
-      start_date,
-      finish_date,
+      min_date_time,
+      max_date_time,
       min_value,
       max_value,
+      page,
+      pageSize,
+      dueDate,
+      purchaseId,
       accountId,
     } = req.query;
 
-    const user = await User.findByPk(userId, {
-      include: [{ association: "company" }],
-    });
-
-    const where = { companyId: user.company.id };
-
-    if (paid == "true") {
-      where.paymentDate = { [Op.ne]: null };
+    if (!page) {
+      page = 1;
     }
 
-    if (paid == "false") {
-      where.paymentDate = { [Op.eq]: null };
+    if (!pageSize) {
+      pageSize = 15;
+    }
+
+    const user = await User.findByPk(userId, {
+      include: [
+        {
+          association: "company",
+        },
+      ],
+    });
+
+    const where = {
+      companyId: user.company.id,
+    };
+
+    /** FILTROS DE DATA DE PAGAMENTOS */
+    if (paid == "true") {
+      where.paymentDate = {
+        [Op.ne]: null,
+      };
     }
 
     if (accountId) {
       where.accountId = { [Op.eq]: accountId };
     }
 
-    //Insere a data de início dos dados
-    if (start_date) {
-      let start = new Date(start_date);
-
-      start = `${start.getFullYear()}/${
-        start.getMonth() + 1
-      }/${start.getDate()} 00:00:00.000`;
-
-      where.paymentDate = { ...where.paymentDate, [Op.gte]: new Date(start) };
+    if (paid == "false") {
+      where.paymentDate = {
+        [Op.eq]: null,
+      };
     }
 
-    //Insere a data fim dos dados
-    if (finish_date) {
-      let finish = new Date(finish_date);
+    /** ID DA COMPRA */
+    if (purchaseId) {
+      where.purchaseId = {
+        [Op.eq]: purchaseId,
+      };
+    }
 
-      finish = `${finish.getFullYear()}/${
-        finish.getMonth() + 1
-      }/${finish.getDate()} 23:59:59.999`;
+    /** FILTROS DE DATA DE VENCIMENTO */
+    if (dueDate) {
+      var searchOrder = [];
+      searchOrder.push(["dueDate", dueDate]);
+    } else {
+      var searchOrder = [];
+    }
 
-      where.paymentDate = { ...where.paymentDate, [Op.lte]: new Date(finish) };
+    if (min_date_time || max_date_time) {
+      let min_date = new Date("1980-01-01");
+      let max_date = new Date("2100-01-01");
+
+      where.dueDate = {
+        [Op.and]: {
+          [Op.gte]: new Date(`${min_date_time}`) || min_date,
+          [Op.lte]: new Date(`${max_date_time}`) || max_date,
+        },
+      };
     }
 
     //Insere o valor mínimo dos dados
@@ -75,7 +251,10 @@ module.exports = {
         value = 0;
       }
 
-      where.installmentValue = { ...where.installmentValue, [Op.gte]: value };
+      where.installmentValue = {
+        ...where.installmentValue,
+        [Op.gte]: value,
+      };
     }
 
     //Insere o valor máximo dos dados
@@ -85,37 +264,100 @@ module.exports = {
         value = 9999999999999;
       }
 
-      where.installmentValue = { ...where.installmentValue, [Op.lte]: value };
+      where.installmentValue = {
+        ...where.installmentValue,
+        [Op.lte]: value,
+      };
     }
 
-    var installments = await Installments.findAll({ where });
+    var installments = await InflowInstallments.paginate({
+      page: page,
+      paginate: Number(pageSize),
+      where,
+      order: searchOrder,
+    });
 
     return res.status(200).json(installments);
   },
   async update(req, res) {
     const { userId } = req;
     const { id } = req.params;
-    const { paymentDate, installmentValue } = req.body;
+    const {
+      dueDate,
+      paymentDate,
+      installmentValue,
+      accountId,
+      type,
+      reason,
+    } = req.body;
 
-    new Date(paymentDate);
-
-    const loggedUser = await User.findByPk(userId, {
-      include: [{ association: "company" }],
-    });
-
-    const installment = await Installments.update(
-      { paymentDate, installmentValue },
-      {
-        where: { id, companyId: loggedUser.company.id },
-      }
-    );
-
-    if (!installment) {
-      return res
-        .status(400)
-        .json({ error: "Houve um erro ao atualizar as parcelas" });
+    if (!accountId) {
+      return res.status(400).json({
+        error:
+          "É necessário enviar o accountId em qualquer requisição de atualização",
+      });
     }
 
-    return res.status(200).json(installment);
+    /* -------------------------------------------------------------------------- */
+    /*                       Validando o formato dos valores                      */
+    /* -------------------------------------------------------------------------- */
+    validation = validateDate(dueDate);
+    if (validation.error) {
+      return res.status(400).json({ error: validation.error });
+    }
+
+    validation = validateDate(paymentDate);
+    if (validation.error) {
+      return res.status(400).json({ error: validation.error });
+    }
+
+    /* -------------------------------------------------------------------------- */
+    /*                  Capturando informações do usuário logado                  */
+    /* -------------------------------------------------------------------------- */
+    const user = await User.findByPk(userId, {
+      attributes: {
+        exclude: [
+          "passwordHash",
+          "isAdmin",
+          "recoverPasswordToken",
+          "recoverPasswordTokenExpires",
+        ],
+      },
+      include: [
+        {
+          association: "company",
+          include: { association: "accounts", where: { id: accountId } },
+        },
+      ],
+    });
+
+    /* -------------------------------------------------------------------------- */
+    /*                  Verificando se a conta pertence a empresa                 */
+    /* -------------------------------------------------------------------------- */
+
+    if (!user.company) {
+      return res
+        .status(400)
+        .json({ error: "A conta informada não percente a sua empresa!" });
+    }
+
+    /* -------------------------------------------------------------------------- */
+    /*                            Atualizando a parcela                           */
+    /* -------------------------------------------------------------------------- */
+
+    InflowInstallments.update(
+      { dueDate, paymentDate, installmentValue, accountId, type, reason },
+      { where: { id, companyId: user.company.id } }
+    )
+      .then((e) => {
+        return res
+          .status(200)
+          .json({ success: "Parcela atualizada com sucesso!", info: e });
+      })
+      .catch((e) => {
+        return res
+          .status(400)
+          .json({ error: "Houve um erro ao atualizar as parcelas", info: e });
+      });
   },
 };

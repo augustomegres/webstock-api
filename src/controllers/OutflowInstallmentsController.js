@@ -78,10 +78,17 @@ module.exports = {
       dueDate,
       purchaseId,
       accountId,
+      paginate,
     } = req.query;
 
     if (!page) {
       page = 1;
+    }
+
+    if (paginate == "true") {
+      paginate = true;
+    } else {
+      paginate = false;
     }
 
     if (!pageSize) {
@@ -170,14 +177,35 @@ module.exports = {
       };
     }
 
-    var installments = await OutflowInstallments.paginate({
-      page: page,
-      paginate: Number(pageSize),
-      where,
-      order: searchOrder,
-    });
-
-    return res.status(200).json(installments);
+    if (paginate) {
+      OutflowInstallments.paginate({
+        page: page,
+        paginate: Number(pageSize),
+        where,
+        order: searchOrder,
+      })
+        .then((e) => {
+          return res.status(200).json(e);
+        })
+        .catch((e) => {
+          return res
+            .status(400)
+            .json({ error: "Houve um erro inesperado", info: e });
+        });
+    } else {
+      OutflowInstallments.findAll({
+        where,
+        order: searchOrder,
+      })
+        .then((e) => {
+          return res.status(200).json(e);
+        })
+        .catch((e) => {
+          return res
+            .status(400)
+            .json({ error: "Houve um erro inesperado", info: e });
+        });
+    }
   },
   async store(req, res) {
     const { userId } = req;
@@ -307,7 +335,7 @@ module.exports = {
     /*                       Validando o formato dos valores                      */
     /* -------------------------------------------------------------------------- */
 
-    validation = validateDate(dueDate, true);
+    validation = validateDate(dueDate);
     if (validation.error) {
       return res.status(400).json({ error: validation.error });
     }

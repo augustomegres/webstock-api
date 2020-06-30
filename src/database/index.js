@@ -14,7 +14,8 @@ const Customer = require("../models/Customer");
 const SaleInstallments = require("../models/InflowInstallments");
 const Providers = require("../models/Providers");
 const Purchase = require("../models/Purchase");
-const OutflowInstallmentsController = require("../models/OutflowInstallments");
+const OutflowInstallments = require("../models/OutflowInstallments");
+const InflowInstallments = require("../models/InflowInstallments");
 
 const connection = new Sequelize(
   process.env.DB_DATABASE,
@@ -46,11 +47,12 @@ Customer.init(connection);
 SaleInstallments.init(connection);
 Providers.init(connection);
 Purchase.init(connection);
-OutflowInstallmentsController.init(connection);
+OutflowInstallments.init(connection);
 
 sequelizePaginate.paginate(Sale);
 sequelizePaginate.paginate(Purchase);
-sequelizePaginate.paginate(OutflowInstallmentsController);
+sequelizePaginate.paginate(InflowInstallments);
+sequelizePaginate.paginate(OutflowInstallments);
 sequelizePaginate.paginate(Product);
 sequelizePaginate.paginate(Category);
 sequelizePaginate.paginate(Customer);
@@ -128,21 +130,28 @@ Purchase.belongsTo(Product, { as: "products", foreignKey: "productId" });
 Purchase.belongsTo(Providers, { as: "provider", foreignKey: "providerId" });
 
 //RELAÇÃO DE COMPRA - FORNECEDOR
-Purchase.hasMany(OutflowInstallmentsController, {
+Purchase.hasMany(OutflowInstallments, {
   as: "installments",
   foreignKey: "purchaseId",
 });
 
 //RELAÇÃO DE COMPRA - PARCELAS
-OutflowInstallmentsController.belongsTo(Purchase, {
+OutflowInstallments.belongsTo(Purchase, {
   as: "installments",
   foreignKey: "purchaseId",
 });
 
 //RELAÇÃO DE COMPRA - PARCELAS
-OutflowInstallmentsController.belongsTo(Company, {
+OutflowInstallments.belongsTo(Company, {
   as: "purchasesInstallments",
   foreignKey: "companyId",
+});
+
+//RELAÇÃO DE EMPREGADO - EMPRESA
+Company.belongsToMany(User, {
+  as: "employee",
+  foreignKey: "userId",
+  through: "company_employee",
 });
 
 module.exports = connection;
