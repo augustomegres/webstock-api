@@ -7,19 +7,8 @@ const Validations = require("../functions/Eval");
 
 module.exports = {
   async index(req, res) {
-    const { userId } = req;
+    const { user } = req;
     let { products, personType } = req.query;
-
-    const user = await User.findByPk(userId, {
-      include: [{ association: "company" }],
-      attributes: {
-        exclude: [
-          "passwordHash",
-          "passwordRecoverToken",
-          "recoverPasswordTokenExpires",
-        ],
-      },
-    });
 
     let includes = [];
 
@@ -41,19 +30,8 @@ module.exports = {
     return res.status(200).json(providers);
   },
   async show(req, res) {
-    const { userId } = req;
+    const { user } = req;
     let { id } = req.params;
-
-    const user = await User.findByPk(userId, {
-      include: [{ association: "company" }],
-      attributes: {
-        exclude: [
-          "passwordHash",
-          "passwordRecoverToken",
-          "recoverPasswordTokenExpires",
-        ],
-      },
-    });
 
     const provider = await Provider.findOne({
       where: { id, companyId: user.company.id },
@@ -63,7 +41,7 @@ module.exports = {
     return res.status(400).json(provider);
   },
   async store(req, res) {
-    const { userId } = req;
+    const { user } = req;
     let {
       name,
       personType,
@@ -111,17 +89,6 @@ module.exports = {
 
     //EMAIL
 
-    const user = await User.findByPk(userId, {
-      include: [{ association: "company" }],
-      attributes: {
-        exclude: [
-          "passwordHash",
-          "passwordRecoverToken",
-          "recoverPasswordTokenExpires",
-        ],
-      },
-    });
-
     try {
       const newProvider = await Provider.create({
         companyId: user.company.id,
@@ -150,7 +117,7 @@ module.exports = {
     }
   },
   async update(req, res) {
-    const { userId } = req;
+    const { user } = req;
     const { id } = req.params;
     let {
       name,
@@ -170,17 +137,6 @@ module.exports = {
       privatePhone,
       email,
     } = req.body;
-
-    const user = await User.findByPk(userId, {
-      include: [{ association: "company" }],
-      attributes: {
-        exclude: [
-          "passwordHash",
-          "passwordRecoverToken",
-          "recoverPasswordTokenExpires",
-        ],
-      },
-    });
 
     const provider = await Provider.update(
       {

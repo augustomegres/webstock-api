@@ -150,6 +150,13 @@ OutflowInstallments.belongsTo(Company, {
 //RELAÇÃO DE EMPREGADO - EMPRESA
 Company.belongsToMany(User, {
   as: "employee",
+  foreignKey: "companyId",
+  through: "company_employee",
+});
+
+//RELAÇÃO DE EMPREGADO - EMPRESA
+User.belongsToMany(Company, {
+  as: "employee_company",
   foreignKey: "userId",
   through: "company_employee",
 });

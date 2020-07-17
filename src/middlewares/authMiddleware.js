@@ -1,4 +1,5 @@
 const jwt = require("jsonwebtoken");
+const getUser = require("../functions/getUser");
 
 require("dotenv").config();
 module.exports = (req, res, next) => {
@@ -25,12 +26,21 @@ module.exports = (req, res, next) => {
     return res.status(401).json({ error: "O token informado é inválido" });
   }
 
-  jwt.verify(token, process.env.SECRET, (err, decoded) => {
+  jwt.verify(token, process.env.SECRET, async (err, decoded) => {
     if (err) {
       return res.status(401).json({ error: "Token inválido" });
     }
 
-    req.userId = decoded.id;
+    let userId = decoded.id;
+
+    let user = await getUser(userId);
+
+    if (user.error) {
+      return res.status(400).json(user);
+    }
+
+    req.user = user;
+
     return next();
   });
 };

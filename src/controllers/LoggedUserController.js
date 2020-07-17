@@ -1,21 +1,10 @@
-const User = require("../models/User");
-
 module.exports = {
   async show(req, res) {
-    const { userId } = req;
+    const { user } = req;
 
-    const user = await User.findByPk(userId, {
-      include: [{ association: "company" }],
-      attributes: {
-        exclude: [
-          "passwordHash",
-          "passwordRecoverToken",
-          "recoverPasswordTokenExpires",
-        ],
-      },
-    });
-
-    user.passwordHash = undefined;
+    if (user.error) {
+      return res.status(400).json(user);
+    }
 
     return res.status(200).json(user);
   },

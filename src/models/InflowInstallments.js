@@ -17,7 +17,7 @@ class InflowInstallments extends Model {
       },
       {
         sequelize,
-        modelName: "inflow-installments",
+        modelName: "inflow_installments",
       }
     );
   }

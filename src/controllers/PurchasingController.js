@@ -9,7 +9,7 @@ const Account = require("../models/Account");
 
 module.exports = {
   async index(req, res) {
-    const { userId } = req;
+    const { user } = req;
     let {
       min,
       max,
@@ -22,16 +22,8 @@ module.exports = {
       pageSize,
     } = req.query;
 
-    const loggedUser = await User.findByPk(userId, {
-      include: [
-        {
-          association: "company",
-        },
-      ],
-    });
-
     let filter = {
-      companyId: loggedUser.company.id,
+      companyId: user.company.id,
     };
 
     //SE FOR UM NÚMERO
@@ -104,7 +96,7 @@ module.exports = {
       date.setDate(date.getDate() - 30);
 
       var last30days = await Purchase.count({
-        where: { companyId: loggedUser.company.id, date: { [Op.gte]: date } },
+        where: { companyId: user.company.id, date: { [Op.gte]: date } },
       });
 
       purchases.lastMonth = last30days;
@@ -114,14 +106,14 @@ module.exports = {
       date.setDate(date.getDate() - 365);
 
       var last365days = await Purchase.count({
-        where: { companyId: loggedUser.company.id, date: { [Op.gte]: date } },
+        where: { companyId: user.company.id, date: { [Op.gte]: date } },
       });
 
       purchases.lastYear = last365days;
 
       //DESDE O INICIO
       var allTime = await Purchase.count({
-        where: { companyId: loggedUser.company.id },
+        where: { companyId: user.company.id },
       });
 
       purchases.allTime = allTime;
@@ -141,7 +133,7 @@ module.exports = {
     return res.json(purchases);
   },
   async store(req, res) {
-    const { userId } = req;
+    const { user } = req;
     let {
       date,
       freight,
@@ -180,22 +172,7 @@ module.exports = {
       });
     }
 
-    const loggedUser = await User.findByPk(userId, {
-      include: [
-        {
-          association: "company",
-        },
-      ],
-      attributes: {
-        exclude: [
-          "passwordHash",
-          "passwordRecoverToken",
-          "recoverPasswordTokenExpires",
-        ],
-      },
-    });
-
-    if (!loggedUser) {
+    if (!user) {
       return res.status(400).json({
         error: "Usuário inexistente, erro inesperado!",
       });
@@ -241,7 +218,7 @@ module.exports = {
       });
     } else {
       const account = await Account.findOne({
-        where: { id: accountId, companyId: loggedUser.company.id },
+        where: { id: accountId, companyId: user.company.id },
       });
 
       if (!account) {
@@ -257,7 +234,7 @@ module.exports = {
 
     try {
       var newPurchase = await Purchase.create({
-        companyId: loggedUser.company.id,
+        companyId: user.company.id,
         providerId,
         productId,
         accountId,
@@ -270,7 +247,7 @@ module.exports = {
 
       installments.map((value) => {
         value.accountId = accountId;
-        value.companyId = loggedUser.company.id;
+        value.companyId = user.company.id;
         value.purchaseId = newPurchase.id;
       });
 

@@ -10,7 +10,7 @@ const Seller = require("../models/Seller");
 
 module.exports = {
   async index(req, res) {
-    const { userId } = req;
+    const { user } = req;
     let {
       min,
       max,
@@ -30,12 +30,8 @@ module.exports = {
       pageSize = 15;
     }
 
-    const loggedUser = await User.findByPk(userId, {
-      include: [{ association: "company" }],
-    });
-
     let filter = {
-      companyId: loggedUser.company.id,
+      companyId: user.company.id,
     };
 
     if (seller) {
@@ -353,82 +349,48 @@ module.exports = {
     return res.json(sales);
   },
   async store(req, res) {
-    const {
-      date,
-      seller,
-      customer,
-      freight,
-      products,
-      installments,
-    } = req.body;
-    const { userId } = req;
+    const { date, customer, freight, products, installments } = req.body;
 
-    /**
-     * VERIFICAÇÕES
-     */
+    const { user } = req;
 
-    //Guardando o usuário logado
-    const loggedUser = await User.findByPk(userId, {
-      include: [{ association: "company" }],
-      attributes: {
-        exclude: [
-          "passwordHash",
-          "passwordRecoverToken",
-          "recoverPasswordTokenExpires",
-        ],
-      },
-    });
+    /* -------------------------------------------------------------------------- */
+    /*                                VERIFICAÇÕES                                */
+    /* -------------------------------------------------------------------------- */
 
     //Verificando se o cliente pertence a empresa
     if (customer) {
       const _customers = await Customer.findByPk(customer);
-      if (_customers.companyId !== loggedUser.company.id) {
+      if (_customers.companyId !== user.company.id) {
         return res
           .status(400)
           .json({ error: "O cliente informado não pertence a sua empresa!" });
       }
     }
 
-    //Verficando se o vendedor pertence a empresa
-    if (!seller) {
-      return res
-        .status(400)
-        .json({ error: "É necessário informar o vendedor!" });
-    }
+    /* ----------- SE NÃO HOUVER O VALOR DO FRETE, ELE SERA IGUAL A 0 ----------- */
 
-    const _seller = await Seller.findByPk(seller);
-
-    if (!_seller) {
-      return res.status(400).json({ error: "O vendedor não existe" });
-    }
-
-    if (_seller.companyId !== loggedUser.company.id) {
-      return res
-        .status(400)
-        .json({ error: "O vendedor não pertence a esta empresa!" });
-    }
-
-    //SE NÃO HOUVER O VALOR DO FRETE, ELE SERA IGUAL A 0
     let total = freight ? Number(freight) : 0;
 
     let productIdList = [];
 
     products.map((product) => {
-      //Calcula o valor total dos produtos
+      /* ------------------- CALCULANDO VALOR TOTAL DOS PRODUTOS ------------------ */
 
       total = total + product.quantity * product.unityPrice;
 
-      //Insere todos os ids dentro de um array
+      /* ------------------------ INSERINDO IDS EM UM ARRAY ----------------------- */
+
       productIdList.push(product.productId);
     });
 
-    // Remove ids duplicados dentro do array
+    /* -------------------- REMOVENDO IDS DUPLICADOS NO ARRAY ------------------- */
+    sale;
     productIdList = [...new Set(productIdList)];
 
     const notUserCompanyProduct = await Product.findAll({
       where: {
         id: productIdList,
-        companyId: { [Op.ne]: loggedUser.company.id },
+        companyId: { [Op.ne]: user.company.id },
       },
     });
 
@@ -475,12 +437,15 @@ module.exports = {
       return res.status(400).json(err);
     }
 
-    /** Criação da venda no banco de dados */
+    /* -------------------------------------------------------------------------- */
+    /*                      CRIANDO A VENDA NO BANCO DE DADOS                     */
+    /* -------------------------------------------------------------------------- */
+
     try {
       var sale = await Sales.create({
-        companyId: loggedUser.company.id,
+        companyId: user.company.id,
         date,
-        seller,
+        seller: user.id,
         customer,
         freight,
         total,
@@ -488,10 +453,10 @@ module.exports = {
 
       products.map((product) => {
         product.sellId = sale.id;
-        product.unityPrice = product.unityPrice.toFixed(2);
       });
 
-      //Inserindo produtos vendidos
+      /* ----------------------- INSERINDO PRODUTOS VENDIDOS ---------------------- */
+
       await ProductSold.bulkCreate(products);
       for (var id in stockRemove) {
         productsExists.map((product, index) => {
@@ -501,19 +466,22 @@ module.exports = {
         });
       }
 
-      //Atualizando os produtos no banco de dados
+      /* ------------------- INSERINDO O ID DA VENDA NA PARCELA ------------------- */
+
+      installments.map((installment) => {
+        installment.saleId = sale.id;
+        installment.companyId = user.company.id;
+      });
+
+      /* ------------------- CRIANDO PARCELAS NO BANCO DE DADOS ------------------- */
+
+      await Installments.bulkCreate(JSON.parse(JSON.stringify(installments)));
+
+      /* ---------------- ATUALIZANDO OS PRODUTOS NO BANCO DE DADOS --------------- */
+
       await Product.bulkCreate(JSON.parse(JSON.stringify(productsExists)), {
         updateOnDuplicate: ["quantity"],
       });
-
-      //Inserindo o id da venda dentro da parcela
-      installments.map((installment) => {
-        installment.saleId = sale.id;
-        installment.companyId = loggedUser.company.id;
-      });
-
-      //Criando as parcelas no banco de dados
-      await Installments.bulkCreate(JSON.parse(JSON.stringify(installments)));
     } catch (e) {
       await Sales.destroy({ where: { id: sale.id } });
       return res.status(400).json({
@@ -525,19 +493,8 @@ module.exports = {
     return res.status(200).json({ success: "Venda concluída com sucesso!" });
   },
   async delete(req, res) {
-    const { userId } = req;
+    const { user } = req;
     const { id } = req.params;
-
-    const user = await User.findByPk(userId, {
-      include: [{ association: "company" }],
-      attributes: {
-        exclude: [
-          "passwordHash",
-          "passwordRecoverToken",
-          "recoverPasswordTokenExpires",
-        ],
-      },
-    });
 
     const sale = await Sales.destroy({
       where: { [Op.and]: { id: id, companyId: user.company.id } },

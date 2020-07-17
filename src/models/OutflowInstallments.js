@@ -17,7 +17,7 @@ class OutflowInstallments extends Model {
       },
       {
         sequelize,
-        modelName: "outflow-installments",
+        modelName: "outflow_installments",
       }
     );
   }

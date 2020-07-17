@@ -26,7 +26,7 @@ module.exports = {
       },
       enabled: {
         type: Sequelize.BOOLEAN,
-        default: true
+        defaultValue: true
       },
       name: {
         type: Sequelize.STRING,
@@ -52,7 +52,7 @@ module.exports = {
       minimum: {
         type: Sequelize.DECIMAL(10, 3),
         allowNull: false,
-        default: 0
+        defaultValue: 0
       },
       createdAt: {
         type: Sequelize.DATE,

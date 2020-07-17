@@ -6,7 +6,7 @@ const { Op, Sequelize } = require("sequelize");
 
 module.exports = {
   async index(req, res) {
-    const { userId } = req;
+    const { user } = req;
     let {
       enabled,
       paginate,
@@ -21,14 +21,6 @@ module.exports = {
     if (!page) page = 1;
     if (!pageSize) pageSize = 12;
 
-    const user = await User.findByPk(userId, {
-      include: {
-        association: "company",
-        attributes: ["id", "name", "cnpj"],
-      },
-      attributes: ["id", "name", "email", "phone"],
-    });
-
     /* -------------------------------------------------------------------------- */
     /*                                   FILTROS                                  */
     /* -------------------------------------------------------------------------- */
@@ -37,7 +29,7 @@ module.exports = {
 
     /* ---------------------- FILTRO DE PRODUTO HABILITADO ---------------------- */
 
-    if (enabled && (enabled !== "true" || enabled !== "false")) {
+    if (enabled != "true" && enabled != "false") {
       return res.status(400).json({
         error: "O filtro enabled deve ser true ou false",
         info: { provided: enabled },
@@ -101,7 +93,7 @@ module.exports = {
     }
   },
   async store(req, res) {
-    const { userId } = req;
+    const { user } = req;
     let { name, sku, categoryId, price, minimum, provider, enabled } = req.body;
 
     if (!minimum) {
@@ -126,21 +118,7 @@ module.exports = {
       }
     }
 
-    const loggedUser = await User.findByPk(userId, {
-      include: {
-        association: "company",
-        attributes: ["id", "name", "cnpj"],
-      },
-      attributes: {
-        exclude: [
-          "passwordHash",
-          "passwordRecoverToken",
-          "recoverPasswordTokenExpires",
-        ],
-      },
-    });
-
-    const company = loggedUser.company;
+    const company = user.company;
 
     try {
       var product = await Product.create({
@@ -162,7 +140,7 @@ module.exports = {
     }
   },
   async update(req, res) {
-    const { userId } = req;
+    const { user } = req;
     const {
       name,
       sku,
@@ -175,23 +153,9 @@ module.exports = {
     let { productId } = req.params;
     productId = Number(productId);
 
-    const loggedUser = await User.findByPk(userId, {
-      include: {
-        association: "company",
-        attributes: ["id", "name", "cnpj"],
-      },
-      attributes: {
-        exclude: [
-          "passwordHash",
-          "passwordRecoverToken",
-          "recoverPasswordTokenExpires",
-        ],
-      },
-    });
-
     const product = await Product.update(
       { name, sku, categoryId, price, quantity, enabled },
-      { where: { id: productId, companyId: loggedUser.company.id } }
+      { where: { id: productId, companyId: user.company.id } }
     );
 
     if (provider) {
@@ -210,48 +174,23 @@ module.exports = {
     return res.status(200).json(product);
   },
   async show(req, res) {
-    const { userId } = req;
+    const { user } = req;
     let { productId } = req.params;
     productId = Number(productId);
-
-    const loggedUser = await User.findByPk(userId, {
-      include: {
-        association: "company",
-        attributes: ["id", "name", "cnpj"],
-      },
-      attributes: {
-        exclude: [
-          "passwordHash",
-          "passwordRecoverToken",
-          "recoverPasswordTokenExpires",
-        ],
-      },
-    });
 
     const product = await Product.findOne({
       productId,
       where: {
-        companyId: loggedUser.company.id,
+        companyId: user.company.id,
       },
     });
 
     return res.status(200).json(product);
   },
   async delete(req, res) {
-    const { userId } = req;
+    const { user } = req;
     let { productId } = req.params;
     productId = Number(productId);
-
-    const loggedUser = await User.findByPk(userId, {
-      include: [{ association: "company" }],
-      attributes: {
-        exclude: [
-          "passwordHash",
-          "recoverPasswordToken",
-          "recoverPasswordTokenExpires",
-        ],
-      },
-    });
 
     const product = await Product.findByPk(productId);
 
@@ -261,7 +200,7 @@ module.exports = {
       });
     }
 
-    if (loggedUser.company.id !== product.companyId) {
+    if (user.company.id !== product.companyId) {
       return res
         .status(400)
         .json({ error: "O produto informado não pertence a sua empresa!" });

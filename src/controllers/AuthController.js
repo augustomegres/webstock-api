@@ -1,6 +1,7 @@
 const bcrypt = require("bcryptjs");
 const User = require("../models/User");
 const jwt = require("jsonwebtoken");
+const getUser = require("../functions/getUser");
 
 require("dotenv").config();
 function generateToken(params = {}) {
@@ -14,6 +15,12 @@ module.exports = {
     const { email, password } = req.body;
 
     const user = await User.findOne({ where: { email } });
+
+    const userIsValid = await getUser(user.id);
+
+    if (userIsValid.error) {
+      return res.status(400).json(userIsValid);
+    }
 
     if (!user) {
       return res.status(404).json({ error: "Usuário não encontrado" });

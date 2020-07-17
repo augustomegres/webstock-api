@@ -5,20 +5,9 @@ const { cpf: cpfEval } = require("essential-validation");
 
 module.exports = {
   async index(req, res) {
-    const { userId } = req;
-    //Guardando o usuário logado
-    const loggedUser = await User.findByPk(userId, {
-      include: [{ association: "company" }],
-      attributes: {
-        exclude: [
-          "passwordHash",
-          "passwordRecoverToken",
-          "recoverPasswordTokenExpires",
-        ],
-      },
-    });
+    const { user } = req;
 
-    if (!loggedUser.subscription_id) {
+    if (!user.subscription_id) {
       return;
     }
 
@@ -26,27 +15,15 @@ module.exports = {
       .connect({ api_key: process.env.PAGARME_KEY })
       .then((client) =>
         client.subscriptions.findTransactions({
-          id: loggedUser.subscription_id,
+          id: user.subscription_id,
         })
       )
       .then((transaction) => res.json(transaction));
   },
   async show(req, res) {
-    const { userId } = req;
+    const { user } = req;
 
-    //Guardando o usuário logado
-    const loggedUser = await User.findByPk(userId, {
-      include: [{ association: "company" }],
-      attributes: {
-        exclude: [
-          "passwordHash",
-          "passwordRecoverToken",
-          "recoverPasswordTokenExpires",
-        ],
-      },
-    });
-
-    if (!loggedUser.subscription_id) {
+    if (!user.subscription_id) {
       return res
         .status(400)
         .json({ error: "O usuário ainda não tem um plano ativo!" });
@@ -54,13 +31,11 @@ module.exports = {
 
     pagarme.client
       .connect({ api_key: process.env.PAGARME_KEY })
-      .then((client) =>
-        client.subscriptions.find({ id: loggedUser.subscription_id })
-      )
+      .then((client) => client.subscriptions.find({ id: user.subscription_id }))
       .then((subscription) => res.json(subscription));
   },
   async store(req, res) {
-    const { userId } = req;
+    const { user } = req;
     const {
       card_number,
       card_holder_name,
@@ -74,18 +49,6 @@ module.exports = {
       date_of_birth,
     } = req.body;
 
-    //Guardando o usuário logado
-    const loggedUser = await User.findByPk(userId, {
-      include: [{ association: "company" }],
-      attributes: {
-        exclude: [
-          "passwordHash",
-          "passwordRecoverToken",
-          "recoverPasswordTokenExpires",
-        ],
-      },
-    });
-
     //Atualizando dados do cliente
     if (name ? name.length < 5 : false || cpf ? cpf.length < 14 : false) {
       return { error: "Houve um erro ao atualizar os dados do seu usuário!" };
@@ -97,10 +60,7 @@ module.exports = {
     }
 
     try {
-      await User.update(
-        { name, cpf, date_of_birth },
-        { where: { id: userId } }
-      );
+      await User.update({ name, cpf, date_of_birth }, { where: { id: user } });
     } catch (e) {
       return res
         .status(400)
@@ -108,12 +68,12 @@ module.exports = {
     }
 
     //Validando se o cliente tem uma assinatura ativa
-    if (loggedUser.subscription_id) {
+    if (user.subscription_id) {
       let subscription = await pagarme.client
         .connect({ api_key: process.env.PAGARME_KEY })
         .then((client) =>
           client.subscriptions.find({
-            id: loggedUser.subscription_id,
+            id: user.subscription_id,
           })
         )
         .then((subscription, reject) => {
@@ -133,8 +93,8 @@ module.exports = {
     let ddd;
     let number;
 
-    if (loggedUser.phone) {
-      phoneNumber = loggedUser.phone;
+    if (user.phone) {
+      phoneNumber = user.phone;
       phoneNumber = phoneNumber
         .replace("(", "")
         .replace(")", "")
@@ -147,12 +107,12 @@ module.exports = {
     console.log(ddd, number);
 
     let customer = {
-      external_id: loggedUser.id,
+      external_id: user.id,
       name: name,
-      email: loggedUser.email,
+      email: user.email,
       document_number: cpf,
       birthday: date_of_birth,
-      phone: loggedUser.phone
+      phone: user.phone
         ? {
             ddd: ddd,
             number: number,
@@ -160,7 +120,7 @@ module.exports = {
         : undefined,
     };
 
-    if (loggedUser.customer_id) customer.id = Number(loggedUser.customer_id);
+    if (user.customer_id) customer.id = Number(user.customer_id);
 
     pagarme.client
       .connect({ api_key: process.env.PAGARME_KEY })
@@ -182,7 +142,7 @@ module.exports = {
             subscription_id: subscription.id,
             customer_id: subscription.customer.id, //2950363
           },
-          { where: { id: loggedUser.id } }
+          { where: { id: user.id } }
         );
 
         return res.json(subscription);
@@ -190,26 +150,14 @@ module.exports = {
       .catch((error) => res.status(400).json(error));
   },
   async update(req, res) {
-    const { userId } = req;
+    const { user } = req;
     const { plan_id } = req.body;
-
-    //Guardando o usuário logado
-    const loggedUser = await User.findByPk(userId, {
-      include: [{ association: "company" }],
-      attributes: {
-        exclude: [
-          "passwordHash",
-          "passwordRecoverToken",
-          "recoverPasswordTokenExpires",
-        ],
-      },
-    });
 
     pagarme.client
       .connect({ api_key: process.env.PAGARME_KEY })
       .then((client) =>
         client.subscriptions.update({
-          id: loggedUser.subscription_id,
+          id: user.subscription_id,
           plan_id: plan_id,
         })
       )

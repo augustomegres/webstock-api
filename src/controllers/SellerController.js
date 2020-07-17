@@ -3,18 +3,7 @@ const Seller = require("../models/Seller");
 
 module.exports = {
   async index(req, res) {
-    const { userId } = req;
-
-    const user = await User.findByPk(userId, {
-      include: [{ association: "company" }],
-      attributes: {
-        exclude: [
-          "passwordHash",
-          "passwordRecoverToken",
-          "recoverPasswordTokenExpires",
-        ],
-      },
-    });
+    const { user } = req;
 
     if (!user) return res.status(400).json({ error: "O usuário não existe!" });
 
@@ -25,19 +14,8 @@ module.exports = {
     return res.status(200).json(sellers);
   },
   async store(req, res) {
-    const { userId } = req;
+    const { user } = req;
     const { name } = req.body;
-
-    const user = await User.findByPk(userId, {
-      include: [{ association: "company" }],
-      attributes: {
-        exclude: [
-          "passwordHash",
-          "passwordRecoverToken",
-          "recoverPasswordTokenExpires",
-        ],
-      },
-    });
 
     if (!user) return res.status(400).json({ error: "O usuário não existe!" });
 

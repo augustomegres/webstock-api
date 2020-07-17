@@ -10,23 +10,19 @@ module.exports = {
         allowNull: false,
         unique: true,
       },
-      user_id: {
+      userId: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: { model: "users", key: "id" },
         onUpdate: "CASCADE",
         onDelete: "CASCADE",
       },
-      company_id: {
+      companyId: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: { model: "companies", key: "id" },
         onUpdate: "CASCADE",
         onDelete: "CASCADE",
-      },
-      enabled: {
-        type: Sequelize.BOOLEAN,
-        allowNull: false,
       },
       createdAt: {
         type: Sequelize.DATE,

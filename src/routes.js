@@ -1,5 +1,6 @@
 const express = require("express");
 const authMiddleware = require("./middlewares/authMiddleware");
+const blockEmployee = require("./middlewares/blockEmployee");
 
 const UserController = require("./controllers/UserController");
 const ProductController = require("./controllers/ProductController");
@@ -156,7 +157,7 @@ routes.post("/authenticate", AuthController.authenticate);
 /* -------------------------------------------------------------------------- */
 /*                               USUARIO LOGADO                               */
 /* -------------------------------------------------------------------------- */
-routes.get("/loggedUser", authMiddleware, LoggedController.show);
+routes.get("/loggedUser", authMiddleware, blockEmployee, LoggedController.show);
 
 /* -------------------------------------------------------------------------- */
 /*                              RECUPERAÇÃO SENHA                             */

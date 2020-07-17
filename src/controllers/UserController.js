@@ -7,39 +7,23 @@ const User = require("../models/User");
 const Company = require("../models/Company");
 const Account = require("../models/Account");
 const Seller = require("../models/Seller");
-const pagarme = require("pagarme");
 const Mail = require("../services/sendgrid");
 
 module.exports = {
   async show(req, res) {
     let { id } = req.params;
-    const { userId } = req;
+    const { user } = req;
     id = Number(id);
 
-    const user = await User.findByPk(userId, {
-      include: [
-        {
-          association: "company",
-        },
-      ],
-      attributes: {
-        exclude: [
-          "passwordHash",
-          "passwordRecoverToken",
-          "recoverPasswordTokenExpires",
-        ],
-      },
-    });
-
     if (!user.isAdmin) {
-      if (userId !== id) {
+      if (user !== id) {
         return res.status(400).json({
           error: "Você não pode visualizar um perfil que não é seu",
         });
       }
     }
 
-    if (id === userId) {
+    if (id === user) {
       return res.status(200).json(user);
     } else {
       return res.json(
@@ -119,6 +103,7 @@ module.exports = {
         email,
         phone,
         passwordHash,
+        type: "user",
       });
 
       const newCompany = await Company.create({
@@ -167,10 +152,10 @@ module.exports = {
       number,
     } = req.body;
 
-    const { userId } = req;
+    const { user } = req;
     id = Number(id);
 
-    if (userId !== id) {
+    if (user !== id) {
       return res.status(400).json({
         error: "Você só pode editar o próprio perfil!",
       });

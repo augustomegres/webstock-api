@@ -26,28 +26,8 @@ const { Op } = require("sequelize");
 
 module.exports = {
   async show(req, res) {
-    const { userId } = req;
+    const { user } = req;
     let { id } = req.params;
-
-    /* -------------------------------------------------------------------------- */
-    /*                  Capturando informações do usuário logado                  */
-    /* -------------------------------------------------------------------------- */
-
-    const user = await User.findByPk(userId, {
-      attributes: {
-        exclude: [
-          "passwordHash",
-          "isAdmin",
-          "recoverPasswordToken",
-          "recoverPasswordTokenExpires",
-        ],
-      },
-      include: [
-        {
-          association: "company",
-        },
-      ],
-    });
 
     /* -------------------------------------------------------------------------- */
     /*                            Retornando a parcela                            */
@@ -66,7 +46,7 @@ module.exports = {
       });
   },
   async index(req, res) {
-    const { userId } = req;
+    const { user } = req;
     let {
       paid,
       min_date_time,
@@ -94,14 +74,6 @@ module.exports = {
     if (!pageSize) {
       pageSize = 15;
     }
-
-    const user = await User.findByPk(userId, {
-      include: [
-        {
-          association: "company",
-        },
-      ],
-    });
 
     const where = {
       companyId: user.company.id,
@@ -208,7 +180,7 @@ module.exports = {
     }
   },
   async store(req, res) {
-    const { userId } = req;
+    const { user } = req;
     let {
       accountId,
       installmentValue,
@@ -252,27 +224,6 @@ module.exports = {
     if (validation.error) {
       return res.status(400).json({ error: validation.error });
     }
-
-    /* -------------------------------------------------------------------------- */
-    /*                  Capturando informações do usuário logado                  */
-    /* -------------------------------------------------------------------------- */
-
-    const user = await User.findByPk(userId, {
-      attributes: {
-        exclude: [
-          "passwordHash",
-          "isAdmin",
-          "recoverPasswordToken",
-          "recoverPasswordTokenExpires",
-        ],
-      },
-      include: [
-        {
-          association: "company",
-          include: { association: "accounts", where: { id: accountId } },
-        },
-      ],
-    });
 
     /* -------------------------------------------------------------------------- */
     /*                  Verificando se a conta pertence a empresa                 */
@@ -320,7 +271,7 @@ module.exports = {
       });
   },
   async update(req, res) {
-    const { userId } = req;
+    const { user } = req;
     const { id } = req.params;
     const {
       dueDate,
@@ -344,27 +295,6 @@ module.exports = {
     if (validation.error) {
       return res.status(400).json({ error: validation.error });
     }
-
-    /* -------------------------------------------------------------------------- */
-    /*                  Capturando informações do usuário logado                  */
-    /* -------------------------------------------------------------------------- */
-
-    const user = await User.findByPk(userId, {
-      attributes: {
-        exclude: [
-          "passwordHash",
-          "isAdmin",
-          "recoverPasswordToken",
-          "recoverPasswordTokenExpires",
-        ],
-      },
-      include: [
-        {
-          association: "company",
-          include: { association: "accounts", where: { id: accountId } },
-        },
-      ],
-    });
 
     /* -------------------------------------------------------------------------- */
     /*                  Verificando se a conta pertence a empresa                 */

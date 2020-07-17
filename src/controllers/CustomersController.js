@@ -5,20 +5,8 @@ const { Op } = require("sequelize");
 
 module.exports = {
   async show(req, res) {
-    const { userId } = req;
+    const { user } = req;
     const { id } = req.params;
-
-    const user = await User.findByPk(userId, {
-      attributes: {
-        exclude: [
-          "passwordHash",
-          "isAdmin",
-          "recoverPasswordToken",
-          "recoverPasswordTokenExpires",
-        ],
-      },
-      include: { association: "company" },
-    });
 
     const customer = await Customer.findOne({
       where: { id: id, companyId: user.company.id },
@@ -27,7 +15,7 @@ module.exports = {
     return res.status(200).json(customer);
   },
   async update(req, res) {
-    const { userId } = req;
+    const { user } = req;
     const { id } = req.params;
     let {
       name,
@@ -40,18 +28,6 @@ module.exports = {
       number,
       street,
     } = req.body;
-
-    const user = await User.findByPk(userId, {
-      attributes: {
-        exclude: [
-          "passwordHash",
-          "isAdmin",
-          "recoverPasswordToken",
-          "recoverPasswordTokenExpires",
-        ],
-      },
-      include: { association: "company" },
-    });
 
     await Customer.update(
       {
@@ -80,23 +56,11 @@ module.exports = {
       });
   },
   async index(req, res) {
-    const { userId } = req;
+    const { user } = req;
     let { paginate, page, limit, name } = req.query;
 
     if (!page) page = 1;
     if (!limit) limit = 12;
-
-    const user = await User.findByPk(userId, {
-      attributes: {
-        exclude: [
-          "passwordHash",
-          "isAdmin",
-          "recoverPasswordToken",
-          "recoverPasswordTokenExpires",
-        ],
-      },
-      include: { association: "company" },
-    });
 
     where = { companyId: user.company.id };
     if (name) where.name = { [Op.like]: "%" + name + "%" };
@@ -121,7 +85,7 @@ module.exports = {
     }
   },
   async store(req, res) {
-    const { userId } = req;
+    const { user } = req;
     const {
       name,
       cpf,
@@ -133,18 +97,6 @@ module.exports = {
       number,
       street,
     } = req.body;
-
-    const user = await User.findByPk(userId, {
-      attributes: {
-        exclude: [
-          "passwordHash",
-          "isAdmin",
-          "recoverPasswordToken",
-          "recoverPasswordTokenExpires",
-        ],
-      },
-      include: { association: "company" },
-    });
 
     if (!name) {
       return res.status(400).json({ error: "O nome deve ser informado!" });
@@ -174,20 +126,8 @@ module.exports = {
     }
   },
   async delete(req, res) {
-    const { userId } = req;
+    const { user } = req;
     const { id } = req.params;
-
-    const user = await User.findByPk(userId, {
-      attributes: {
-        exclude: [
-          "passwordHash",
-          "isAdmin",
-          "recoverPasswordToken",
-          "recoverPasswordTokenExpires",
-        ],
-      },
-      include: { association: "company" },
-    });
 
     try {
       await Customer.destroy({
