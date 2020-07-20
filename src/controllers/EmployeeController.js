@@ -57,7 +57,7 @@ module.exports = {
 
     /* ------------ VERIFICANDO SE O USUARIO LOGADO É DONO DA EMPRESA ----------- */
 
-    let company = await Company.findOne({ where: { ownerId: user } });
+    let company = await Company.findOne({ where: { ownerId: user.id } });
     if (!company) {
       return res.status(400).json({
         error: "Apenas donos de empresas podem adicionar novos funcionários.",
