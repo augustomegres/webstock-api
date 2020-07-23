@@ -10,7 +10,6 @@ const AuthController = require("./controllers/AuthController");
 const LoggedController = require("./controllers/LoggedUserController");
 const PasswordRecoverController = require("./controllers/PasswordRecoverController");
 const AccountController = require("./controllers/AccountController");
-const SellerController = require("./controllers/SellerController");
 const CustomersController = require("./controllers/CustomersController");
 const InflowInstallmentsController = require("./controllers/InflowInstallmentsController");
 const ProviderController = require("./controllers/ProvidersController");
@@ -34,7 +33,9 @@ routes.post("/users", UserController.store);
 /* -------------------------------------------------------------------------- */
 /*                                FUNCIONÁRIOS                                */
 /* -------------------------------------------------------------------------- */
+routes.get("/employee", authMiddleware, EmployeeController.index);
 routes.post("/employee", authMiddleware, EmployeeController.store);
+routes.delete("/employee/:id", authMiddleware, EmployeeController.delete);
 
 /* -------------------------------------------------------------------------- */
 /*                                  PRODUTOS                                  */
@@ -60,12 +61,6 @@ routes.delete("/category/:id", authMiddleware, CategoryController.delete);
 routes.get("/sales", authMiddleware, SalesController.index);
 routes.post("/sales", authMiddleware, SalesController.store);
 routes.delete("/sales/:id", authMiddleware, SalesController.delete);
-
-/* -------------------------------------------------------------------------- */
-/*                                 VENDEDORES                                 */
-/* -------------------------------------------------------------------------- */
-routes.get("/sellers", authMiddleware, SellerController.index);
-routes.post("/sellers", authMiddleware, SellerController.store);
 
 /* -------------------------------------------------------------------------- */
 /*                                  CLIENTES                                  */
@@ -155,7 +150,7 @@ routes.put(
 routes.post("/authenticate", AuthController.authenticate);
 
 /* -------------------------------------------------------------------------- */
-/*                               USUARIO LOGADO                               */
+/*                               USUÁRIO LOGADO                               */
 /* -------------------------------------------------------------------------- */
 routes.get("/loggedUser", authMiddleware, blockEmployee, LoggedController.show);
 

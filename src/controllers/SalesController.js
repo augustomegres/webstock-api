@@ -6,7 +6,6 @@ const Sales = require("../models/Sale");
 const ProductSold = require("../models/ProductSold");
 const Customer = require("../models/Customer");
 const Installments = require("../models/InflowInstallments");
-const Seller = require("../models/Seller");
 
 module.exports = {
   async index(req, res) {
@@ -16,8 +15,7 @@ module.exports = {
       max,
       min_date_time,
       max_date_time,
-      seller,
-      customer,
+      customerId,
       product,
       id,
       order,
@@ -34,19 +32,11 @@ module.exports = {
       companyId: user.company.id,
     };
 
-    if (seller) {
-      if (!isNaN(seller)) {
-        let newSeller = { [Op.eq]: seller };
+    if (customerId) {
+      if (!isNaN(customerId)) {
+        let newCustomer = { [Op.eq]: customerId };
 
-        filter.seller = newSeller;
-      }
-    }
-
-    if (customer) {
-      if (!isNaN(customer)) {
-        let newCustomer = { [Op.eq]: customer };
-
-        filter.customer = newCustomer;
+        filter.customerId = newCustomer;
       }
     }
 
@@ -85,7 +75,7 @@ module.exports = {
       var searchOrder = [];
     }
 
-    //Fazendo a seleção dos que conteem parcelas não pagas
+    //Fazendo a seleção dos que contém parcelas não pagas
     switch (Number(selectOnly)) {
       case 1: {
         let select1 = await Sales.findAll({
@@ -162,7 +152,7 @@ module.exports = {
           });
         });
 
-        //VERIFICANDO SE O FILTRO DE PRODUTO FOI INCLUIDO E APLICANDO ELE
+        //VERIFICANDO SE O FILTRO DE PRODUTO FOI INCLUÍDO E APLICANDO ELE
         var productIncludeArr = [];
         if (product) {
           select2.map((sale) => {
@@ -349,7 +339,7 @@ module.exports = {
     return res.json(sales);
   },
   async store(req, res) {
-    const { date, customer, freight, products, installments } = req.body;
+    const { date, customerId, freight, products, installments } = req.body;
 
     const { user } = req;
 
@@ -358,8 +348,8 @@ module.exports = {
     /* -------------------------------------------------------------------------- */
 
     //Verificando se o cliente pertence a empresa
-    if (customer) {
-      const _customers = await Customer.findByPk(customer);
+    if (customerId) {
+      const _customers = await Customer.findByPk(customerId);
       if (_customers.companyId !== user.company.id) {
         return res
           .status(400)
@@ -445,8 +435,8 @@ module.exports = {
       var sale = await Sales.create({
         companyId: user.company.id,
         date,
-        seller: user.id,
-        customer,
+        sellerId: user.id,
+        customerId,
         freight,
         total,
       });

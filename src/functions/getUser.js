@@ -8,7 +8,7 @@ const getUser = async (userId) => {
     attributes: {
       exclude: [
         "passwordHash",
-        "passwordRecoverToken",
+        "recoverPasswordToken",
         "recoverPasswordTokenExpires",
       ],
     },

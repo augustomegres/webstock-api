@@ -9,7 +9,6 @@ const Category = require("../models/Category");
 const Sale = require("../models/Sale");
 const ProductSold = require("../models/ProductSold");
 const Account = require("../models/Account");
-const Seller = require("../models/Seller");
 const Customer = require("../models/Customer");
 const SaleInstallments = require("../models/InflowInstallments");
 const Providers = require("../models/Providers");
@@ -42,7 +41,6 @@ Category.init(connection);
 Sale.init(connection);
 ProductSold.init(connection);
 Account.init(connection);
-Seller.init(connection);
 Customer.init(connection);
 SaleInstallments.init(connection);
 Providers.init(connection);
@@ -57,108 +55,124 @@ sequelizePaginate.paginate(Product);
 sequelizePaginate.paginate(Category);
 sequelizePaginate.paginate(Customer);
 
-//RELAÇÃO DE USUÁRIO - EMPRESA
+/* -------------------------------------------------------------------------- */
+/*                             RELAÇÕES DE USUÁRIO                            */
+/* -------------------------------------------------------------------------- */
+
 User.hasOne(Company, { as: "company", foreignKey: "ownerId" });
+User.belongsToMany(Company, {
+  as: "employee_company",
+  foreignKey: "userId",
+  through: "company_employee",
+});
+User.belongsTo(Sale, { as: "seller", foreignKey: "id" });
+
+/* -------------------------------------------------------------------------- */
+/*                             RELAÇÕES DE EMPRESA                            */
+/* -------------------------------------------------------------------------- */
+
 Company.belongsTo(User, { as: "users", foreignKey: "ownerId" });
-
-//RELAÇÃO DE EMPRESA - PRODUTO
 Company.hasMany(Product, { as: "products", foreignKey: "companyId" });
-Product.belongsTo(Company, { as: "company", foreignKey: "companyId" });
-
-//RELAÇÃO DE EMPRESA - CONTA
-Account.belongsTo(Company, { as: "company", foreignKey: "companyId" });
 Company.hasMany(Account, { as: "accounts", foreignKey: "companyId" });
-
-//RELAÇÃO DE VENDA - PRODUTO
-ProductSold.belongsTo(Sale, { as: "sales", foreignKey: "sellId" });
-Sale.hasMany(ProductSold, { as: "productSold", foreignKey: "sellId" });
-
-//RELAÇÃO DE VENDA - VENDEDOR
-Sale.belongsTo(Seller, { as: "saleOwner", foreignKey: "seller" });
-
-//RELAÇÃO DE VENDA - CLIENTE
-Sale.belongsTo(Customer, { as: "customers", foreignKey: "customer" });
-Customer.hasMany(Sale, { as: "sales", foreignKey: "customer" });
-
-//RELAÇÃO DE EMPRESA - VENDEDOR
-Seller.belongsTo(Company, { as: "company", foreignKey: "companyId" });
-Company.hasMany(Seller, { as: "sellers", foreignKey: "companyId" });
-
-//RELAÇÃO DE PARCELA - VENDA
-SaleInstallments.belongsTo(Sale, { as: "sales", foreignKey: "saleId" });
-Sale.hasMany(SaleInstallments, { as: "installments", foreignKey: "saleId" });
-
-//RELAÇÃO DE PARCELA - EMPRESA
-SaleInstallments.belongsTo(Company, { as: "company", foreignKey: "companyId" });
 Company.hasMany(SaleInstallments, {
   as: "installments",
   foreignKey: "companyId",
 });
-
-//RELAÇÃO DE CLIENTE - EMPRESA
 Company.hasMany(Customer, { as: "customers", foreignKey: "companyId" });
-Customer.belongsTo(Company, { as: "company", foreignKey: "companyId" });
-
-//RELAÇÃO DE FORNECEDOR - EMPRESA
-Providers.belongsTo(Company, { as: "company", foreignKey: "companyId" });
 Company.hasMany(Providers, { as: "providers", foreignKey: "companyId" });
-
-//RELAÇÃO DE FORNECEDOR - PRODUTOS
-Product.belongsToMany(Providers, {
-  as: "providers",
-  foreignKey: "productId",
-  through: "products_providers",
-});
-
-Providers.belongsToMany(Product, {
-  as: "products",
-  foreignKey: "providerId",
-  through: "products_providers",
-});
-
-//RELAÇÃO DE PRODUTO - CATEGORIA
-Product.belongsTo(Category, { as: "category", foreignKey: "categoryId" });
-Category.hasMany(Product, { as: "products", foreignKey: "id" });
-
-//RELAÇÃO DE COMPRA - FORNECEDOR
-Purchase.belongsTo(Company, { as: "company", foreignKey: "companyId" });
-
-//RELAÇÃO DE COMPRA - PRODUTO
-Purchase.belongsTo(Product, { as: "products", foreignKey: "productId" });
-
-//RELAÇÃO DE COMPRA - FORNECEDOR
-Purchase.belongsTo(Providers, { as: "provider", foreignKey: "providerId" });
-
-//RELAÇÃO DE COMPRA - FORNECEDOR
-Purchase.hasMany(OutflowInstallments, {
-  as: "installments",
-  foreignKey: "purchaseId",
-});
-
-//RELAÇÃO DE COMPRA - PARCELAS
-OutflowInstallments.belongsTo(Purchase, {
-  as: "installments",
-  foreignKey: "purchaseId",
-});
-
-//RELAÇÃO DE COMPRA - PARCELAS
-OutflowInstallments.belongsTo(Company, {
-  as: "purchasesInstallments",
-  foreignKey: "companyId",
-});
-
-//RELAÇÃO DE EMPREGADO - EMPRESA
 Company.belongsToMany(User, {
   as: "employee",
   foreignKey: "companyId",
   through: "company_employee",
 });
 
-//RELAÇÃO DE EMPREGADO - EMPRESA
-User.belongsToMany(Company, {
-  as: "employee_company",
-  foreignKey: "userId",
-  through: "company_employee",
+/* -------------------------------------------------------------------------- */
+/*                             RELAÇÕES DE CONTAS                             */
+/* -------------------------------------------------------------------------- */
+
+Account.belongsTo(Company, { as: "company", foreignKey: "companyId" });
+
+/* -------------------------------------------------------------------------- */
+/*                            RELAÇÕES DE PRODUTOS                            */
+/* -------------------------------------------------------------------------- */
+
+Product.belongsTo(Company, { as: "company", foreignKey: "companyId" });
+Product.belongsToMany(Providers, {
+  as: "providers",
+  foreignKey: "productId",
+  through: "products_providers",
+});
+Product.belongsTo(Category, { as: "category", foreignKey: "categoryId" });
+
+/* -------------------------------------------------------------------------- */
+/*                        RELAÇÕES DE PRODUTOS VENDIDOS                       */
+/* -------------------------------------------------------------------------- */
+
+ProductSold.belongsTo(Sale, { as: "sales", foreignKey: "sellId" });
+
+/* -------------------------------------------------------------------------- */
+/*                             RELAÇÕES DE VENDAS                             */
+/* -------------------------------------------------------------------------- */
+
+Sale.hasMany(ProductSold, { as: "productSold", foreignKey: "sellId" });
+Sale.belongsTo(User, { as: "saleOwner", foreignKey: "sellerId" });
+Sale.belongsTo(Customer, { as: "customers", foreignKey: "customerId" });
+Sale.hasMany(SaleInstallments, { as: "installments", foreignKey: "saleId" });
+
+/* -------------------------------------------------------------------------- */
+/*                            RELAÇÕES DE CLIENTES                            */
+/* -------------------------------------------------------------------------- */
+
+Customer.hasMany(Sale, { as: "sales", foreignKey: "customerId" });
+Customer.belongsTo(Company, { as: "company", foreignKey: "companyId" });
+
+/* -------------------------------------------------------------------------- */
+/*                            RELAÇÕES DE PARCELAS                            */
+/* -------------------------------------------------------------------------- */
+
+SaleInstallments.belongsTo(Sale, { as: "sales", foreignKey: "saleId" });
+SaleInstallments.belongsTo(Company, { as: "company", foreignKey: "companyId" });
+
+/* -------------------------------------------------------------------------- */
+/*                           RELAÇÃO DE FORNECEDORES                          */
+/* -------------------------------------------------------------------------- */
+
+Providers.belongsTo(Company, { as: "company", foreignKey: "companyId" });
+Providers.belongsToMany(Product, {
+  as: "products",
+  foreignKey: "providerId",
+  through: "products_providers",
+});
+
+/* -------------------------------------------------------------------------- */
+/*                           RELAÇÕES DE CATEGORIAS                           */
+/* -------------------------------------------------------------------------- */
+
+Category.hasMany(Product, { as: "products", foreignKey: "id" });
+
+/* -------------------------------------------------------------------------- */
+/*                             RELAÇÕES DE COMPRAS                            */
+/* -------------------------------------------------------------------------- */
+
+Purchase.belongsTo(Company, { as: "company", foreignKey: "companyId" });
+Purchase.belongsTo(Product, { as: "products", foreignKey: "productId" });
+Purchase.belongsTo(Providers, { as: "provider", foreignKey: "providerId" });
+Purchase.hasMany(OutflowInstallments, {
+  as: "installments",
+  foreignKey: "purchaseId",
+});
+
+/* -------------------------------------------------------------------------- */
+/*                        RELAÇÕES DE PARCELAS DE SAÍDA                       */
+/* -------------------------------------------------------------------------- */
+
+OutflowInstallments.belongsTo(Purchase, {
+  as: "installments",
+  foreignKey: "purchaseId",
+});
+OutflowInstallments.belongsTo(Company, {
+  as: "purchasesInstallments",
+  foreignKey: "companyId",
 });
 
 module.exports = connection;

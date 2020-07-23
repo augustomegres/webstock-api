@@ -17,6 +17,7 @@ module.exports = {
       max_date_time,
       product,
       provider,
+      columnToSort,
       order,
       page,
       pageSize,
@@ -64,11 +65,14 @@ module.exports = {
       };
     }
 
-    if (order) {
-      var searchOrder = [];
-      searchOrder.push(["id", order]);
+    /* -------------------------------------------------------------------------- */
+    /*                               ORDEM DE FILTRO                              */
+    /* -------------------------------------------------------------------------- */
+
+    if (columnToSort && order) {
+      order = [[columnToSort, order]];
     } else {
-      var searchOrder = [];
+      order = null;
     }
 
     try {
@@ -76,7 +80,7 @@ module.exports = {
         page: page,
         paginate: Number(pageSize),
         where: filter,
-        order: searchOrder,
+        order,
         include: [
           {
             association: "products",

@@ -8,6 +8,27 @@ const {
 } = require("../functions/validations");
 
 module.exports = {
+  async index(req, res) {
+    const { user } = req;
+
+    let company = await Company.findOne({
+      where: { id: user.company.id },
+      include: [
+        {
+          association: "employee",
+          attributes: {
+            exclude: [
+              "passwordHash",
+              "recoverPasswordToken",
+              "recoverPasswordTokenExpires",
+            ],
+          },
+        },
+      ],
+    });
+
+    return res.json(company);
+  },
   async store(req, res) {
     const { user } = req;
     const { name, email, cpf, date_of_birth, phone, password } = req.body;
@@ -55,7 +76,7 @@ module.exports = {
 
     let passwordHash = await bcrypt.hash(password, 10);
 
-    /* ------------ VERIFICANDO SE O USUARIO LOGADO É DONO DA EMPRESA ----------- */
+    /* ------------ VERIFICANDO SE O USUÁRIO LOGADO É DONO DA EMPRESA ----------- */
 
     let company = await Company.findOne({ where: { ownerId: user.id } });
     if (!company) {
@@ -87,6 +108,55 @@ module.exports = {
       })
       .catch((e) => {
         return res.status(400).json(e);
+      });
+  },
+  async delete(req, res) {
+    const { user } = req;
+    const { id } = req.params;
+
+    if (user.id !== user.company.ownerId) {
+      return res
+        .status(400)
+        .json({ error: "Você não é o proprietário dessa empresa." });
+    }
+
+    /* ----------------- REQUISITANDO INFORMAÇÕES DO FUNCIONÁRIO ---------------- */
+
+    const employee = await User.findOne({
+      where: { id },
+      include: { association: "employee_company" },
+    });
+
+    /* ----------------------- VERIFICANDO SE É UM USUÁRIO ---------------------- */
+
+    if (employee.type == "user") {
+      return res
+        .status(400)
+        .json({ error: "Você não pode deletar um usuário." });
+    }
+
+    /* --------- VERIFICANDO O FUNCIONÁRIO PERTENCE A EMPRESA DO USUÁRIO -------- */
+
+    if (employee.employee_company[0].id != user.company.id) {
+      return res
+        .status(400)
+        .json({ error: "Este funcionário não pertence a sua empresa." });
+    }
+
+    /* -------------------------------------------------------------------------- */
+    /*                            ATUALIZANDO O USUÁRIO                           */
+    /* -------------------------------------------------------------------------- */
+
+    await User.update({ enabled: false }, { where: { id } })
+      .then((info) => {
+        return res
+          .status(200)
+          .json({ success: "O usuário foi removido com sucesso.", info: info });
+      })
+      .catch((error) => {
+        return res
+          .status(400)
+          .json({ error: "Houve um erro ao remover o usuário..", info: error });
       });
   },
 };

@@ -8,48 +8,48 @@ module.exports = {
         primaryKey: true,
         autoIncrement: true,
         allowNull: false,
-        unique: true
+        unique: true,
       },
       companyId: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: { model: "companies", key: "id" },
         onUpdate: "CASCADE",
-        onDelete: "CASCADE"
+        onDelete: "CASCADE",
       },
       date: {
         type: Sequelize.DATE,
-        allowNull: false
+        allowNull: false,
       },
-      seller: {
+      sellerId: {
         type: Sequelize.INTEGER,
         allowNull: true,
-        references: { model: "sellers", key: "id" },
+        references: { model: "users", key: "id" },
         onUpdate: "CASCADE",
-        onDelete: "RESTRICT"
+        onDelete: "RESTRICT",
       },
-      customer: {
+      customerId: {
         type: Sequelize.INTEGER,
         allowNull: true,
         references: { model: "customers", key: "id" },
         onUpdate: "CASCADE",
-        onDelete: "CASCADE"
+        onDelete: "CASCADE",
       },
       freight: {
         type: Sequelize.DECIMAL(10, 2),
-        allowNull: true
+        allowNull: true,
       },
       createdAt: {
         type: Sequelize.DATE,
-        allowNull: false
+        allowNull: false,
       },
       updatedAt: {
         type: Sequelize.DATE,
-        allowNull: false
-      }
+        allowNull: false,
+      },
     });
   },
-  down: queryInterface => {
+  down: (queryInterface) => {
     return queryInterface.dropTable("sales");
-  }
+  },
 };
