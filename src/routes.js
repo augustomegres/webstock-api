@@ -2,6 +2,8 @@ const express = require("express");
 const authMiddleware = require("./middlewares/authMiddleware");
 const blockEmployee = require("./middlewares/blockEmployee");
 
+const User = require("./models/User");
+
 const UserController = require("./controllers/UserController");
 const ProductController = require("./controllers/ProductController");
 const CategoryController = require("./controllers/CategoryController");
@@ -20,8 +22,22 @@ const EmployeeController = require("./controllers/EmployeeController");
 
 const routes = express.Router();
 
-routes.get("/", (req, res) => {
-  return res.json({ api_name: "webstock", api_version: "0.1" });
+routes.get("/", async (req, res) => {
+  await User.count()
+    .then(() => {
+      return res.json({
+        api_name: "webstock",
+        api_version: "0.1",
+        db_connected: true,
+      });
+    })
+    .catch(() => {
+      return res.json({
+        api_name: "webstock",
+        api_version: "0.1",
+        db_connected: true,
+      });
+    });
 });
 /* -------------------------------------------------------------------------- */
 /*                                  USUÁRIOS                                  */
