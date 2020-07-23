@@ -18,6 +18,7 @@ module.exports = {
       customerId,
       product,
       id,
+      columnToSort,
       order,
       page,
       pageSize,
@@ -66,13 +67,6 @@ module.exports = {
           [Op.lte]: max_date_time || "2100-01-01",
         },
       };
-    }
-
-    if (order) {
-      var searchOrder = [];
-      searchOrder.push(["id", order]);
-    } else {
-      var searchOrder = [];
     }
 
     //Fazendo a seleção dos que contém parcelas não pagas
@@ -310,12 +304,18 @@ module.exports = {
         break;
     }
 
+    if (columnToSort && order) {
+      order = [[columnToSort, order]];
+    } else {
+      order = null;
+    }
+
     try {
       var sales = await Sales.paginate({
         page,
         paginate: Number(pageSize),
         where: filter,
-        order: searchOrder,
+        order,
         include: [
           { association: "customers" },
           { association: "productSold" },
