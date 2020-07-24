@@ -137,6 +137,7 @@ module.exports = {
       dueDate,
       purchaseId,
       accountId,
+      paginate,
     } = req.query;
 
     if (!page) {
@@ -220,15 +221,35 @@ module.exports = {
         [Op.lte]: value,
       };
     }
-
-    var installments = await InflowInstallments.paginate({
-      page: page,
-      paginate: Number(pageSize),
-      where,
-      order: searchOrder,
-    });
-
-    return res.status(200).json(installments);
+    if (paginate == "true") {
+      InflowInstallments.paginate({
+        page: page,
+        paginate: Number(pageSize),
+        where,
+        order: searchOrder,
+      })
+        .then((e) => {
+          return res.status(200).json(e);
+        })
+        .catch((e) => {
+          return res
+            .status(400)
+            .json({ error: "Houve um erro inesperado", info: e });
+        });
+    } else {
+      InflowInstallments.findAll({
+        where,
+        order: searchOrder,
+      })
+        .then((e) => {
+          return res.status(200).json(e);
+        })
+        .catch((e) => {
+          return res
+            .status(400)
+            .json({ error: "Houve um erro inesperado", info: e });
+        });
+    }
   },
   async update(req, res) {
     const { user } = req;

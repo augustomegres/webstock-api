@@ -8,22 +8,6 @@ const {
 const OutflowInstallments = require("../models/OutflowInstallments");
 const { Op } = require("sequelize");
 
-/**
- {
-  purchaseId: DataTypes.INTEGER,
-  companyId: DataTypes.INTEGER,
-  accountId: DataTypes.INTEGER,
-  installmentNumber: DataTypes.INTEGER,
-  installmentTotal: DataTypes.INTEGER,
-  installmentValue: DataTypes.DECIMAL,
-  type: DataTypes.STRING,
-  reason: DataTypes.TEXT,
-  dueDate: DataTypes.DATE,
-  paymentDate: DataTypes.DATE,
-  type: DataTypes.STRING,
- }
- */
-
 module.exports = {
   async show(req, res) {
     const { user } = req;
@@ -149,7 +133,7 @@ module.exports = {
       };
     }
 
-    if (paginate) {
+    if (paginate == "true") {
       OutflowInstallments.paginate({
         page: page,
         paginate: Number(pageSize),
