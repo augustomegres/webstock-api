@@ -49,12 +49,6 @@ module.exports = {
       page = 1;
     }
 
-    if (paginate == "true") {
-      paginate = true;
-    } else {
-      paginate = false;
-    }
-
     if (!pageSize) {
       pageSize = 15;
     }
