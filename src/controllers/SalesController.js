@@ -1,6 +1,5 @@
 const { Op } = require("sequelize");
 
-const User = require("../models/User");
 const Product = require("../models/Product");
 const Sales = require("../models/Sale");
 const ProductSold = require("../models/ProductSold");
@@ -91,7 +90,7 @@ module.exports = {
           });
         });
 
-        //VERIFICANDO SE O FILTRO DE PRODUTO FOI INCLUIDO E APLICANDO ELE
+        //VERIFICANDO SE O FILTRO DE PRODUTO FOI INCLUÍDO E APLICANDO ELE
         var productIncludeArr = [];
         if (product) {
           select1.map((sale) => {
@@ -196,7 +195,7 @@ module.exports = {
           });
         });
 
-        //VERIFICANDO SE O FILTRO DE PRODUTO FOI INCLUIDO E APLICANDO ELE
+        //VERIFICANDO SE O FILTRO DE PRODUTO FOI INCLUÍDO E APLICANDO ELE
         var productIncludeArr = [];
         if (product) {
           select3.map((sale) => {
@@ -249,7 +248,7 @@ module.exports = {
           });
         });
 
-        //VERIFICANDO SE O FILTRO DE PRODUTO FOI INCLUIDO E APLICANDO ELE
+        //VERIFICANDO SE O FILTRO DE PRODUTO FOI INCLUÍDO E APLICANDO ELE
         var productIncludeArr = [];
         if (product) {
           select4.map((sale) => {
@@ -285,7 +284,7 @@ module.exports = {
             include: [{ association: "productSold" }],
           });
 
-          //VERIFICANDO SE O FILTRO DE PRODUTO FOI INCLUIDO E APLICANDO ELE
+          //VERIFICANDO SE O FILTRO DE PRODUTO FOI INCLUÍDO E APLICANDO ELE
           var productIncludeArr = [];
           selectDefault.map((sale) => {
             sale.productSold.map((saleProduct) => {
