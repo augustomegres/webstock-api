@@ -8,6 +8,7 @@ const Product = require("../models/Product");
 const Category = require("../models/Category");
 const Sale = require("../models/Sale");
 const ProductSold = require("../models/ProductSold");
+const PurchasedProducts = require("../models/PurchasedProducts");
 const Account = require("../models/Account");
 const Customer = require("../models/Customer");
 const SaleInstallments = require("../models/InflowInstallments");
@@ -40,6 +41,7 @@ Product.init(connection);
 Category.init(connection);
 Sale.init(connection);
 ProductSold.init(connection);
+PurchasedProducts.init(connection);
 Account.init(connection);
 Customer.init(connection);
 SaleInstallments.init(connection);
@@ -120,6 +122,32 @@ Sale.belongsTo(Customer, { as: "customers", foreignKey: "customerId" });
 Sale.hasMany(SaleInstallments, { as: "installments", foreignKey: "saleId" });
 
 /* -------------------------------------------------------------------------- */
+/*                       RELAÇÕES DE PRODUTOS COMPRADOS                       */
+/* -------------------------------------------------------------------------- */
+
+PurchasedProducts.belongsTo(Purchase, {
+  as: "purchases",
+  foreignKey: "purchaseId",
+});
+
+/* -------------------------------------------------------------------------- */
+/*                             RELAÇÕES DE COMPRAS                            */
+/* -------------------------------------------------------------------------- */
+
+Purchase.hasMany(PurchasedProducts, {
+  as: "purchasedProducts",
+  foreignKey: "purchaseId",
+});
+
+Purchase.belongsTo(Company, { as: "company", foreignKey: "companyId" });
+Purchase.belongsTo(Product, { as: "products", foreignKey: "productId" });
+Purchase.belongsTo(Providers, { as: "provider", foreignKey: "providerId" });
+Purchase.hasMany(OutflowInstallments, {
+  as: "installments",
+  foreignKey: "purchaseId",
+});
+
+/* -------------------------------------------------------------------------- */
 /*                            RELAÇÕES DE CLIENTES                            */
 /* -------------------------------------------------------------------------- */
 
@@ -149,18 +177,6 @@ Providers.belongsToMany(Product, {
 /* -------------------------------------------------------------------------- */
 
 Category.hasMany(Product, { as: "products", foreignKey: "id" });
-
-/* -------------------------------------------------------------------------- */
-/*                             RELAÇÕES DE COMPRAS                            */
-/* -------------------------------------------------------------------------- */
-
-Purchase.belongsTo(Company, { as: "company", foreignKey: "companyId" });
-Purchase.belongsTo(Product, { as: "products", foreignKey: "productId" });
-Purchase.belongsTo(Providers, { as: "provider", foreignKey: "providerId" });
-Purchase.hasMany(OutflowInstallments, {
-  as: "installments",
-  foreignKey: "purchaseId",
-});
 
 /* -------------------------------------------------------------------------- */
 /*                        RELAÇÕES DE PARCELAS DE SAÍDA                       */

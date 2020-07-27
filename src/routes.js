@@ -108,7 +108,7 @@ routes.delete("/providers/:id", authMiddleware, ProviderController.delete);
 /* -------------------------------------------------------------------------- */
 /*                                   COMPRAS                                  */
 /* -------------------------------------------------------------------------- */
-routes.post("/purchase/:productId", authMiddleware, PurchasingController.store);
+routes.post("/purchase", authMiddleware, PurchasingController.store);
 routes.get("/purchase", authMiddleware, PurchasingController.index);
 
 /* -------------------------------------------------------------------------- */

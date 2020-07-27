@@ -1,11 +1,10 @@
 const { Op } = require("sequelize");
 
-const User = require("../models/User");
 const Provider = require("../models/Providers");
 const Purchase = require("../models/Purchase");
-const OutflowInstallmentsController = require("../models/OutflowInstallments");
+const Installments = require("../models/OutflowInstallments");
+const PurchasedProducts = require("../models/PurchasedProducts");
 const Product = require("../models/Product");
-const Account = require("../models/Account");
 
 module.exports = {
   async index(req, res) {
@@ -137,152 +136,134 @@ module.exports = {
     return res.json(purchases);
   },
   async store(req, res) {
+    const { date, providerId, freight, products, installments } = req.body;
+
     const { user } = req;
-    let {
-      date,
-      freight,
-      quantity,
-      installments,
-      providerId,
-      accountId,
-    } = req.body;
-    const { productId } = req.params;
 
-    quantity = Number(quantity);
+    /* -------------------------------------------------------------------------- */
+    /*                                VERIFICAÇÕES                                */
+    /* -------------------------------------------------------------------------- */
 
-    date = new Date(date).toISOString();
-
-    if (!installments) {
-      return res.status(400).json({
-        error: "É necessário enviar as parcelas na requisição!",
-      });
-    }
-
-    if (!date) {
-      return res.status(400).json({
-        error: "A data da compra é obrigatória!",
-      });
-    }
-
-    if (quantity <= 0) {
-      return res.status(400).json({
-        error: "A quantidade de produtos deve ser maior que 0!",
-      });
-    }
-
-    if (!productId) {
-      return res.status(400).json({
-        error: "É necessário informar um produto!",
-      });
-    }
-
-    if (!user) {
-      return res.status(400).json({
-        error: "Usuário inexistente, erro inesperado!",
-      });
-    }
-
+    //Verificando se o fornecedor pertence a empresa
     if (providerId) {
-      const provider = await Provider.findByPk(providerId, {
-        include: [
-          {
-            association: "products",
-          },
-        ],
-      });
-
-      if (!provider) {
+      const _providers = await Provider.findByPk(providerId);
+      if (_providers.companyId !== user.company.id) {
         return res.status(400).json({
-          error: "O fornecedor informado não existe!",
-        });
-      }
-
-      let cont = 0;
-      provider.products.map((value) => {
-        if (value.id == productId) {
-          cont++;
-          return;
-        }
-      });
-
-      if (cont === 0) {
-        return res.status(400).json({
-          error: "O produto informado não pertence a este fornecedor!",
+          error: "O fornecedor informado não pertence a sua empresa!",
         });
       }
     }
 
-    /* -------------------------------------------------------------------------- */
-    /*                        FAZENDO VERIFICAÇÃO DE CONTA                        */
-    /* -------------------------------------------------------------------------- */
+    /* ----------- SE NÃO HOUVER O VALOR DO FRETE, ELE SERA IGUAL A 0 ----------- */
 
-    if (!accountId) {
+    let total = freight ? Number(freight) : 0;
+
+    let productIdList = [];
+
+    products.map((product) => {
+      /* ------------------- CALCULANDO VALOR TOTAL DOS PRODUTOS ------------------ */
+
+      total = total + product.quantity * product.unityPrice;
+
+      /* ------------------------ INSERINDO IDS EM UM ARRAY ----------------------- */
+
+      productIdList.push(product.productId);
+    });
+
+    /* -------------------- REMOVENDO IDS DUPLICADOS NO ARRAY ------------------- */
+
+    productIdList = [...new Set(productIdList)];
+
+    const notUserCompanyProduct = await Product.findAll({
+      where: {
+        id: productIdList,
+        companyId: { [Op.ne]: user.company.id },
+      },
+    });
+
+    if (notUserCompanyProduct.length) {
       return res.status(400).json({
-        error: "É necessário informar a conta!",
+        error:
+          "Você está tentando cadastrar um produto que não pertence a sua empresa!",
       });
-    } else {
-      const account = await Account.findOne({
-        where: { id: accountId, companyId: user.company.id },
-      });
-
-      if (!account) {
-        return res
-          .status(400)
-          .json({ error: "A conta informada não pode ser identificada!" });
-      }
     }
 
+    let productsExists = await Product.findAll({
+      where: {
+        id: productIdList,
+      },
+    });
+
+    if (productsExists.length !== productIdList.length) {
+      return res.status(400).json({
+        error: "Um ou mais dos produtos que você tentou cadastrar não existem",
+      });
+    }
+
+    const stockAdd = {};
+    products.map((product) => {
+      if (!stockAdd[product.productId]) {
+        stockAdd[product.productId] = 0;
+      }
+      stockAdd[product.productId] =
+        stockAdd[product.productId] + product.quantity;
+    });
+
     /* -------------------------------------------------------------------------- */
-    /*                           CADASTRANDO UMA COMPRA                           */
+    /*                      CRIANDO A VENDA NO BANCO DE DADOS                     */
     /* -------------------------------------------------------------------------- */
 
     try {
-      var newPurchase = await Purchase.create({
+      var purchase = await Purchase.create({
         companyId: user.company.id,
-        providerId,
-        productId,
-        accountId,
         date,
+        buyerId: user.id,
+        providerId,
         freight,
-        quantity,
+        total,
       });
 
-      var initialProduct = await Product.findByPk(productId);
-
-      installments.map((value) => {
-        value.accountId = accountId;
-        value.companyId = user.company.id;
-        value.purchaseId = newPurchase.id;
+      products.map((product) => {
+        product.purchaseId = purchase.id;
       });
 
-      await OutflowInstallmentsController.bulkCreate(installments);
+      /* ----------------------- INSERINDO PRODUTOS COMPRADOS ---------------------- */
 
-      await Product.update(
-        {
-          quantity: Number(initialProduct.quantity) + quantity,
-        },
-        {
-          where: {
-            id: productId,
-          },
-        }
-      );
+      await PurchasedProducts.bulkCreate(products);
+      for (var id in stockAdd) {
+        productsExists.map((product, index) => {
+          if (product.id == id) {
+            quantity = Number(productsExists[index].quantity);
+            quantity += stockAdd[id];
+            productsExists[index].quantity = quantity;
+          }
+        });
+      }
 
-      return res.status(200).json({
-        success:
-          "Compra realizada com sucesso, os produtos já estão disponíveis para vendas no seu estoque!",
+      /* ------------------- INSERINDO O ID DA VENDA NA PARCELA ------------------- */
+
+      installments.map((installment) => {
+        installment.purchaseId = purchase.id;
+        installment.companyId = user.company.id;
+      });
+
+      /* ------------------- CRIANDO PARCELAS NO BANCO DE DADOS ------------------- */
+
+      await Installments.bulkCreate(JSON.parse(JSON.stringify(installments)));
+
+      /* ---------------- ATUALIZANDO OS PRODUTOS NO BANCO DE DADOS --------------- */
+
+      await Product.bulkCreate(JSON.parse(JSON.stringify(productsExists)), {
+        updateOnDuplicate: ["quantity"],
       });
     } catch (e) {
-      await Purchase.destroy({
-        where: {
-          id: newPurchase.id,
-        },
-      });
-
+      await Purchase.destroy({ where: { id: purchase.id } });
       return res.status(400).json({
-        error:
-          "Não foi possível inserir os dados devido a um erro não identificado",
+        error: "Houve um erro ao tentar inserir o registro!",
+        detail: e,
       });
     }
+
+    return res.status(200).json({ success: "Venda concluída com sucesso!" });
   },
 };
