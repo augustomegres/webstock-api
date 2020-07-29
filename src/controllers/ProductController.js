@@ -17,9 +17,25 @@ module.exports = {
       providerId,
       sku,
       name,
+      columnToSort,
+      order,
     } = req.query;
     if (!page) page = 1;
     if (!pageSize) pageSize = 12;
+
+    /* -------------------------------------------------------------------------- */
+    /*                                  ORDENAÇÃO                                 */
+    /* -------------------------------------------------------------------------- */
+
+    if (columnToSort && order) {
+      if (columnToSort == "category") {
+        order = [["category", "name", order]];
+      } else {
+        order = [[columnToSort, order]];
+      }
+    } else {
+      order = null;
+    }
 
     /* -------------------------------------------------------------------------- */
     /*                                   FILTROS                                  */
@@ -29,17 +45,14 @@ module.exports = {
 
     /* ---------------------- FILTRO DE PRODUTO HABILITADO ---------------------- */
 
-    if (enabled != "true" && enabled != "false") {
-      return res.status(400).json({
-        error: "O filtro enabled deve ser true ou false",
-        info: { provided: enabled },
-      });
+    if (enabled == "true") {
+      filter.enabled = { [Op.eq]: true };
     }
 
     /* -------------------- FILTRO CASO O ESTOQUE SEJA BAIXO -------------------- */
 
     if (minimum == "true") {
-      filter.quantity = { [Op.lt]: Sequelize.col("minimum") };
+      filter.quantity = { [Op.lte]: Sequelize.col("minimum") };
     }
 
     /* ----------------------------- FILTROS DE NOME ---------------------------- */
@@ -59,6 +72,10 @@ module.exports = {
       providerWhere.id = providerId;
     }
 
+    if (categoryId) {
+      filter.categoryId = { [Op.eq]: categoryId };
+    }
+
     /* -------------------------------------------------------------------------- */
     /*                            REQUISITANDO PRODUTOS                           */
     /* -------------------------------------------------------------------------- */
@@ -68,8 +85,9 @@ module.exports = {
         Product.paginate({
           page,
           paginate: Number(pageSize),
+          order,
           include: [
-            { association: "providers", where: providerWhere },
+            { association: "providers", where: providerWhere, required: false },
             { association: "category" },
           ],
           where: filter,
@@ -80,9 +98,10 @@ module.exports = {
 
       default:
         Product.findAll({
+          order,
           include: [
-            { association: "providers", where: providerWhere },
             { association: "category" },
+            { association: "providers", where: providerWhere, required: false },
           ],
           where: filter,
         }).then((e) => {
@@ -94,10 +113,23 @@ module.exports = {
   },
   async store(req, res) {
     const { user } = req;
-    let { name, sku, categoryId, price, minimum, provider, enabled } = req.body;
+    let {
+      name,
+      sku,
+      categoryId,
+      price,
+      quantity,
+      minimum,
+      provider,
+      enabled,
+    } = req.body;
 
     if (!minimum) {
       minimum = 0;
+    }
+
+    if (!quantity) {
+      quantity = 0;
     }
 
     if (!enabled) {
@@ -128,6 +160,7 @@ module.exports = {
         categoryId,
         price,
         minimum,
+        quantity,
         enabled,
       });
 
