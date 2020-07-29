@@ -116,6 +116,7 @@ module.exports = {
 
       const newCompany = await Company.create({
         name: company,
+        lastSeen: new Date(),
         ownerId: user.id,
       });
 

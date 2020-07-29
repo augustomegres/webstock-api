@@ -1,4 +1,5 @@
 const User = require("../models/User");
+const Company = require("../models/Company");
 
 const getUser = async (userId) => {
   /* ----------------------- CAPTURANDO USUARIO PELO ID ----------------------- */
@@ -13,6 +14,8 @@ const getUser = async (userId) => {
       ],
     },
   });
+
+  Company.update({ lastSeen: new Date() }, { where: { id: user.company.id } });
 
   /* ----------------------- AJUSTANDO OBJETO DE EMPRESA ---------------------- */
 
