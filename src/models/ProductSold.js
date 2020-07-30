@@ -4,15 +4,15 @@ class ProductSold extends Model {
   static init(sequelize) {
     super.init(
       {
-        sellId: DataTypes.INTEGER,
+        saleId: DataTypes.INTEGER,
         productId: DataTypes.INTEGER,
         productName: DataTypes.STRING,
         quantity: DataTypes.INTEGER,
-        unityPrice: DataTypes.DECIMAL
+        unityPrice: DataTypes.DECIMAL,
       },
       {
         sequelize,
-        modelName: "product_sold"
+        modelName: "product_sold",
       }
     );
   }

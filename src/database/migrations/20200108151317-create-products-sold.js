@@ -8,44 +8,44 @@ module.exports = {
         primaryKey: true,
         autoIncrement: true,
         allowNull: false,
-        unique: true
+        unique: true,
       },
-      sellId: {
+      saleId: {
         type: Sequelize.INTEGER,
         references: { model: "sales", key: "id" },
         onUpdate: "CASCADE",
-        onDelete: "CASCADE"
+        onDelete: "CASCADE",
       },
       productId: {
         type: Sequelize.INTEGER,
         references: { model: "products", key: "id" },
         onUpdate: "CASCADE",
-        onDelete: "RESTRICT"
+        onDelete: "RESTRICT",
       },
       productName: {
         type: Sequelize.STRING,
-        allowNull: false
+        allowNull: false,
       },
       quantity: {
         type: Sequelize.INTEGER,
-        allowNull: false
+        allowNull: false,
       },
       unityPrice: {
         //PREÇO UNITÁRIO
         type: Sequelize.DECIMAL(10, 2),
-        allowNull: false
+        allowNull: false,
       },
       createdAt: {
         type: Sequelize.DATE,
-        allowNull: false
+        allowNull: false,
       },
       updatedAt: {
         type: Sequelize.DATE,
-        allowNull: false
-      }
+        allowNull: false,
+      },
     });
   },
-  down: queryInterface => {
+  down: (queryInterface) => {
     return queryInterface.dropTable("product_sold");
-  }
+  },
 };

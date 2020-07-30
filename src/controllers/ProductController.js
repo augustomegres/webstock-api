@@ -1,6 +1,7 @@
 const User = require("../models/User");
 const Product = require("../models/Product");
 const Provider = require("../models/Providers");
+const ProductProviders = require("../models/ProductProviders");
 const ProductSold = require("../models/ProductSold");
 const { Op, Sequelize } = require("sequelize");
 
@@ -89,6 +90,10 @@ module.exports = {
           include: [
             { association: "providers", where: providerWhere, required: false },
             { association: "category" },
+            {
+              association: "sales",
+              include: [{ association: "installments" }],
+            },
           ],
           where: filter,
         }).then((e) => {
@@ -102,6 +107,10 @@ module.exports = {
           include: [
             { association: "category" },
             { association: "providers", where: providerWhere, required: false },
+            {
+              association: "sales",
+              include: [{ association: "installments" }],
+            },
           ],
           where: filter,
         }).then((e) => {
@@ -142,12 +151,19 @@ module.exports = {
         .json({ error: "O preço e nome são obrigatórios!" });
     }
 
-    if (provider) {
-      var _provider = await Provider.findByPk(provider);
+    let providersId = [];
 
-      if (!_provider) {
-        return res.status(400).json({ error: "O fornecedor é inválido" });
-      }
+    provider.map((provider) => {
+      providersId.push(provider.id);
+    });
+
+    let _provider = [];
+    _provider = await Provider.findAll({
+      where: { id: providersId, companyId: user.company.id },
+    });
+
+    if (_provider.length != provider.length) {
+      return res.status(400).json({ error: "O fornecedor é inválido" });
     }
 
     const company = user.company;
@@ -181,39 +197,65 @@ module.exports = {
       price,
       quantity,
       enabled,
+      minimum,
       provider,
     } = req.body;
-    let { productId } = req.params;
-    productId = Number(productId);
 
-    const product = await Product.update(
-      { name, sku, categoryId, price, quantity, enabled },
-      { where: { id: productId, companyId: user.company.id } }
-    );
+    let providersId = [];
 
-    if (provider) {
-      const _product = await Product.findByPk(productId);
-      const _provider = await Provider.findByPk(provider);
-      if (!_provider) {
-        return res.status(400).json({
-          error:
-            "O produto foi atualizado, mas o fornecedor informado não foi encontrado",
-        });
-      }
+    provider.map((provider) => {
+      providersId.push(provider.id);
+    });
 
-      await _product.addProvider(_provider);
+    let _provider = [];
+    _provider = await Provider.findAll({
+      where: { id: providersId, companyId: user.company.id },
+    });
+
+    if (_provider.length != provider.length) {
+      return res.status(400).json({ error: "O fornecedor é inválido" });
     }
 
-    return res.status(200).json(product);
+    let { productId } = req.params;
+
+    productId = Number(productId);
+
+    try {
+      await Product.update(
+        { name, sku, categoryId, price, quantity, minimum, enabled },
+        { where: { id: productId, companyId: user.company.id } }
+      );
+
+      let product = await Product.findOne({ where: { id: productId } });
+
+      await ProductProviders.destroy({ where: { productId: productId } });
+      product.addProvider(_provider);
+
+      return res.status(200).json(product);
+    } catch (e) {
+      return res.status(400).json({ error: "Erro", info: e });
+    }
   },
   async show(req, res) {
     const { user } = req;
     let { productId } = req.params;
+    let { providers, category } = req.query;
     productId = Number(productId);
 
+    let associations = [];
+
+    if (providers) {
+      associations.push({ association: "providers" });
+    }
+
+    if (category) {
+      associations.push({ association: "category" });
+    }
+
     const product = await Product.findOne({
-      productId,
+      include: associations,
       where: {
+        id: productId,
         companyId: user.company.id,
       },
     });

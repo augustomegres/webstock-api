@@ -441,7 +441,7 @@ module.exports = {
       });
 
       products.map((product) => {
-        product.sellId = sale.id;
+        product.saleId = sale.id;
       });
 
       /* ----------------------- INSERINDO PRODUTOS VENDIDOS ---------------------- */

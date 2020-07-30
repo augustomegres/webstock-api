@@ -16,6 +16,7 @@ const Providers = require("../models/Providers");
 const Purchase = require("../models/Purchase");
 const OutflowInstallments = require("../models/OutflowInstallments");
 const InflowInstallments = require("../models/InflowInstallments");
+const ProductProviders = require("../models/ProductProviders");
 
 const connection = new Sequelize(
   process.env.DB_DATABASE,
@@ -42,6 +43,7 @@ Category.init(connection);
 Sale.init(connection);
 ProductSold.init(connection);
 PurchasedProducts.init(connection);
+ProductProviders.init(connection);
 Account.init(connection);
 Customer.init(connection);
 SaleInstallments.init(connection);
@@ -105,18 +107,23 @@ Product.belongsToMany(Providers, {
   through: "products_providers",
 });
 Product.belongsTo(Category, { as: "category", foreignKey: "categoryId" });
+Product.belongsToMany(Sale, {
+  as: "sales",
+  foreignKey: "productId",
+  through: "product_sold",
+});
 
 /* -------------------------------------------------------------------------- */
 /*                        RELAÇÕES DE PRODUTOS VENDIDOS                       */
 /* -------------------------------------------------------------------------- */
 
-ProductSold.belongsTo(Sale, { as: "sales", foreignKey: "sellId" });
+//ProductSold.belongsTo(Sale, { as: "sales", foreignKey: "saleId" });
 
 /* -------------------------------------------------------------------------- */
 /*                             RELAÇÕES DE VENDAS                             */
 /* -------------------------------------------------------------------------- */
 
-Sale.hasMany(ProductSold, { as: "productSold", foreignKey: "sellId" });
+//Sale.belongsTo(ProductSold, { as: "productSold" });
 Sale.belongsTo(User, { as: "saleOwner", foreignKey: "sellerId" });
 Sale.belongsTo(Customer, { as: "customers", foreignKey: "customerId" });
 Sale.hasMany(SaleInstallments, { as: "installments", foreignKey: "saleId" });
@@ -125,7 +132,7 @@ Sale.hasMany(SaleInstallments, { as: "installments", foreignKey: "saleId" });
 /*                       RELAÇÕES DE PRODUTOS COMPRADOS                       */
 /* -------------------------------------------------------------------------- */
 
-PurchasedProducts.belongsTo(Purchase, {
+PurchasedProducts.hasOne(Purchase, {
   as: "purchases",
   foreignKey: "purchaseId",
 });
