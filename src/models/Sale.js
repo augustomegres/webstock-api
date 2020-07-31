@@ -6,13 +6,13 @@ class Sales extends Model {
       {
         companyId: DataTypes.INTEGER,
         date: DataTypes.DATE,
-        seller: DataTypes.STRING,
-        customer: DataTypes.INTEGER,
-        freight: DataTypes.DECIMAL
+        sellerId: DataTypes.STRING,
+        customerId: DataTypes.INTEGER,
+        freight: DataTypes.DECIMAL,
       },
       {
         sequelize,
-        modelName: "sales"
+        modelName: "sales",
       }
     );
   }

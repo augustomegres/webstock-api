@@ -1,10 +1,36 @@
 const User = require("../models/User");
-const OutflowInstallmentsController = require("../models/OutflowInstallments");
+const {
+  validateMoney,
+  validateType,
+  validateReason,
+  validateDate,
+} = require("../functions/validations");
+const OutflowInstallments = require("../models/OutflowInstallments");
 const { Op } = require("sequelize");
 
 module.exports = {
+  async show(req, res) {
+    const { user } = req;
+    let { id } = req.params;
+
+    /* -------------------------------------------------------------------------- */
+    /*                            Retornando a parcela                            */
+    /* -------------------------------------------------------------------------- */
+
+    OutflowInstallments.findOne({
+      where: { id, companyId: user.company.id },
+    })
+      .then((e) => {
+        return res.status(200).json(e);
+      })
+      .catch((e) => {
+        return res
+          .status(400)
+          .json({ error: "Houve um erro inesperado na sua solicitação", e });
+      });
+  },
   async index(req, res) {
-    const { userId } = req;
+    const { user } = req;
     let {
       paid,
       min_date_time,
@@ -16,6 +42,7 @@ module.exports = {
       dueDate,
       purchaseId,
       accountId,
+      paginate,
     } = req.query;
 
     if (!page) {
@@ -25,14 +52,6 @@ module.exports = {
     if (!pageSize) {
       pageSize = 15;
     }
-
-    const user = await User.findByPk(userId, {
-      include: [
-        {
-          association: "company",
-        },
-      ],
-    });
 
     const where = {
       companyId: user.company.id,
@@ -108,49 +127,180 @@ module.exports = {
       };
     }
 
-    var installments = await OutflowInstallmentsController.paginate({
-      page: page,
-      paginate: Number(pageSize),
-      where,
-      order: searchOrder,
-    });
-
-    return res.status(200).json(installments);
+    if (paginate == "true") {
+      OutflowInstallments.paginate({
+        page: page,
+        paginate: Number(pageSize),
+        where,
+        order: searchOrder,
+      })
+        .then((e) => {
+          return res.status(200).json(e);
+        })
+        .catch((e) => {
+          return res
+            .status(400)
+            .json({ error: "Houve um erro inesperado", info: e });
+        });
+    } else {
+      OutflowInstallments.findAll({
+        where,
+        order: searchOrder,
+      })
+        .then((e) => {
+          return res.status(200).json(e);
+        })
+        .catch((e) => {
+          return res
+            .status(400)
+            .json({ error: "Houve um erro inesperado", info: e });
+        });
+    }
   },
-  async update(req, res) {
-    const { userId } = req;
-    const { id } = req.params;
-    const { paymentDate, installmentValue } = req.body;
+  async store(req, res) {
+    const { user } = req;
+    let {
+      accountId,
+      installmentValue,
+      type,
+      reason,
+      dueDate,
+      paymentDate,
+    } = req.body;
 
-    new Date(paymentDate);
+    let validation = {};
 
-    const loggedUser = await User.findByPk(userId, {
-      include: [
-        {
-          association: "company",
-        },
-      ],
-    });
+    /* -------------------------------------------------------------------------- */
+    /*                       Validando o formato dos valores                      */
+    /* -------------------------------------------------------------------------- */
 
-    const installment = await OutflowInstallmentsController.update(
-      {
-        paymentDate,
-        installmentValue,
-      },
-      {
-        where: {
-          id,
-          companyId: loggedUser.company.id,
-        },
-      }
-    );
-
-    if (!installment) {
-      return res.status(400).json({
-        error: "Houve um erro ao atualizar as parcelas",
-      });
+    if (!accountId) {
+      return res.status(400).json({ error: "A conta deve ser informada!" });
     }
 
-    return res.status(200).json(installment);
+    validation = validateMoney(installmentValue, true);
+    if (validation.error) {
+      return res.status(400).json({ error: validation.error });
+    }
+
+    validation = validateType(type, true);
+    if (validation.error) {
+      return res.status(400).json({ error: validation.error });
+    }
+
+    validation = validateReason(reason);
+    if (validation.error) {
+      return res.status(400).json({ error: validation.error });
+    }
+
+    validation = validateDate(dueDate, true);
+    if (validation.error) {
+      return res.status(400).json({ error: validation.error });
+    }
+
+    validation = validateDate(paymentDate);
+    if (validation.error) {
+      return res.status(400).json({ error: validation.error });
+    }
+
+    /* -------------------------------------------------------------------------- */
+    /*                  Verificando se a conta pertence a empresa                 */
+    /* -------------------------------------------------------------------------- */
+
+    if (!user.company) {
+      return res
+        .status(400)
+        .json({ error: "A conta informada não percente a sua empresa" });
+    }
+
+    /* -------------------------------------------------------------------------- */
+    /*                   Armazenando valores fixos em variáveis                   */
+    /* -------------------------------------------------------------------------- */
+
+    let companyId = user.company.id;
+    let installmentNumber = 1;
+    let installmentTotal = 1;
+
+    /* -------------------------------------------------------------------------- */
+    /*                             Cadastrando parcela                            */
+    /* -------------------------------------------------------------------------- */
+
+    await OutflowInstallments.create({
+      accountId,
+      companyId,
+      type,
+      reason,
+      dueDate,
+      paymentDate,
+      installmentValue,
+      installmentNumber,
+      installmentTotal,
+    })
+      .then((e) => {
+        return res
+          .status(200)
+          .json({ success: "Pagamento realizado com sucesso!", info: e });
+      })
+      .catch((e) => {
+        return res.status(400).json({
+          error: "Houve um erro não esperado ao tentar cadastrar a parcela",
+          info: e,
+        });
+      });
+  },
+  async update(req, res) {
+    const { user } = req;
+    const { id } = req.params;
+    const {
+      dueDate,
+      paymentDate,
+      installmentValue,
+      accountId,
+      type,
+      reason,
+    } = req.body;
+
+    /* -------------------------------------------------------------------------- */
+    /*                       Validando o formato dos valores                      */
+    /* -------------------------------------------------------------------------- */
+
+    validation = validateDate(dueDate);
+    if (validation.error) {
+      return res.status(400).json({ error: validation.error });
+    }
+
+    validation = validateDate(paymentDate);
+    if (validation.error) {
+      return res.status(400).json({ error: validation.error });
+    }
+
+    /* -------------------------------------------------------------------------- */
+    /*                  Verificando se a conta pertence a empresa                 */
+    /* -------------------------------------------------------------------------- */
+
+    if (!user.company) {
+      return res
+        .status(400)
+        .json({ error: "A conta informada não percente a sua empresa!" });
+    }
+
+    /* -------------------------------------------------------------------------- */
+    /*                            Atualizando a parcela                           */
+    /* -------------------------------------------------------------------------- */
+
+    OutflowInstallments.update(
+      { dueDate, paymentDate, installmentValue, accountId, type, reason },
+      { where: { id, companyId: user.company.id } }
+    )
+      .then((e) => {
+        return res
+          .status(200)
+          .json({ success: "Parcela atualizada com sucesso!", info: e });
+      })
+      .catch((e) => {
+        return res
+          .status(400)
+          .json({ error: "Houve um erro ao atualizar as parcelas", info: e });
+      });
   },
 };

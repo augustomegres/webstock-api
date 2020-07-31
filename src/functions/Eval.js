@@ -4,7 +4,7 @@ module.exports = {
       return {
         error: "O cpf está vazio",
         recieved: cpf,
-        expected: "123.456.789-00"
+        expected: "123.456.789-00",
       };
     }
 
@@ -14,7 +14,7 @@ module.exports = {
       return {
         error: "O cpf digitado é inválido!",
         recieved: cpf,
-        expected: "123.456.789-00"
+        expected: "123.456.789-00",
       };
     }
 
@@ -22,7 +22,7 @@ module.exports = {
       return {
         error: "O cpf digitado é inválido!",
         recieved: cpf,
-        expected: "123.456.789-00"
+        expected: "123.456.789-00",
       };
     }
 
@@ -30,7 +30,7 @@ module.exports = {
       return {
         error: "O cpf digitado é inválido!",
         recieved: cpf,
-        expected: "123.456.789-00"
+        expected: "123.456.789-00",
       };
     }
 
@@ -41,7 +41,7 @@ module.exports = {
       return {
         error: "O cnpj está vazio",
         recieved: cnpj,
-        expected: "12.345.678/0001-90"
+        expected: "12.345.678/0001-90",
       };
     }
 
@@ -49,7 +49,7 @@ module.exports = {
       return {
         error: "O cnpj informado é inválido",
         recieved: cnpj,
-        expected: "12.345.678/0001-90"
+        expected: "12.345.678/0001-90",
       };
     }
 
@@ -57,7 +57,7 @@ module.exports = {
       return {
         error: "O cnpj digitado é inválido!",
         recieved: cnpj,
-        expected: "12.345.678/0001-90"
+        expected: "12.345.678/0001-90",
       };
     }
 
@@ -70,7 +70,7 @@ module.exports = {
       return {
         error: "O cnpj digitado é inválido!",
         recieved: cnpj,
-        expected: "12.345.678/0001-90"
+        expected: "12.345.678/0001-90",
       };
     }
 
@@ -81,7 +81,7 @@ module.exports = {
       return {
         error: "O email está vazio",
         recieved: email,
-        expected: "joao@provedor.com"
+        expected: "joao@provedor.com",
       };
     }
 
@@ -91,8 +91,8 @@ module.exports = {
       return {
         error: "O email é inválido!",
         recieved: email,
-        expected: "joao@provedor.com"
+        expected: "joao@provedor.com",
       };
     }
-  }
+  },
 };

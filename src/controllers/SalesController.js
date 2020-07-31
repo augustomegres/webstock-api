@@ -1,25 +1,23 @@
 const { Op } = require("sequelize");
 
-const User = require("../models/User");
 const Product = require("../models/Product");
 const Sales = require("../models/Sale");
 const ProductSold = require("../models/ProductSold");
 const Customer = require("../models/Customer");
 const Installments = require("../models/InflowInstallments");
-const Seller = require("../models/Seller");
 
 module.exports = {
   async index(req, res) {
-    const { userId } = req;
+    const { user } = req;
     let {
       min,
       max,
       min_date_time,
       max_date_time,
-      seller,
-      customer,
+      customerId,
       product,
       id,
+      columnToSort,
       order,
       page,
       pageSize,
@@ -30,27 +28,15 @@ module.exports = {
       pageSize = 15;
     }
 
-    const loggedUser = await User.findByPk(userId, {
-      include: [{ association: "company" }],
-    });
-
     let filter = {
-      companyId: loggedUser.company.id,
+      companyId: user.company.id,
     };
 
-    if (seller) {
-      if (!isNaN(seller)) {
-        let newSeller = { [Op.eq]: seller };
+    if (customerId) {
+      if (!isNaN(customerId)) {
+        let newCustomer = { [Op.eq]: customerId };
 
-        filter.seller = newSeller;
-      }
-    }
-
-    if (customer) {
-      if (!isNaN(customer)) {
-        let newCustomer = { [Op.eq]: customer };
-
-        filter.customer = newCustomer;
+        filter.customerId = newCustomer;
       }
     }
 
@@ -82,14 +68,7 @@ module.exports = {
       };
     }
 
-    if (order) {
-      var searchOrder = [];
-      searchOrder.push(["id", order]);
-    } else {
-      var searchOrder = [];
-    }
-
-    //Fazendo a seleção dos que conteem parcelas não pagas
+    //Fazendo a seleção dos que contém parcelas não pagas
     switch (Number(selectOnly)) {
       case 1: {
         let select1 = await Sales.findAll({
@@ -111,7 +90,7 @@ module.exports = {
           });
         });
 
-        //VERIFICANDO SE O FILTRO DE PRODUTO FOI INCLUIDO E APLICANDO ELE
+        //VERIFICANDO SE O FILTRO DE PRODUTO FOI INCLUÍDO E APLICANDO ELE
         var productIncludeArr = [];
         if (product) {
           select1.map((sale) => {
@@ -166,7 +145,7 @@ module.exports = {
           });
         });
 
-        //VERIFICANDO SE O FILTRO DE PRODUTO FOI INCLUIDO E APLICANDO ELE
+        //VERIFICANDO SE O FILTRO DE PRODUTO FOI INCLUÍDO E APLICANDO ELE
         var productIncludeArr = [];
         if (product) {
           select2.map((sale) => {
@@ -216,7 +195,7 @@ module.exports = {
           });
         });
 
-        //VERIFICANDO SE O FILTRO DE PRODUTO FOI INCLUIDO E APLICANDO ELE
+        //VERIFICANDO SE O FILTRO DE PRODUTO FOI INCLUÍDO E APLICANDO ELE
         var productIncludeArr = [];
         if (product) {
           select3.map((sale) => {
@@ -269,7 +248,7 @@ module.exports = {
           });
         });
 
-        //VERIFICANDO SE O FILTRO DE PRODUTO FOI INCLUIDO E APLICANDO ELE
+        //VERIFICANDO SE O FILTRO DE PRODUTO FOI INCLUÍDO E APLICANDO ELE
         var productIncludeArr = [];
         if (product) {
           select4.map((sale) => {
@@ -305,7 +284,7 @@ module.exports = {
             include: [{ association: "productSold" }],
           });
 
-          //VERIFICANDO SE O FILTRO DE PRODUTO FOI INCLUIDO E APLICANDO ELE
+          //VERIFICANDO SE O FILTRO DE PRODUTO FOI INCLUÍDO E APLICANDO ELE
           var productIncludeArr = [];
           selectDefault.map((sale) => {
             sale.productSold.map((saleProduct) => {
@@ -324,12 +303,18 @@ module.exports = {
         break;
     }
 
+    if (columnToSort && order) {
+      order = [[columnToSort, order]];
+    } else {
+      order = null;
+    }
+
     try {
       var sales = await Sales.paginate({
         page,
         paginate: Number(pageSize),
         where: filter,
-        order: searchOrder,
+        order,
         include: [
           { association: "customers" },
           { association: "productSold" },
@@ -353,82 +338,48 @@ module.exports = {
     return res.json(sales);
   },
   async store(req, res) {
-    const {
-      date,
-      seller,
-      customer,
-      freight,
-      products,
-      installments,
-    } = req.body;
-    const { userId } = req;
+    const { date, customerId, freight, products, installments } = req.body;
 
-    /**
-     * VERIFICAÇÕES
-     */
+    const { user } = req;
 
-    //Guardando o usuário logado
-    const loggedUser = await User.findByPk(userId, {
-      include: [{ association: "company" }],
-      attributes: {
-        exclude: [
-          "passwordHash",
-          "passwordRecoverToken",
-          "recoverPasswordTokenExpires",
-        ],
-      },
-    });
+    /* -------------------------------------------------------------------------- */
+    /*                                VERIFICAÇÕES                                */
+    /* -------------------------------------------------------------------------- */
 
     //Verificando se o cliente pertence a empresa
-    if (customer) {
-      const _customers = await Customer.findByPk(customer);
-      if (_customers.companyId !== loggedUser.company.id) {
+    if (customerId) {
+      const _customers = await Customer.findByPk(customerId);
+      if (_customers.companyId !== user.company.id) {
         return res
           .status(400)
           .json({ error: "O cliente informado não pertence a sua empresa!" });
       }
     }
 
-    //Verficando se o vendedor pertence a empresa
-    if (!seller) {
-      return res
-        .status(400)
-        .json({ error: "É necessário informar o vendedor!" });
-    }
+    /* ----------- SE NÃO HOUVER O VALOR DO FRETE, ELE SERA IGUAL A 0 ----------- */
 
-    const _seller = await Seller.findByPk(seller);
-
-    if (!_seller) {
-      return res.status(400).json({ error: "O vendedor não existe" });
-    }
-
-    if (_seller.companyId !== loggedUser.company.id) {
-      return res
-        .status(400)
-        .json({ error: "O vendedor não pertence a esta empresa!" });
-    }
-
-    //SE NÃO HOUVER O VALOR DO FRETE, ELE SERA IGUAL A 0
     let total = freight ? Number(freight) : 0;
 
     let productIdList = [];
 
     products.map((product) => {
-      //Calcula o valor total dos produtos
+      /* ------------------- CALCULANDO VALOR TOTAL DOS PRODUTOS ------------------ */
 
       total = total + product.quantity * product.unityPrice;
 
-      //Insere todos os ids dentro de um array
+      /* ------------------------ INSERINDO IDS EM UM ARRAY ----------------------- */
+
       productIdList.push(product.productId);
     });
 
-    // Remove ids duplicados dentro do array
+    /* -------------------- REMOVENDO IDS DUPLICADOS NO ARRAY ------------------- */
+    sale;
     productIdList = [...new Set(productIdList)];
 
     const notUserCompanyProduct = await Product.findAll({
       where: {
         id: productIdList,
-        companyId: { [Op.ne]: loggedUser.company.id },
+        companyId: { [Op.ne]: user.company.id },
       },
     });
 
@@ -475,23 +426,26 @@ module.exports = {
       return res.status(400).json(err);
     }
 
-    /** Criação da venda no banco de dados */
+    /* -------------------------------------------------------------------------- */
+    /*                      CRIANDO A VENDA NO BANCO DE DADOS                     */
+    /* -------------------------------------------------------------------------- */
+
     try {
       var sale = await Sales.create({
-        companyId: loggedUser.company.id,
+        companyId: user.company.id,
         date,
-        seller,
-        customer,
+        sellerId: user.id,
+        customerId,
         freight,
         total,
       });
 
       products.map((product) => {
-        product.sellId = sale.id;
-        product.unityPrice = product.unityPrice.toFixed(2);
+        product.saleId = sale.id;
       });
 
-      //Inserindo produtos vendidos
+      /* ----------------------- INSERINDO PRODUTOS VENDIDOS ---------------------- */
+
       await ProductSold.bulkCreate(products);
       for (var id in stockRemove) {
         productsExists.map((product, index) => {
@@ -501,19 +455,22 @@ module.exports = {
         });
       }
 
-      //Atualizando os produtos no banco de dados
+      /* ------------------- INSERINDO O ID DA VENDA NA PARCELA ------------------- */
+
+      installments.map((installment) => {
+        installment.saleId = sale.id;
+        installment.companyId = user.company.id;
+      });
+
+      /* ------------------- CRIANDO PARCELAS NO BANCO DE DADOS ------------------- */
+
+      await Installments.bulkCreate(JSON.parse(JSON.stringify(installments)));
+
+      /* ---------------- ATUALIZANDO OS PRODUTOS NO BANCO DE DADOS --------------- */
+
       await Product.bulkCreate(JSON.parse(JSON.stringify(productsExists)), {
         updateOnDuplicate: ["quantity"],
       });
-
-      //Inserindo o id da venda dentro da parcela
-      installments.map((installment) => {
-        installment.saleId = sale.id;
-        installment.companyId = loggedUser.company.id;
-      });
-
-      //Criando as parcelas no banco de dados
-      await Installments.bulkCreate(JSON.parse(JSON.stringify(installments)));
     } catch (e) {
       await Sales.destroy({ where: { id: sale.id } });
       return res.status(400).json({
@@ -525,19 +482,8 @@ module.exports = {
     return res.status(200).json({ success: "Venda concluída com sucesso!" });
   },
   async delete(req, res) {
-    const { userId } = req;
+    const { user } = req;
     const { id } = req.params;
-
-    const user = await User.findByPk(userId, {
-      include: [{ association: "company" }],
-      attributes: {
-        exclude: [
-          "passwordHash",
-          "passwordRecoverToken",
-          "recoverPasswordTokenExpires",
-        ],
-      },
-    });
 
     const sale = await Sales.destroy({
       where: { [Op.and]: { id: id, companyId: user.company.id } },

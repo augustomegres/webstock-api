@@ -1,11 +1,10 @@
-const User = require("../models/User");
 const Account = require("../models/Account");
 const Company = require("../models/Company");
 const { Op } = require("sequelize");
 
 module.exports = {
   async store(req, res) {
-    const { userId } = req;
+    const { user } = req;
 
     const {
       name,
@@ -14,6 +13,8 @@ module.exports = {
       agencyNumber,
       accountNumber,
     } = req.body;
+
+    /* --------------------- VALIDANDO INFORMAÇÕES RECEBIDAS -------------------- */
 
     if (!name) {
       return res.status(400).json({ error: "O nome deve ser informado!" });
@@ -25,19 +26,7 @@ module.exports = {
         .json({ error: "O tipo de conta deve ser informado!" });
     }
 
-    const user = await User.findByPk(userId, {
-      include: [{ association: "company" }],
-      attributes: {
-        exclude: [
-          "passwordHash",
-          "passwordRecoverToken",
-          "recoverPasswordTokenExpires",
-        ],
-      },
-    });
-
-    if (!user)
-      return res.status(400).json({ error: "O usuário informado é inválido!" });
+    /* ----------------------------- CRIANDO A CONTA ---------------------------- */
 
     try {
       const newAccount = await Account.create({
@@ -56,21 +45,8 @@ module.exports = {
     }
   },
   async index(req, res) {
-    const { userId } = req;
+    const { user } = req;
     let { main } = req.query;
-
-    const user = await User.findByPk(userId, {
-      include: [{ association: "company" }],
-      attributes: {
-        exclude: [
-          "passwordHash",
-          "passwordRecoverToken",
-          "recoverPasswordTokenExpires",
-        ],
-      },
-    });
-
-    if (!user) return res.status(400).json({ error: "Usuário não existe!" });
 
     let where = { companyId: user.company.id };
 
@@ -90,21 +66,8 @@ module.exports = {
     return res.status(200).json(accounts);
   },
   async show(req, res) {
-    const { userId } = req;
+    const { user } = req;
     const { id } = req.params;
-
-    const user = await User.findByPk(userId, {
-      include: [{ association: "company" }],
-      attributes: {
-        exclude: [
-          "passwordHash",
-          "passwordRecoverToken",
-          "recoverPasswordTokenExpires",
-        ],
-      },
-    });
-
-    if (!user) return res.status(400).json({ error: "Usuário não encontrado" });
 
     const account = await Account.findOne({
       where: { id: id, companyId: user.company.id },
@@ -119,18 +82,7 @@ module.exports = {
   },
   async delete(req, res) {
     const { id } = req.params;
-    const { userId } = req;
-
-    const user = await User.findByPk(userId, {
-      include: [{ association: "company" }],
-      attributes: {
-        exclude: [
-          "passwordHash",
-          "passwordRecoverToken",
-          "recoverPasswordTokenExpires",
-        ],
-      },
-    });
+    const { user } = req;
 
     const company = await Company.findByPk(user.company.id, {
       include: [{ association: "accounts" }],
@@ -158,7 +110,7 @@ module.exports = {
     }
   },
   async update(req, res) {
-    const { userId } = req;
+    const { user } = req;
 
     const {
       name,
@@ -170,22 +122,6 @@ module.exports = {
     } = req.body;
 
     const { id } = req.params;
-
-    const user = await User.findByPk(userId, {
-      include: [{ association: "company" }],
-      attributes: {
-        exclude: [
-          "passwordHash",
-          "passwordRecoverToken",
-          "recoverPasswordTokenExpires",
-        ],
-      },
-    });
-
-    if (!user)
-      return res
-        .status(400)
-        .json({ error: "Verifique os dados enviados e tente novamente!" });
 
     const accountExist = await Account.findOne({
       where: { id, companyId: user.company.id },

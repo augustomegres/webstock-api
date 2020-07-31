@@ -5,11 +5,10 @@ class Purchase extends Model {
     super.init(
       {
         companyId: DataTypes.INTEGER,
-        providerId: DataTypes.INTEGER,
-        productId: DataTypes.INTEGER,
         date: DataTypes.DATE,
+        buyerId: DataTypes.INTEGER,
+        providerId: DataTypes.INTEGER,
         freight: DataTypes.INTEGER,
-        quantity: DataTypes.DECIMAL,
       },
       {
         sequelize,

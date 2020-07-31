@@ -1,55 +1,62 @@
 const User = require("../models/User");
 const Product = require("../models/Product");
 const Provider = require("../models/Providers");
+const ProductProviders = require("../models/ProductProviders");
 const ProductSold = require("../models/ProductSold");
 const { Op, Sequelize } = require("sequelize");
 
 module.exports = {
   async index(req, res) {
-    const { userId } = req;
+    const { user } = req;
     let {
       enabled,
+      paginate,
       page,
       pageSize,
-      lowStock,
+      minimum,
       categoryId,
       providerId,
       sku,
       name,
+      columnToSort,
+      order,
     } = req.query;
     if (!page) page = 1;
-    if (!pageSize) pageSize = 15;
+    if (!pageSize) pageSize = 12;
 
-    //FILTRO DE HABILITADO
-    if (enabled == "false" || enabled == "0") {
-      enabled = false;
-    } else if (enabled == "true" || enabled == "1") {
-      enabled = true;
+    /* -------------------------------------------------------------------------- */
+    /*                                  ORDENAÇÃO                                 */
+    /* -------------------------------------------------------------------------- */
+
+    if (columnToSort && order) {
+      if (columnToSort == "category") {
+        order = [["category", "name", order]];
+      } else {
+        order = [[columnToSort, order]];
+      }
     } else {
-      enabled = undefined;
+      order = null;
     }
 
-    const loggedUser = await User.findByPk(userId, {
-      include: {
-        association: "company",
-        attributes: ["id", "name", "cnpj"],
-      },
-      attributes: ["id", "name", "email", "phone"],
-    });
+    /* -------------------------------------------------------------------------- */
+    /*                                   FILTROS                                  */
+    /* -------------------------------------------------------------------------- */
 
-    filter = { companyId: loggedUser.company.id };
+    filter = { companyId: user.company.id };
 
-    //FILTRO PARA RETORNAR APENAS PRODUTOS HABILITADOS OU DESABILITADOS
-    if (enabled == true) {
-      filter.enabled = true;
-    } else if (enabled == false) {
-      filter.enabled = false;
+    /* ---------------------- FILTRO DE PRODUTO HABILITADO ---------------------- */
+
+    if (enabled == "true") {
+      filter.enabled = { [Op.eq]: true };
     }
 
-    //FILTRO CASO O ESTOQUE SEJA BAIXO
-    if (lowStock == "true" || lowStock == "1") {
-      filter.quantity = { [Op.lt]: Sequelize.col("minimum") };
+    /* -------------------- FILTRO CASO O ESTOQUE SEJA BAIXO -------------------- */
+
+    if (minimum == "true") {
+      filter.quantity = { [Op.lte]: Sequelize.col("minimum") };
     }
+
+    /* ----------------------------- FILTROS DE NOME ---------------------------- */
 
     if (sku) {
       filter.sku = { [Op.substring]: sku };
@@ -59,29 +66,79 @@ module.exports = {
       filter.name = { [Op.substring]: name };
     }
 
+    /* -------------------------- FILTRO DE FORNECEDOR -------------------------- */
+
     providerWhere = {};
     if (providerId) {
       providerWhere.id = providerId;
     }
 
-    const productList = await Product.paginate({
-      page,
-      paginate: Number(pageSize),
-      include: [
-        { association: "providers", where: providerWhere },
-        { association: "category" },
-      ],
-      where: filter,
-    });
+    if (categoryId) {
+      filter.categoryId = { [Op.eq]: categoryId };
+    }
 
-    return res.status(200).json(productList);
+    /* -------------------------------------------------------------------------- */
+    /*                            REQUISITANDO PRODUTOS                           */
+    /* -------------------------------------------------------------------------- */
+
+    switch (paginate) {
+      case "true":
+        Product.paginate({
+          page,
+          paginate: Number(pageSize),
+          order,
+          include: [
+            { association: "providers", where: providerWhere, required: false },
+            { association: "category" },
+            {
+              association: "sales",
+              include: [{ association: "installments" }],
+            },
+          ],
+          where: filter,
+        }).then((e) => {
+          res.status(200).json(e);
+        });
+        break;
+
+      default:
+        Product.findAll({
+          order,
+          include: [
+            { association: "category" },
+            { association: "providers", where: providerWhere, required: false },
+            {
+              association: "sales",
+              include: [{ association: "installments" }],
+            },
+          ],
+          where: filter,
+        }).then((e) => {
+          res.status(200).json(e);
+        });
+
+        break;
+    }
   },
   async store(req, res) {
-    const { userId } = req;
-    let { name, sku, categoryId, price, minimum, provider, enabled } = req.body;
+    const { user } = req;
+    let {
+      name,
+      sku,
+      categoryId,
+      price,
+      quantity,
+      minimum,
+      provider,
+      enabled,
+    } = req.body;
 
     if (!minimum) {
       minimum = 0;
+    }
+
+    if (!quantity) {
+      quantity = 0;
     }
 
     if (!enabled) {
@@ -94,29 +151,22 @@ module.exports = {
         .json({ error: "O preço e nome são obrigatórios!" });
     }
 
-    if (provider) {
-      var _provider = await Provider.findByPk(provider);
+    let providersId = [];
 
-      if (!_provider) {
-        return res.status(400).json({ error: "O fornecedor é inválido" });
-      }
-    }
-
-    const loggedUser = await User.findByPk(userId, {
-      include: {
-        association: "company",
-        attributes: ["id", "name", "cnpj"],
-      },
-      attributes: {
-        exclude: [
-          "passwordHash",
-          "passwordRecoverToken",
-          "recoverPasswordTokenExpires",
-        ],
-      },
+    provider.map((provider) => {
+      providersId.push(provider.id);
     });
 
-    const company = loggedUser.company;
+    let _provider = [];
+    _provider = await Provider.findAll({
+      where: { id: providersId, companyId: user.company.id },
+    });
+
+    if (_provider.length != provider.length) {
+      return res.status(400).json({ error: "O fornecedor é inválido" });
+    }
+
+    const company = user.company;
 
     try {
       var product = await Product.create({
@@ -126,6 +176,7 @@ module.exports = {
         categoryId,
         price,
         minimum,
+        quantity,
         enabled,
       });
 
@@ -138,7 +189,7 @@ module.exports = {
     }
   },
   async update(req, res) {
-    const { userId } = req;
+    const { user } = req;
     const {
       name,
       sku,
@@ -146,88 +197,75 @@ module.exports = {
       price,
       quantity,
       enabled,
+      minimum,
       provider,
     } = req.body;
-    let { productId } = req.params;
-    productId = Number(productId);
 
-    const loggedUser = await User.findByPk(userId, {
-      include: {
-        association: "company",
-        attributes: ["id", "name", "cnpj"],
-      },
-      attributes: {
-        exclude: [
-          "passwordHash",
-          "passwordRecoverToken",
-          "recoverPasswordTokenExpires",
-        ],
-      },
+    let providersId = [];
+
+    provider.map((provider) => {
+      providersId.push(provider.id);
     });
 
-    const product = await Product.update(
-      { name, sku, categoryId, price, quantity, enabled },
-      { where: { id: productId, companyId: loggedUser.company.id } }
-    );
+    let _provider = [];
+    _provider = await Provider.findAll({
+      where: { id: providersId, companyId: user.company.id },
+    });
 
-    if (provider) {
-      const _product = await Product.findByPk(productId);
-      const _provider = await Provider.findByPk(provider);
-      if (!_provider) {
-        return res.status(400).json({
-          error:
-            "O produto foi atualizado, mas o fornecedor informado não foi encontrado",
-        });
-      }
-
-      await _product.addProvider(_provider);
+    if (_provider.length != provider.length) {
+      return res.status(400).json({ error: "O fornecedor é inválido" });
     }
 
-    return res.status(200).json(product);
-  },
-  async show(req, res) {
-    const { userId } = req;
     let { productId } = req.params;
+
     productId = Number(productId);
 
-    const loggedUser = await User.findByPk(userId, {
-      include: {
-        association: "company",
-        attributes: ["id", "name", "cnpj"],
-      },
-      attributes: {
-        exclude: [
-          "passwordHash",
-          "passwordRecoverToken",
-          "recoverPasswordTokenExpires",
-        ],
-      },
-    });
+    try {
+      await Product.update(
+        { name, sku, categoryId, price, quantity, minimum, enabled },
+        { where: { id: productId, companyId: user.company.id } }
+      );
+
+      let product = await Product.findOne({ where: { id: productId } });
+
+      await ProductProviders.destroy({ where: { productId: productId } });
+      product.addProvider(_provider);
+
+      return res.status(200).json(product);
+    } catch (e) {
+      return res.status(400).json({ error: "Erro", info: e });
+    }
+  },
+  async show(req, res) {
+    const { user } = req;
+    let { productId } = req.params;
+    let { providers, category } = req.query;
+    productId = Number(productId);
+
+    let associations = [];
+
+    if (providers) {
+      associations.push({ association: "providers" });
+    }
+
+    if (category) {
+      associations.push({ association: "category" });
+    }
 
     const product = await Product.findOne({
-      productId,
+      include: associations,
       where: {
-        companyId: loggedUser.company.id,
+        id: productId,
+        companyId: user.company.id,
       },
     });
 
     return res.status(200).json(product);
   },
   async delete(req, res) {
-    const { userId } = req;
+    const { user } = req;
     let { productId } = req.params;
     productId = Number(productId);
-
-    const loggedUser = await User.findByPk(userId, {
-      include: [{ association: "company" }],
-      attributes: {
-        exclude: [
-          "passwordHash",
-          "recoverPasswordToken",
-          "recoverPasswordTokenExpires",
-        ],
-      },
-    });
 
     const product = await Product.findByPk(productId);
 
@@ -237,7 +275,7 @@ module.exports = {
       });
     }
 
-    if (loggedUser.company.id !== product.companyId) {
+    if (user.company.id !== product.companyId) {
       return res
         .status(400)
         .json({ error: "O produto informado não pertence a sua empresa!" });

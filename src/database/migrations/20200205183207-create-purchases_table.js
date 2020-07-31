@@ -24,12 +24,12 @@ module.exports = {
         onUpdate: "CASCADE",
         onDelete: "CASCADE",
       },
-      productId: {
+      buyerId: {
         type: Sequelize.INTEGER,
-        references: { model: "products", key: "id" },
-        allowNull: false,
+        allowNull: true,
+        references: { model: "users", key: "id" },
         onUpdate: "CASCADE",
-        onDelete: "CASCADE",
+        onDelete: "RESTRICT",
       },
       date: {
         type: Sequelize.DATE,
@@ -38,10 +38,6 @@ module.exports = {
       freight: {
         type: Sequelize.DECIMAL(10, 2),
         allowNull: true,
-      },
-      quantity: {
-        type: Sequelize.DECIMAL(10, 3),
-        allowNull: false,
       },
       createdAt: {
         type: Sequelize.DATE,

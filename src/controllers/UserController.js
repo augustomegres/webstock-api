@@ -1,45 +1,28 @@
 const bcrypt = require("bcryptjs");
 const Yup = require("yup");
 const { Op } = require("sequelize");
-const validations = require("../functions/Validations");
+const validations = require("../functions/Eval");
 const { cpf: cpfEval } = require("essential-validation");
 const User = require("../models/User");
 const Company = require("../models/Company");
 const Account = require("../models/Account");
-const Seller = require("../models/Seller");
-const pagarme = require("pagarme");
 const Mail = require("../services/sendgrid");
 
 module.exports = {
   async show(req, res) {
     let { id } = req.params;
-    const { userId } = req;
+    const { user } = req;
     id = Number(id);
 
-    const user = await User.findByPk(userId, {
-      include: [
-        {
-          association: "company",
-        },
-      ],
-      attributes: {
-        exclude: [
-          "passwordHash",
-          "passwordRecoverToken",
-          "recoverPasswordTokenExpires",
-        ],
-      },
-    });
-
     if (!user.isAdmin) {
-      if (userId !== id) {
+      if (user !== id) {
         return res.status(400).json({
           error: "Você não pode visualizar um perfil que não é seu",
         });
       }
     }
 
-    if (id === userId) {
+    if (id === user) {
       return res.status(200).json(user);
     } else {
       return res.json(
@@ -52,7 +35,7 @@ module.exports = {
           attributes: {
             exclude: [
               "passwordHash",
-              "passwordRecoverToken",
+              "recoverPasswordToken",
               "recoverPasswordTokenExpires",
             ],
           },
@@ -62,11 +45,14 @@ module.exports = {
   },
 
   async store(req, res) {
-    /** RECEBENDO TODOS OS DADOS DA APLICAÇÃO */
+    /* ------------------ RECEBENDO TODOS OS DADOS DA APLICAÇÃO ----------------- */
+
     const { name, email, phone, company, password } = req.body;
 
-    /** TRATANDO TODOS OS DADOS DA APLICAÇÃO */
-    //OS DADOS RECEBIDOS ESTÃO SENDO TRATADOS PELA BIBLIOTECA "YUP"
+    /* ------------------ TRATANDO TODOS OS DADOS DA APLICAÇÃO ------------------ */
+
+    /* ------ OS DADOS RECEBIDOS ESTÃO SENDO TRATADOS PELA BIBLIOTECA "YUP" ----- */
+
     const schema = Yup.object().shape({
       name: Yup.string().required().min(5).max(255),
       email: Yup.string().email().required(),
@@ -75,7 +61,8 @@ module.exports = {
       password: Yup.string().required().min(6),
     });
 
-    /** VERIFICANDO SE OS DADOS RECEBIDOS SÃO VÁLIDOS */
+    /* -------------- VERIFICANDO SE OS DADOS RECEBIDOS SÃO VÁLIDOS ------------- */
+
     const isValid = await schema.isValid({
       name,
       email,
@@ -84,14 +71,16 @@ module.exports = {
       password,
     });
 
-    /** CASO A VERIFICAÇÃO FALHE */
+    /* ------------------------ CASO A VERIFICAÇÃO FALHE ------------------------ */
+
     if (!isValid) {
       return res.status(400).json({
         error: "Por favor, verifique os dados enviados!",
       });
     }
 
-    /** VERIFICANDO SE O USUÁRIO EXISTE */
+    /* --------------------- VERIFICANDO SE O USUÁRIO EXISTE -------------------- */
+
     const userExists = await User.findOne({
       where: {
         [Op.or]: [
@@ -102,27 +91,32 @@ module.exports = {
       },
     });
 
-    /** SE EXISTIR RETORNA UM ERRO */
+    /* ----------------------- SE EXISTIR RETORNA UM ERRO ----------------------- */
+
     if (userExists) {
       return res.status(400).json({
         error: "O email informado ja está cadastrado em nosso banco de dados",
       });
     }
 
-    /** CRIPTOGRAFANDO SENHA */
+    /* -------------------------- CRIPTOGRAFANDO SENHA -------------------------- */
+
     const passwordHash = await bcrypt.hash(password, 10);
 
-    /** CRIANDO O USUARIO NO BANCO DE DADOS */
+    /* ------------------- CRIANDO O USUÁRIO NO BANCO DE DADOS ------------------ */
+
     try {
       var user = await User.create({
         name,
         email,
         phone,
         passwordHash,
+        type: "user",
       });
 
       const newCompany = await Company.create({
         name: company,
+        lastSeen: new Date(),
         ownerId: user.id,
       });
 
@@ -130,11 +124,6 @@ module.exports = {
         name: "Caixa",
         accountType: "Caixa",
         main: true,
-        companyId: newCompany.id,
-      });
-
-      await Seller.create({
-        name,
         companyId: newCompany.id,
       });
 
@@ -167,109 +156,97 @@ module.exports = {
       number,
     } = req.body;
 
-    const { userId } = req;
+    const { user } = req;
     id = Number(id);
 
-    if (userId !== id) {
+    if (user.id !== id) {
       return res.status(400).json({
         error: "Você só pode editar o próprio perfil!",
       });
     }
 
+    /* -------------------------------------------------------------------------- */
+    /*                        VALIDANDO OS DADOS DO USUÁRIO                       */
+    /* -------------------------------------------------------------------------- */
+
+    /* ---------------------------------- NOME ---------------------------------- */
+
+    if (name) name = name.replace(/\s\s+/g, " "); //ESTE REPLACE REMOVE ESPAÇOS DUPLOS
+    if (/[^a-z ãẽĩõũéáíóúçàèìòùâêîôû]/gi.test(name)) {
+      return res.status(400).json({
+        error: "O nome deve conter apenas letras e espaços",
+      });
+    }
+
+    /* -------------------------------- TELEFONE -------------------------------- */
+
     if (phone) phone = phone.replace(/[^0-9]/g, "");
+
+    /* ----------------------------------- CPF ---------------------------------- */
 
     if (cpf) {
       let validate = cpfEval.cpfWithPunctuation(cpf);
       if (validate.error) return res.status(400).json(validate.error);
     }
 
+    /* --------------------------- DATA DE NASCIMENTO --------------------------- */
+
+    if (date_of_birth) date_of_birth = new Date(date_of_birth);
+
+    /* -------------------------------------------------------------------------- */
+    /*                        VALIDANDO OS DADOS DA EMPRESA                       */
+    /* -------------------------------------------------------------------------- */
+
+    /* ----------------------------- NOME DA EMPRESA ---------------------------- */
+
+    if (/[^a-z ãẽĩõũéáíóúçàèìòùâêîôû.-_]/gi.test(companyName)) {
+      return res.status(400).json({
+        error: "O nome da empresa deve conter apenas letras e espaços",
+      });
+    }
+    if (companyName) companyName = companyName.replace(/\s\s+/g, " ");
+
+    /* ---------------------------------- CNPJ ---------------------------------- */
+
     if (cnpj) {
       let validate = validations.cnpj(cnpj);
       if (validate.error) return res.status(400).json(validate.error);
     }
 
-    if (date_of_birth) date_of_birth = new Date(date_of_birth);
+    /* --------------------------------- CIDADE --------------------------------- */
 
-    if (/[^a-z éáíóúçàèìòùâêîôû]/gi.test(name)) {
-      return res.status(400).json({
-        error: "O nome deve conter apenas letras e espaços",
-      });
-    }
+    if (city) city = city.replace(/\s\s+/g, " ");
 
-    if (/[^a-z éáíóúçàèìòùâêîôû.-_]/gi.test(companyName)) {
-      return res.status(400).json({
-        error: "O nome da empresa deve conter apenas letras e espaços",
-      });
-    }
+    /* -------------------------------- ENDEREÇO -------------------------------- */
 
-    //VALIDAÇÕES
-    const schema = Yup.object().shape({
-      name: Yup.string().min(5).max(255),
-      phone: Yup.string().min(10).max(11),
-      companyName: Yup.string().min(2).max(255),
-      date_of_birth: Yup.date(),
-      city: Yup.string().min(2).max(100),
-      address: Yup.string().min(2).max(255),
-      street: Yup.string().min(2).max(255),
-      number: Yup.string().min(1).max(24),
-    });
+    if (address) address = address.replace(/\s\s+/g, " ");
 
-    /** VERIFICANDO SE OS DADOS RECEBIDOS SÃO VÁLIDOS */
-    const isValid = await schema.isValid({
-      name,
-      phone,
-      companyName,
-      date_of_birth,
-      city,
-      address,
-      street,
-      number,
-    });
+    /* --------------------------------- BAIRRO --------------------------------- */
 
-    if (!isValid) {
-      return res.status(400).json({
-        error: "Houve um erro nos dados enviados, verifique e tente novamente",
-      });
-    }
+    if (street) street = street.replace(/\s\s+/g, " ");
 
-    //VALIDANDO DADOS DE USUARIO
-    if (name || phone || date_of_birth || cpf) {
-      var user = {};
+    /* --------------------------------- NÚMERO --------------------------------- */
 
-      if (name) user.name = name.replace(/\s\s+/g, " "); //ESTE REPLACE REMOVE ESPAÇOS DUPLOS
-      if (phone) user.phone = phone;
-      if (date_of_birth) user.date_of_birth = date_of_birth;
-      if (cpf) user.cpf = cpf;
-    }
-
-    //VALIDANDO DADOS DE EMPRESA
-    if (companyName || cnpj || city || address || street || number) {
-      var company = {};
-
-      if (cnpj) company.cnpj = cnpj;
-      if (companyName) company.name = companyName.replace(/\s\s+/g, " ");
-      if (city) company.city = city.replace(/\s\s+/g, " "); //ESTE REPLACE REMOVE ESPAÇOS DUPLOS
-      if (address) company.address = address.replace(/\s\s+/g, " ");
-      if (street) company.street = street.replace(/\s\s+/g, " ");
-      if (number) company.number = number.replace(/\s\s+/g, " ");
-    }
+    if (number) number = number.replace(/\s\s+/g, " ");
 
     try {
-      if (user) {
-        await User.update(user, {
+      await User.update(
+        { name, cpf, phone, date_of_birth },
+        {
           where: {
             id,
           },
-        });
-      }
+        }
+      );
 
-      if (company) {
-        await Company.update(company, {
+      await Company.update(
+        { name: companyName, cnpj, city, street, address, number },
+        {
           where: {
-            ownerId: id,
+            id: user.company.id,
           },
-        });
-      }
+        }
+      );
 
       return res.status(200).json({
         success: `Os dados foram atualizados com sucesso!`,

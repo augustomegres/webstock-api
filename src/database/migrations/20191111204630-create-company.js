@@ -8,51 +8,55 @@ module.exports = {
         primaryKey: true,
         autoIncrement: true,
         allowNull: false,
-        unique: true
+        unique: true,
       },
       ownerId: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: { model: "users", key: "id" },
         onUpdate: "CASCADE",
-        onDelete: "CASCADE"
+        onDelete: "CASCADE",
       },
       name: {
         type: Sequelize.STRING,
-        allowNull: false
+        allowNull: false,
       },
       cnpj: {
         type: Sequelize.STRING,
-        allowNull: true
+        allowNull: true,
       },
       address: {
         type: Sequelize.STRING,
-        allowNull: true
+        allowNull: true,
       },
       number: {
         type: Sequelize.STRING,
-        allowNull: true
+        allowNull: true,
       },
       street: {
         type: Sequelize.STRING,
-        allowNull: true
+        allowNull: true,
       },
       city: {
         type: Sequelize.STRING,
-        allowNull: true
+        allowNull: true,
+      },
+      lastSeen: {
+        type: Sequelize.DATE,
+        allowNull: false,
       },
       createdAt: {
         type: Sequelize.DATE,
-        allowNull: false
+        allowNull: false,
       },
       updatedAt: {
         type: Sequelize.DATE,
-        allowNull: false
-      }
+        allowNull: false,
+      },
     });
   },
 
-  down: queryInterface => {
+  down: (queryInterface) => {
     return queryInterface.dropTable("companies");
-  }
+  },
 };

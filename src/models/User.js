@@ -14,6 +14,8 @@ class User extends Model {
         recoverPasswordTokenExpires: DataTypes.DATE,
         subscription_id: DataTypes.STRING,
         customer_id: DataTypes.STRING,
+        type: DataTypes.STRING,
+        enabled: DataTypes.BOOLEAN,
         isAdmin: DataTypes.BOOLEAN,
       },
       {

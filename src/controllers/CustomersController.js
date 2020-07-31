@@ -1,33 +1,23 @@
 const User = require("../models/User");
 const Company = require("../models/Company");
 const Customer = require("../models/Customer");
+const { Op } = require("sequelize");
 
 module.exports = {
-  async index(req, res) {
-    const { userId } = req;
+  async show(req, res) {
+    const { user } = req;
+    const { id } = req.params;
 
-    const user = await User.findByPk(userId, {
-      attributes: {
-        exclude: [
-          "passwordHash",
-          "isAdmin",
-          "recoverPasswordToken",
-          "recoverPasswordTokenExpires",
-        ],
-      },
-      include: { association: "company" },
+    const customer = await Customer.findOne({
+      where: { id: id, companyId: user.company.id },
     });
 
-    const customers = await Customer.findAll({
-      where: { companyId: user.company.id },
-      include: { association: "company" },
-    });
-
-    return res.status(200).json(customers);
+    return res.status(200).json(customer);
   },
-  async store(req, res) {
-    const { userId } = req;
-    const {
+  async update(req, res) {
+    const { user } = req;
+    const { id } = req.params;
+    let {
       name,
       cpf,
       rg,
@@ -39,17 +29,74 @@ module.exports = {
       street,
     } = req.body;
 
-    const user = await User.findByPk(userId, {
-      attributes: {
-        exclude: [
-          "passwordHash",
-          "isAdmin",
-          "recoverPasswordToken",
-          "recoverPasswordTokenExpires",
-        ],
+    await Customer.update(
+      {
+        name,
+        cpf,
+        rg,
+        email,
+        phone,
+        city,
+        address,
+        number,
+        street,
       },
-      include: { association: "company" },
-    });
+      { where: { id, companyId: user.company.id } }
+    )
+      .then((response) => {
+        return res
+          .status(200)
+          .json({ success: "Os dados do cliente foram atualizados." });
+      })
+      .catch((err) => {
+        res.status(400).json({
+          error: "Houve um erro inesperado ao atualizar os dados.",
+          err,
+        });
+      });
+  },
+  async index(req, res) {
+    const { user } = req;
+    let { paginate, page, limit, name } = req.query;
+
+    if (!page) page = 1;
+    if (!limit) limit = 12;
+
+    where = { companyId: user.company.id };
+    if (name) where.name = { [Op.like]: "%" + name + "%" };
+
+    if (paginate == "true") {
+      const customers = await Customer.paginate({
+        where,
+        include: { association: "company" },
+
+        page: Number(page),
+        paginate: Number(limit),
+      });
+
+      return res.status(200).json(customers);
+    } else {
+      const customers = await Customer.findAll({
+        where,
+        include: { association: "company" },
+      });
+
+      return res.status(200).json(customers);
+    }
+  },
+  async store(req, res) {
+    const { user } = req;
+    const {
+      name,
+      cpf,
+      rg,
+      email,
+      phone,
+      city,
+      address,
+      number,
+      street,
+    } = req.body;
 
     if (!name) {
       return res.status(400).json({ error: "O nome deve ser informado!" });
@@ -79,20 +126,8 @@ module.exports = {
     }
   },
   async delete(req, res) {
-    const { userId } = req;
+    const { user } = req;
     const { id } = req.params;
-
-    const user = await User.findByPk(userId, {
-      attributes: {
-        exclude: [
-          "passwordHash",
-          "isAdmin",
-          "recoverPasswordToken",
-          "recoverPasswordTokenExpires",
-        ],
-      },
-      include: { association: "company" },
-    });
 
     try {
       await Customer.destroy({

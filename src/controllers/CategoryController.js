@@ -5,29 +5,21 @@ const { Op } = require("sequelize");
 
 module.exports = {
   async show(req, res) {
-    const { userId } = req;
+    const { user } = req;
     const { id } = req.params;
-
-    const user = await User.findByPk(userId, {
-      attributes: {
-        exclude: [
-          "passwordHash",
-          "isAdmin",
-          "recoverPasswordToken",
-          "recoverPasswordTokenExpires",
-        ],
-      },
-      include: { association: "company" },
-    });
 
     const category = await Category.findOne({
       where: { id, companyId: user.company.id },
     });
 
+    if (!category) {
+      return res.status(400).json({ error: "Esta categoria não existe!" });
+    }
+
     return res.status(200).json(category);
   },
   async index(req, res) {
-    const { userId } = req;
+    const { user } = req;
     let { page, limit, name } = req.query;
 
     page = Number(page);
@@ -40,18 +32,6 @@ module.exports = {
     if (!limit) {
       limit = 15;
     }
-
-    const user = await User.findByPk(userId, {
-      attributes: {
-        exclude: [
-          "passwordHash",
-          "isAdmin",
-          "recoverPasswordToken",
-          "recoverPasswordTokenExpires",
-        ],
-      },
-      include: { association: "company" },
-    });
 
     const where = { companyId: { [Op.eq]: user.company.id } };
 
@@ -70,7 +50,7 @@ module.exports = {
     return res.json(categories);
   },
   async store(req, res) {
-    const { userId } = req;
+    const { user } = req;
     let { name, description, enabled } = req.body;
 
     if (!name) {
@@ -79,47 +59,11 @@ module.exports = {
         .json({ error: "O nome da categoria deve ser informado!" });
     }
 
-    if (description.length > 500) {
+    if (description && description.length > 500) {
       return res
         .status(400)
         .json({ error: "O valor máximo da descrição é de 500 caracteres!" });
     }
-
-    if (
-      enabled == 1 ||
-      enabled == "1" ||
-      enabled == "true" ||
-      enabled == undefined ||
-      enabled == "" ||
-      enabled == true
-    ) {
-      enabled = true;
-    } else if (
-      enabled == 0 ||
-      enabled == "0" ||
-      enabled == "false" ||
-      enabled == false
-    ) {
-      enabled = false;
-    }
-
-    if (typeof enabled !== "boolean") {
-      return res
-        .status(400)
-        .json({ error: "A opção de habilitado deve ser um booleano!" });
-    }
-
-    const user = await User.findByPk(userId, {
-      attributes: {
-        exclude: [
-          "passwordHash",
-          "isAdmin",
-          "recoverPasswordToken",
-          "recoverPasswordTokenExpires",
-        ],
-      },
-      include: { association: "company" },
-    });
 
     try {
       const category = await Category.create({
@@ -131,57 +75,21 @@ module.exports = {
 
       return res.json(category);
     } catch (e) {
-      return res.json({
-        error: "Houve um erro inesperado ao tentar cadastrar a categoria!",
+      return res.status(400).json({
+        error: "Houve um erro inesperado ao tentar cadastrar a categoria!", e
       });
     }
   },
   async update(req, res) {
-    const { userId } = req;
+    const { user } = req;
     const { id } = req.params;
     let { name, enabled, description } = req.body;
-
-    if ((!name && enabled === undefined) || enabled === "") {
-      return res.status(400).json({
-        error: "Os dados para atualização não foram enviados",
-      });
-    }
-
-    if (!name && enabled == undefined) {
-      return res.status(400).json({ error: "O nome não foi informado!" });
-    }
 
     if (!id) {
       return res.status(400).json({
         error: "O id não foi informado!",
       });
     }
-
-    if (enabled == 1 || enabled == "1" || enabled == "true") {
-      enabled = true;
-    } else if (enabled == 0 || enabled == "0" || enabled == "false") {
-      enabled = false;
-    }
-
-    if (enabled !== undefined) {
-      if (typeof enabled !== "boolean") {
-        return res
-          .status(400)
-          .json({ error: "A opção de habilitado deve ser um booleano!" });
-      }
-    }
-
-    const user = await User.findByPk(userId, {
-      attributes: {
-        exclude: [
-          "passwordHash",
-          "isAdmin",
-          "recoverPasswordToken",
-          "recoverPasswordTokenExpires",
-        ],
-      },
-      include: { association: "company" },
-    });
 
     const category = await Category.findOne({
       where: { id, companyId: user.company.id },
@@ -205,20 +113,8 @@ module.exports = {
     }
   },
   async delete(req, res) {
-    const { userId } = req;
+    const { user } = req;
     const { id } = req.params;
-
-    const user = await User.findByPk(userId, {
-      attributes: {
-        exclude: [
-          "passwordHash",
-          "isAdmin",
-          "recoverPasswordToken",
-          "recoverPasswordTokenExpires",
-        ],
-      },
-      include: { association: "company" },
-    });
 
     const category = await Category.findOne({
       where: { id, companyId: user.company.id },
