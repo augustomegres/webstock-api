@@ -58,6 +58,7 @@ sequelizePaginate.paginate(OutflowInstallments);
 sequelizePaginate.paginate(Product);
 sequelizePaginate.paginate(Category);
 sequelizePaginate.paginate(Customer);
+sequelizePaginate.paginate(Providers);
 
 /* -------------------------------------------------------------------------- */
 /*                             RELAÇÕES DE USUÁRIO                            */
@@ -117,13 +118,13 @@ Product.belongsToMany(Sale, {
 /*                        RELAÇÕES DE PRODUTOS VENDIDOS                       */
 /* -------------------------------------------------------------------------- */
 
-//ProductSold.belongsTo(Sale, { as: "sales", foreignKey: "saleId" });
+ProductSold.belongsTo(Sale, { as: "sales", foreignKey: "saleId" });
 
 /* -------------------------------------------------------------------------- */
 /*                             RELAÇÕES DE VENDAS                             */
 /* -------------------------------------------------------------------------- */
 
-//Sale.belongsTo(ProductSold, { as: "productSold" });
+Sale.hasMany(ProductSold, { as: "productSold", foreignKey: "saleId" });
 Sale.belongsTo(User, { as: "saleOwner", foreignKey: "sellerId" });
 Sale.belongsTo(Customer, { as: "customers", foreignKey: "customerId" });
 Sale.hasMany(SaleInstallments, { as: "installments", foreignKey: "saleId" });

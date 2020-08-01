@@ -35,6 +35,12 @@ module.exports = {
         type: Sequelize.DECIMAL(10, 2),
         allowNull: false,
       },
+      discount: {
+        //PREÇO UNITÁRIO
+        type: Sequelize.DECIMAL(10, 2),
+        allowNull: false,
+        defaultValue: 0,
+      },
       createdAt: {
         type: Sequelize.DATE,
         allowNull: false,
