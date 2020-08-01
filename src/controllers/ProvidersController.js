@@ -8,7 +8,7 @@ const Validations = require("../functions/Eval");
 module.exports = {
   async index(req, res) {
     const { user } = req;
-    let { products, personType } = req.query;
+    let { products, personType, pageSize, page, paginate } = req.query;
 
     let includes = [];
 
@@ -22,12 +22,41 @@ module.exports = {
       where.personType = { [Op.iLike]: personType };
     }
 
-    const providers = await Provider.findAll({
-      where: where,
-      include: includes,
-    });
+    switch (paginate) {
+      case "true":
+        await Provider.paginate({
+          where: where,
+          paginate: Number(pageSize),
+          page: Number(page),
+          include: includes,
+        })
+          .then((providers) => {
+            return res.status(200).json(providers);
+          })
+          .catch((error) => {
+            return res.status(400).json({
+              error: "Houve um erro ao requisitar os fornecedores",
+              info: error,
+            });
+          });
+        break;
 
-    return res.status(200).json(providers);
+      default:
+        await Provider.findAll({
+          where: where,
+          include: includes,
+        })
+          .then((providers) => {
+            return res.status(200).json(providers);
+          })
+          .catch((error) => {
+            return res.status(400).json({
+              error: "Houve um erro ao requisitar os fornecedores",
+              info: error,
+            });
+          });
+        break;
+    }
   },
   async show(req, res) {
     const { user } = req;

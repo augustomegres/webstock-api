@@ -9,6 +9,7 @@ class ProductSold extends Model {
         productName: DataTypes.STRING,
         quantity: DataTypes.INTEGER,
         unityPrice: DataTypes.DECIMAL,
+        discount: DataTypes.DECIMAL,
       },
       {
         sequelize,

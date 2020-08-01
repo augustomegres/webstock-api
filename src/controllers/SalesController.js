@@ -5,6 +5,7 @@ const Sales = require("../models/Sale");
 const ProductSold = require("../models/ProductSold");
 const Customer = require("../models/Customer");
 const Installments = require("../models/InflowInstallments");
+const { Sequelize } = require("sequelize");
 
 module.exports = {
   async index(req, res) {
@@ -12,69 +13,223 @@ module.exports = {
     let {
       min,
       max,
-      min_date_time,
-      max_date_time,
+      initialDate,
+      finalDate,
       customerId,
-      product,
+      productId,
       id,
       columnToSort,
       order,
+      paginate,
       page,
       pageSize,
       selectOnly,
     } = req.query;
 
+    /* ---------------------------- TAMANHO DA PÁGINA --------------------------- */
+
     if (!pageSize) {
       pageSize = 15;
     }
+
+    /* -------------------------------------------------------------------------- */
+    /*                                   FILTROS                                  */
+    /* -------------------------------------------------------------------------- */
 
     let filter = {
       companyId: user.company.id,
     };
 
-    if (customerId) {
-      if (!isNaN(customerId)) {
-        let newCustomer = { [Op.eq]: customerId };
+    /* --------------------------------- CLIENTE -------------------------------- */
 
-        filter.customerId = newCustomer;
-      }
+    if (customerId) {
+      filter.customerId = { [Op.eq]: customerId };
     }
+
+    /* ----------------------------------- ID ----------------------------------- */
 
     if (id) {
-      if (!isNaN(id)) {
-        let newId = { [Op.eq]: id };
-
-        filter.id = newId;
-      }
+      let newId = { [Op.eq]: id };
+      filter.id = newId;
     }
+
+    /* ---------------------------------- VALOR --------------------------------- */
 
     if (min || max) {
-      let min_val = 0;
-      let max_val = 9999999999;
       filter.total = {
         [Op.and]: {
-          [Op.gte]: Number(min) || min_val,
-          [Op.lte]: Number(max) || max_val,
+          [Op.gte]: Number(min),
+          [Op.lte]: Number(max),
         },
       };
     }
 
-    if (min_date_time || max_date_time) {
+    /* ---------------------------------- DATA ---------------------------------- */
+
+    if (initialDate || finalDate) {
+      initialDate = new Date(initialDate || "01-01-1970").setHours(0, 0, 0, 0);
+      finalDate = new Date(finalDate || "01-01-2999").setHours(23, 59, 59, 999);
+
       filter.date = {
         [Op.and]: {
-          [Op.gte]: min_date_time || "1970-01-01",
-          [Op.lte]: max_date_time || "2100-01-01",
+          [Op.gte]: initialDate,
+          [Op.lte]: finalDate,
         },
       };
     }
 
+    /* -------------------------------------------------------------------------- */
+    /*                                   PRODUTO                                  */
+    /* -------------------------------------------------------------------------- */
+
+    let productFilter = {};
+
+    if (productId) {
+      productFilter = { productId: { [Op.eq]: productId } };
+    }
+
+    /* -------------------------------------------------------------------------- */
+    /*                                  PARCELAS                                  */
+    /* -------------------------------------------------------------------------- */
+
+    let installmentFilter = {};
+    let today = new Date();
+    switch (Number(selectOnly)) {
+      case 1:
+        /* ----------------- SELECIONANDO CONTENDO APENAS NÃO PAGAS ----------------- */
+        installmentFilter = { paymentDate: { [Op.eq]: null } };
+        break;
+
+      /* ------------------------ A VENCER PRÓXIMOS 30 DIAS ----------------------- */
+
+      case 2:
+        let nextMonth = today.setDate(today.getDate() + 30);
+        nextMonth = new Date(nextMonth).toLocaleDateString("en");
+        nextMonth = new Date(nextMonth).toISOString();
+        console.log(nextMonth);
+
+        installmentFilter = {
+          paymentDate: { [Op.eq]: null },
+          dueDate: {
+            [Op.lte]: nextMonth,
+          },
+        };
+        break;
+
+      case 3:
+        /* -------------------------------- VENCIDAS -------------------------------- */
+
+        today = new Date(today).toLocaleDateString("en");
+        today = new Date(today).toISOString();
+
+        installmentFilter = {
+          paymentDate: { [Op.eq]: null },
+          dueDate: {
+            [Op.lt]: today,
+          },
+        };
+        break;
+
+      default:
+        break;
+    }
+
+    /* -------------------------------------------------------------------------- */
+    /*                                  ORDENAÇÃO                                 */
+    /* -------------------------------------------------------------------------- */
+
+    if (columnToSort && order) {
+      order = [
+        [columnToSort, order],
+        ["installments", "installmentNumber", "ASC"],
+      ];
+    } else {
+      order = null;
+    }
+
+    switch (paginate) {
+      case "true":
+        let sales = await Sales.paginate({
+          page,
+          paginate: Number(pageSize),
+          where: { ...filter },
+          include: [
+            { association: "customers" },
+            {
+              association: "productSold",
+              where: productFilter,
+            },
+            { association: "saleOwner" },
+            {
+              association: "installments",
+              where: installmentFilter,
+            },
+          ],
+        }).catch((error) => {
+          return res
+            .status(400)
+            .json({ error: "Houve um erro na sua requisição", info: error });
+        });
+
+        let ids = [];
+        sales.docs.map((sale) => {
+          ids.push(sale.id);
+        });
+
+        let includeSales = await Sales.paginate({
+          paginate: Number(pageSize),
+          where: { id: ids },
+          order,
+          include: [
+            { association: "customers" },
+            { association: "productSold" },
+            { association: "saleOwner" },
+            { association: "installments" },
+          ],
+        }).catch((error) => {
+          return res
+            .status(400)
+            .json({ error: "Houve um erro na sua requisição", info: error });
+        });
+        console.log(includeSales);
+
+        sales.docs = includeSales.docs;
+        sales.dataValues = includeSales.dataValues;
+
+        return res.json(sales);
+        break;
+      default:
+        await Sales.findAll({
+          where: filter,
+          order,
+          include: [
+            { association: "customers" },
+            { association: "productSold" },
+            { association: "saleOwner" },
+            { association: "installments" },
+          ],
+        })
+          .then((sales) => {
+            return res.json(sales);
+          })
+          .catch((error) => {
+            return res
+              .status(400)
+              .json({ error: "Houve um erro na sua requisição", info: error });
+          });
+        break;
+    }
+
+    /**
     //Fazendo a seleção dos que contém parcelas não pagas
     switch (Number(selectOnly)) {
       case 1: {
         let select1 = await Sales.findAll({
           where: filter,
           include: [
-            { association: "installments" },
+            {
+              association: "installments",
+            },
             { association: "productSold" },
           ],
         });
@@ -124,7 +279,9 @@ module.exports = {
         let select2 = await Sales.findAll({
           where: filter,
           include: [
-            { association: "installments" },
+            {
+              association: "installments",
+            },
             { association: "productSold" },
           ],
         });
@@ -179,7 +336,9 @@ module.exports = {
         let select3 = await Sales.findAll({
           where: filter,
           include: [
-            { association: "installments" },
+            {
+              association: "installments",
+            },
             { association: "productSold" },
           ],
         });
@@ -225,11 +384,13 @@ module.exports = {
         break;
       }
       case 4: {
-        //
+        //Vencidas
         let select4 = await Sales.findAll({
           where: filter,
           include: [
-            { association: "installments" },
+            {
+              association: "installments",
+            },
             { association: "productSold" },
           ],
         });
@@ -304,38 +465,64 @@ module.exports = {
     }
 
     if (columnToSort && order) {
-      order = [[columnToSort, order]];
+      order = [
+        [columnToSort, order],
+        ["installments", "installmentNumber", "ASC"],
+      ];
     } else {
       order = null;
     }
 
     try {
-      var sales = await Sales.paginate({
-        page,
-        paginate: Number(pageSize),
-        where: filter,
-        order,
-        include: [
-          { association: "customers" },
-          { association: "productSold" },
-          { association: "saleOwner" },
-          { association: "installments", order: ["installment", "ASC"] },
-        ],
-      });
+      switch (paginate) {
+        case "true":
+          var sales = await Sales.paginate({
+            page,
+            paginate: Number(pageSize),
+            where: filter,
+            order,
+            include: [
+              { association: "customers" },
+              { association: "productSold" },
+              { association: "saleOwner" },
+              {
+                association: "installments",
+              },
+            ],
+          });
+          break;
 
-      sales.docs.map((sale) => {
-        let total = 0;
-        sale.installments.map((installment) => {
-          total += Number(installment.installmentValue);
-        });
-        sale.total = total;
-        sale.dataValues.total = total;
-      });
+        default:
+          var sales = await Sales.findAll({
+            where: filter,
+            order,
+            include: [
+              { association: "customers" },
+              { association: "productSold" },
+              { association: "saleOwner" },
+              { association: "installments" },
+            ],
+          });
+          break;
+      }
+
+      switch (paginate) {
+        case "true":
+          sales.docs.map((sale) => {
+            let total = 0;
+            sale.installments.map((installment) => {
+              total += Number(installment.installmentValue);
+            });
+            sale.total = total;
+            sale.dataValues.total = total;
+          });
+          return res.json(sales);
+        default:
+          return res.json(sales);
+      }
     } catch (err) {
       return res.status(400).json(err);
-    }
-
-    return res.json(sales);
+    } */
   },
   async store(req, res) {
     const { date, customerId, freight, products, installments } = req.body;
@@ -356,17 +543,9 @@ module.exports = {
       }
     }
 
-    /* ----------- SE NÃO HOUVER O VALOR DO FRETE, ELE SERA IGUAL A 0 ----------- */
-
-    let total = freight ? Number(freight) : 0;
-
     let productIdList = [];
 
     products.map((product) => {
-      /* ------------------- CALCULANDO VALOR TOTAL DOS PRODUTOS ------------------ */
-
-      total = total + product.quantity * product.unityPrice;
-
       /* ------------------------ INSERINDO IDS EM UM ARRAY ----------------------- */
 
       productIdList.push(product.productId);
@@ -437,7 +616,6 @@ module.exports = {
         sellerId: user.id,
         customerId,
         freight,
-        total,
       });
 
       products.map((product) => {
