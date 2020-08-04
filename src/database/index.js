@@ -184,7 +184,10 @@ Providers.belongsToMany(Product, {
 /*                           RELAÇÕES DE CATEGORIAS                           */
 /* -------------------------------------------------------------------------- */
 
-Category.hasMany(Product, { as: "products", foreignKey: "id" });
+Category.hasMany(Product, {
+  as: "products",
+  foreignKey: "categoryId",
+});
 
 /* -------------------------------------------------------------------------- */
 /*                        RELAÇÕES DE PARCELAS DE SAÍDA                       */

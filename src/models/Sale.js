@@ -9,6 +9,8 @@ class Sales extends Model {
         sellerId: DataTypes.STRING,
         customerId: DataTypes.INTEGER,
         freight: DataTypes.DECIMAL,
+        discount: DataTypes.DECIMAL,
+        discountType: DataTypes.STRING,
       },
       {
         sequelize,

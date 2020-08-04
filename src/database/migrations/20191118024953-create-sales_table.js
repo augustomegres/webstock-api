@@ -39,6 +39,16 @@ module.exports = {
         type: Sequelize.DECIMAL(10, 2),
         allowNull: true,
       },
+      discount: {
+        type: Sequelize.DECIMAL(10, 2),
+        allowNull: false,
+        defaultValue: 0,
+      },
+      discountType: {
+        type: Sequelize.STRING,
+        allowNull: false,
+        defaultValue: "%",
+      },
       createdAt: {
         type: Sequelize.DATE,
         allowNull: false,
