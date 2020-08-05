@@ -106,7 +106,6 @@ module.exports = {
         let nextMonth = today.setDate(today.getDate() + 30);
         nextMonth = new Date(nextMonth).toLocaleDateString("en");
         nextMonth = new Date(nextMonth).toISOString();
-        console.log(nextMonth);
 
         installmentFilter = {
           paymentDate: { [Op.eq]: null },
@@ -191,7 +190,6 @@ module.exports = {
             .status(400)
             .json({ error: "Houve um erro na sua requisição", info: error });
         });
-        console.log(includeSales);
 
         sales.docs = includeSales.docs;
         sales.dataValues = includeSales.dataValues;

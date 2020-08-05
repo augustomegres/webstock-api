@@ -70,8 +70,10 @@ module.exports = {
 
     providerWhere = {};
     if (providerId) {
-      providerWhere.id = providerId;
+      providerWhere.id = Number(providerId);
     }
+
+    /* --------------------------- FILTRO DE CATEGORIA -------------------------- */
 
     if (categoryId) {
       filter.categoryId = { [Op.eq]: categoryId };
@@ -88,7 +90,7 @@ module.exports = {
           paginate: Number(pageSize),
           order,
           include: [
-            { association: "providers", where: providerWhere, required: false },
+            { association: "providers", where: providerWhere, required: true },
             { association: "category" },
             {
               association: "sales",
@@ -106,7 +108,7 @@ module.exports = {
           order,
           include: [
             { association: "category" },
-            { association: "providers", where: providerWhere, required: false },
+            { association: "providers", where: providerWhere, required: true },
             {
               association: "sales",
               include: [{ association: "installments" }],
