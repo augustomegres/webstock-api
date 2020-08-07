@@ -34,7 +34,7 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      reason: {
+      note: {
         type: Sequelize.TEXT,
         allowNull: true,
       },

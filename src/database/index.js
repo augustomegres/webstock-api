@@ -196,7 +196,31 @@ OutflowInstallments.belongsTo(Purchase, {
   as: "installments",
   foreignKey: "purchaseId",
 });
+
+OutflowInstallments.belongsTo(Account, {
+  as: "account",
+  foreignKey: "accountId",
+});
+
 OutflowInstallments.belongsTo(Company, {
+  as: "purchasesInstallments",
+  foreignKey: "companyId",
+});
+
+/* -------------------------------------------------------------------------- */
+/*                       RELAÇÕES DE PARCELAS DE ENTRADA                      */
+/* -------------------------------------------------------------------------- */
+InflowInstallments.belongsTo(Sale, {
+  as: "installments",
+  foreignKey: "saleId",
+});
+
+InflowInstallments.belongsTo(Account, {
+  as: "account",
+  foreignKey: "accountId",
+});
+
+InflowInstallments.belongsTo(Company, {
   as: "purchasesInstallments",
   foreignKey: "companyId",
 });

@@ -1,11 +1,14 @@
 "use strict";
 
+let companyId = 1;
+
 module.exports = {
   up: (queryInterface, Sequelize) => {
     return queryInterface.bulkInsert(
       "providers",
       [
         {
+          companyId,
           name: "Elaine Fabiana Alessandra Ramos",
           cpf: "811.004.395-01",
           rg: "15.210.520-7",
@@ -20,6 +23,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
+          companyId,
           name: "Caroline Nair Simone Moraes",
           cpf: "438.590.871-00",
           rg: "32.852.356-2",
@@ -34,6 +38,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
+          companyId,
           name: "Tereza Malu Luzia Rodrigues",
           cpf: "979.711.488-01",
           rg: "15.938.868-5",
@@ -48,6 +53,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
+          companyId,
           name: "Calebe Rafael Geraldo Nunes",
           cpf: "277.343.560-52",
           rg: "18.781.493-4",
@@ -62,6 +68,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
+          companyId,
           name: "Tomás Geraldo Cauã Nogueira",
           cpf: "062.362.963-16",
           rg: "40.358.314-7",
@@ -76,6 +83,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
+          companyId,
           name: "Francisco Thales Nogueira",
           cpf: "428.182.451-09",
           rg: "10.360.805-9",
@@ -90,6 +98,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
+          companyId,
           name: "Vinicius César Pereira",
           cpf: "543.085.837-48",
           rg: "27.240.389-1",
@@ -104,6 +113,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
+          companyId,
           name: "Cecília Mirella Melissa Lima",
           cpf: "188.366.187-07",
           rg: "50.971.356-7",
@@ -118,6 +128,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
+          companyId,
           name: "Carlos Manoel Igor Cavalcanti",
           cpf: "180.837.520-37",
           rg: "45.659.206-4",
@@ -132,6 +143,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
+          companyId,
           name: "Aparecida Luna Agatha dos Santos",
           cpf: "461.590.719-20",
           rg: "22.496.341-7",
@@ -146,6 +158,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
+          companyId,
           name: "Stella Elaine Jesus",
           cpf: "678.712.892-41",
           rg: "16.206.346-5",
@@ -160,6 +173,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
+          companyId,
           name: "Felipe Severino Cauê Viana",
           cpf: "689.109.048-28",
           rg: "10.510.464-4",
@@ -175,6 +189,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
+          companyId,
           name: "Francisco Heitor da Paz",
           cpf: "341.531.381-69",
           rg: "25.006.063-2",
@@ -189,6 +204,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
+          companyId,
           name: "Antonio Paulo Barbosa",
           cpf: "231.977.060-72",
           rg: "36.626.824-7",
@@ -203,6 +219,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
+          companyId,
           name: "Vinicius Luiz Danilo Moura",
           cpf: "253.442.963-98",
           rg: "25.687.241-7",
@@ -217,6 +234,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
+          companyId,
           name: "Diogo Anderson Thales Moura",
           cpf: "036.720.312-08",
           rg: "43.445.063-7",
@@ -231,6 +249,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
+          companyId,
           name: "Vanessa Lara Moura",
           cpf: "009.825.398-00",
           rg: "43.666.525-6",
@@ -245,6 +264,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
+          companyId,
           name: "Gustavo Alexandre Nelson Silveira",
           cpf: "835.644.684-80",
           rg: "40.356.424-4",
@@ -259,6 +279,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
+          companyId,
           name: "Malu Milena Camila da Cruz",
           cpf: "753.956.765-11",
           rg: "22.667.839-8",
@@ -273,6 +294,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
+          companyId,
           name: "Arthur Bento Leonardo Moreira",
           cpf: "583.505.195-68",
           rg: "41.598.164-5",
@@ -287,6 +309,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
+          companyId,
           name: "Manuel Ian Caleb Almeida",
           cpf: "178.998.621-40",
           rg: "24.103.234-9",
@@ -301,6 +324,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
+          companyId,
           name: "Victor Gael Cardoso",
           cpf: "833.026.985-00",
           rg: "22.523.241-8",
@@ -315,6 +339,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
+          companyId,
           name: "Vicente Lorenzo Moreira",
           cpf: "111.179.376-07",
           rg: "50.548.686-6",
@@ -329,6 +354,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
+          companyId,
           name: "Josefa Esther Lima",
           cpf: "932.229.596-17",
           rg: "50.761.419-7",
@@ -343,6 +369,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
+          companyId,
           name: "Bruno Vinicius da Silva",
           cpf: "628.785.719-67",
           rg: "38.886.475-8",
@@ -357,6 +384,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
+          companyId,
           name: "Rafael Diego César Alves",
           cpf: "326.409.648-01",
           rg: "30.183.624-3",
@@ -371,6 +399,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
+          companyId,
           name: "Leonardo Raul Baptista",
           cpf: "318.396.952-18",
           rg: "35.467.119-4",
@@ -385,6 +414,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
+          companyId,
           name: "Regina Isabelle Assis",
           cpf: "042.890.625-71",
           rg: "32.882.212-7",
@@ -399,6 +429,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
+          companyId,
           name: "Manuela Betina Bernardes",
           cpf: "783.145.627-93",
           rg: "16.441.254-2",
@@ -413,6 +444,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
+          companyId,
           name: "Erick Pedro Alexandre Almeida",
           cpf: "901.923.042-59",
           rg: "29.447.032-3",
@@ -427,6 +459,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
+          companyId,
           name: "Bianca Rosa Barros",
           cpf: "351.020.451-48",
           rg: "15.780.157-3",
@@ -441,6 +474,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
+          companyId,
           name: "Emilly Sophia das Neves",
           cpf: "311.528.746-16",
           rg: "10.898.016-9",
@@ -455,6 +489,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
+          companyId,
           name: "Renan Nathan Fábio Brito",
           cpf: "379.486.862-58",
           rg: "31.851.015-7",
@@ -470,6 +505,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
+          companyId,
           name: "Heloisa Lara Julia Farias",
           cpf: "515.884.909-98",
           rg: "29.109.378-4",
@@ -484,6 +520,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
+          companyId,
           name: "Martin Danilo Enrico Barbosa",
           cpf: "132.787.597-70",
           rg: "47.216.275-5",
@@ -498,6 +535,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
+          companyId,
           name: "Miguel Matheus Caio Oliveira",
           cpf: "576.154.671-01",
           rg: "19.247.082-6",
@@ -513,6 +551,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
+          companyId,
           name: "Mário Geraldo Noah Barbosa",
           cpf: "670.957.170-01",
           rg: "45.402.148-3",
@@ -527,6 +566,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
+          companyId,
           name: "Maria Raquel Valentina Rodrigues",
           cpf: "990.030.601-50",
           rg: "33.412.919-9",
@@ -542,6 +582,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
+          companyId,
           name: "Vicente Henrique Caio Assunção",
           cpf: "946.568.974-26",
           rg: "19.665.171-2",
@@ -556,6 +597,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
+          companyId,
           name: "Elisa Milena da Luz",
           cpf: "421.745.019-29",
           rg: "12.990.994-4",
@@ -570,6 +612,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
+          companyId,
           name: "João Julio Gabriel Rodrigues",
           cpf: "529.290.373-69",
           rg: "32.779.063-5",
@@ -585,6 +628,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
+          companyId,
           name: "Victor Cauã Silveira",
           cpf: "894.685.499-50",
           rg: "44.393.156-2",
@@ -599,6 +643,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
+          companyId,
           name: "Benício Gabriel Gomes",
           cpf: "124.514.960-10",
           rg: "25.008.597-5",
@@ -613,6 +658,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
+          companyId,
           name: "Vicente Juan Calebe Campos",
           cpf: "538.055.522-54",
           rg: "15.180.374-2",
@@ -627,6 +673,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
+          companyId,
           name: "Marlene Natália Aragão",
           cpf: "229.323.913-64",
           rg: "45.644.730-1",
@@ -641,6 +688,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
+          companyId,
           name: "Regina Tatiane Sara Barros",
           cpf: "661.048.803-71",
           rg: "40.852.004-8",
@@ -655,6 +703,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
+          companyId,
           name: "Regina Silvana Ramos",
           cpf: "084.292.116-83",
           rg: "18.032.158-4",
@@ -669,6 +718,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
+          companyId,
           name: "Alice Carolina Melo",
           cpf: "647.869.075-02",
           rg: "33.857.449-9",
@@ -683,6 +733,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
+          companyId,
           name: "Nelson Bryan Aparício",
           cpf: "632.401.535-13",
           rg: "43.637.851-6",
@@ -697,6 +748,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
+          companyId,
           name: "Nicolas Benício Noah da Silva",
           cpf: "632.870.881-57",
           rg: "10.480.267-4",
@@ -712,6 +764,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
+          companyId,
           name: "Lorena Melissa Gomes",
           cpf: "691.925.782-33",
           rg: "49.228.297-3",
@@ -726,6 +779,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
+          companyId,
           name: "Kauê Theo Nascimento",
           cpf: "143.080.268-57",
           rg: "27.121.590-2",
@@ -740,6 +794,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
+          companyId,
           name: "Yasmin Maitê Luciana Barros",
           cpf: "068.936.190-49",
           rg: "47.703.841-4",
@@ -754,6 +809,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
+          companyId,
           name: "Josefa Allana Santos",
           cpf: "836.973.693-93",
           rg: "20.233.077-1",
@@ -768,6 +824,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
+          companyId,
           name: "Vinicius Ian Ramos",
           cpf: "033.536.228-10",
           rg: "32.895.462-7",
@@ -782,6 +839,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
+          companyId,
           name: "Renato Pedro Henrique Vitor da Mota",
           cpf: "862.327.892-53",
           rg: "27.727.066-2",
@@ -797,6 +855,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
+          companyId,
           name: "Miguel Luan Alves",
           cpf: "375.093.531-90",
           rg: "36.589.530-1",
@@ -811,6 +870,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
+          companyId,
           name: "Mário Pietro Cauã Gonçalves",
           cpf: "997.964.368-41",
           rg: "40.376.092-6",
@@ -825,6 +885,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
+          companyId,
           name: "Adriana Esther Olivia Porto",
           cpf: "432.782.022-95",
           rg: "11.626.946-7",
@@ -840,6 +901,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
+          companyId,
           name: "Luana Sueli Alves",
           cpf: "339.754.864-06",
           rg: "50.565.884-7",
@@ -863,6 +925,7 @@ module.exports = {
       "People",
       [
         {
+          companyId,
           name: "Elaine Fabiana Alessandra Ramos",
           cpf: "811.004.395-01",
           rg: "15.210.520-7",
@@ -875,6 +938,7 @@ module.exports = {
           privatePhone: "(67) 99916-1271",
         },
         {
+          companyId,
           name: "Caroline Nair Simone Moraes",
           cpf: "438.590.871-00",
           rg: "32.852.356-2",
@@ -887,6 +951,7 @@ module.exports = {
           privatePhone: "(96) 99484-1767",
         },
         {
+          companyId,
           name: "Tereza Malu Luzia Rodrigues",
           cpf: "979.711.488-01",
           rg: "15.938.868-5",
@@ -899,6 +964,7 @@ module.exports = {
           privatePhone: "(67) 99616-5126",
         },
         {
+          companyId,
           name: "Calebe Rafael Geraldo Nunes",
           cpf: "277.343.560-52",
           rg: "18.781.493-4",
@@ -911,6 +977,7 @@ module.exports = {
           privatePhone: "(68) 99103-0959",
         },
         {
+          companyId,
           name: "Tomás Geraldo Cauã Nogueira",
           cpf: "062.362.963-16",
           rg: "40.358.314-7",
@@ -923,6 +990,7 @@ module.exports = {
           privatePhone: "(63) 98776-3379",
         },
         {
+          companyId,
           name: "Francisco Thales Nogueira",
           cpf: "428.182.451-09",
           rg: "10.360.805-9",
@@ -935,6 +1003,7 @@ module.exports = {
           privatePhone: "(69) 98144-1741",
         },
         {
+          companyId,
           name: "Vinicius César Pereira",
           cpf: "543.085.837-48",
           rg: "27.240.389-1",
@@ -947,6 +1016,7 @@ module.exports = {
           privatePhone: "(98) 99342-7782",
         },
         {
+          companyId,
           name: "Cecília Mirella Melissa Lima",
           cpf: "188.366.187-07",
           rg: "50.971.356-7",
@@ -959,6 +1029,7 @@ module.exports = {
           privatePhone: "(67) 99265-7793",
         },
         {
+          companyId,
           name: "Carlos Manoel Igor Cavalcanti",
           cpf: "180.837.520-37",
           rg: "45.659.206-4",
@@ -971,6 +1042,7 @@ module.exports = {
           privatePhone: "(82) 98100-2921",
         },
         {
+          companyId,
           name: "Aparecida Luna Agatha dos Santos",
           cpf: "461.590.719-20",
           rg: "22.496.341-7",
@@ -983,6 +1055,7 @@ module.exports = {
           privatePhone: "(67) 99713-3170",
         },
         {
+          companyId,
           name: "Stella Elaine Jesus",
           cpf: "678.712.892-41",
           rg: "16.206.346-5",
@@ -995,6 +1068,7 @@ module.exports = {
           privatePhone: "(27) 99652-0848",
         },
         {
+          companyId,
           name: "Felipe Severino Cauê Viana",
           cpf: "689.109.048-28",
           rg: "10.510.464-4",
@@ -1008,6 +1082,7 @@ module.exports = {
           privatePhone: "(68) 99918-9750",
         },
         {
+          companyId,
           name: "Francisco Heitor da Paz",
           cpf: "341.531.381-69",
           rg: "25.006.063-2",
@@ -1020,6 +1095,7 @@ module.exports = {
           privatePhone: "(47) 98664-6082",
         },
         {
+          companyId,
           name: "Antonio Paulo Barbosa",
           cpf: "231.977.060-72",
           rg: "36.626.824-7",
@@ -1032,6 +1108,7 @@ module.exports = {
           privatePhone: "(54) 98831-8942",
         },
         {
+          companyId,
           name: "Vinicius Luiz Danilo Moura",
           cpf: "253.442.963-98",
           rg: "25.687.241-7",
@@ -1044,6 +1121,7 @@ module.exports = {
           privatePhone: "(68) 99678-4592",
         },
         {
+          companyId,
           name: "Diogo Anderson Thales Moura",
           cpf: "036.720.312-08",
           rg: "43.445.063-7",
@@ -1056,6 +1134,7 @@ module.exports = {
           privatePhone: "(65) 99972-6472",
         },
         {
+          companyId,
           name: "Vanessa Lara Moura",
           cpf: "009.825.398-00",
           rg: "43.666.525-6",
@@ -1068,6 +1147,7 @@ module.exports = {
           privatePhone: "(63) 99688-1994",
         },
         {
+          companyId,
           name: "Gustavo Alexandre Nelson Silveira",
           cpf: "835.644.684-80",
           rg: "40.356.424-4",
@@ -1080,6 +1160,7 @@ module.exports = {
           privatePhone: "(67) 99510-2819",
         },
         {
+          companyId,
           name: "Malu Milena Camila da Cruz",
           cpf: "753.956.765-11",
           rg: "22.667.839-8",
@@ -1092,6 +1173,7 @@ module.exports = {
           privatePhone: "(98) 99392-1690",
         },
         {
+          companyId,
           name: "Arthur Bento Leonardo Moreira",
           cpf: "583.505.195-68",
           rg: "41.598.164-5",
@@ -1104,6 +1186,7 @@ module.exports = {
           privatePhone: "(79) 98582-9622",
         },
         {
+          companyId,
           name: "Manuel Ian Caleb Almeida",
           cpf: "178.998.621-40",
           rg: "24.103.234-9",
@@ -1116,6 +1199,7 @@ module.exports = {
           privatePhone: "(94) 98918-3958",
         },
         {
+          companyId,
           name: "Victor Gael Cardoso",
           cpf: "833.026.985-00",
           rg: "22.523.241-8",
@@ -1128,6 +1212,7 @@ module.exports = {
           privatePhone: "(86) 98396-7296",
         },
         {
+          companyId,
           name: "Vicente Lorenzo Moreira",
           cpf: "111.179.376-07",
           rg: "50.548.686-6",
@@ -1140,6 +1225,7 @@ module.exports = {
           privatePhone: "(63) 98562-9726",
         },
         {
+          companyId,
           name: "Josefa Esther Lima",
           cpf: "932.229.596-17",
           rg: "50.761.419-7",
@@ -1152,6 +1238,7 @@ module.exports = {
           privatePhone: "(67) 99531-5693",
         },
         {
+          companyId,
           name: "Bruno Vinicius da Silva",
           cpf: "628.785.719-67",
           rg: "38.886.475-8",
@@ -1164,6 +1251,7 @@ module.exports = {
           privatePhone: "(68) 99551-7314",
         },
         {
+          companyId,
           name: "Rafael Diego César Alves",
           cpf: "326.409.648-01",
           rg: "30.183.624-3",
@@ -1176,6 +1264,7 @@ module.exports = {
           privatePhone: "(55) 98897-8655",
         },
         {
+          companyId,
           name: "Leonardo Raul Baptista",
           cpf: "318.396.952-18",
           rg: "35.467.119-4",
@@ -1188,6 +1277,7 @@ module.exports = {
           privatePhone: "(63) 98275-8835",
         },
         {
+          companyId,
           name: "Regina Isabelle Assis",
           cpf: "042.890.625-71",
           rg: "32.882.212-7",
@@ -1200,6 +1290,7 @@ module.exports = {
           privatePhone: "(47) 99204-6147",
         },
         {
+          companyId,
           name: "Manuela Betina Bernardes",
           cpf: "783.145.627-93",
           rg: "16.441.254-2",
@@ -1212,6 +1303,7 @@ module.exports = {
           privatePhone: "(82) 98201-2129",
         },
         {
+          companyId,
           name: "Erick Pedro Alexandre Almeida",
           cpf: "901.923.042-59",
           rg: "29.447.032-3",
@@ -1224,6 +1316,7 @@ module.exports = {
           privatePhone: "(85) 99191-4871",
         },
         {
+          companyId,
           name: "Bianca Rosa Barros",
           cpf: "351.020.451-48",
           rg: "15.780.157-3",
@@ -1236,6 +1329,7 @@ module.exports = {
           privatePhone: "(84) 98810-7218",
         },
         {
+          companyId,
           name: "Emilly Sophia das Neves",
           cpf: "311.528.746-16",
           rg: "10.898.016-9",
@@ -1248,6 +1342,7 @@ module.exports = {
           privatePhone: "(89) 98400-6386",
         },
         {
+          companyId,
           name: "Renan Nathan Fábio Brito",
           cpf: "379.486.862-58",
           rg: "31.851.015-7",
@@ -1261,6 +1356,7 @@ module.exports = {
           privatePhone: "(83) 98503-6912",
         },
         {
+          companyId,
           name: "Heloisa Lara Julia Farias",
           cpf: "515.884.909-98",
           rg: "29.109.378-4",
@@ -1273,6 +1369,7 @@ module.exports = {
           privatePhone: "(94) 99605-4571",
         },
         {
+          companyId,
           name: "Martin Danilo Enrico Barbosa",
           cpf: "132.787.597-70",
           rg: "47.216.275-5",
@@ -1285,6 +1382,7 @@ module.exports = {
           privatePhone: "(71) 98367-8426",
         },
         {
+          companyId,
           name: "Miguel Matheus Caio Oliveira",
           cpf: "576.154.671-01",
           rg: "19.247.082-6",
@@ -1298,6 +1396,7 @@ module.exports = {
           privatePhone: "(37) 99828-6213",
         },
         {
+          companyId,
           name: "Mário Geraldo Noah Barbosa",
           cpf: "670.957.170-01",
           rg: "45.402.148-3",
@@ -1310,6 +1409,7 @@ module.exports = {
           privatePhone: "(85) 98714-9660",
         },
         {
+          companyId,
           name: "Maria Raquel Valentina Rodrigues",
           cpf: "990.030.601-50",
           rg: "33.412.919-9",
@@ -1323,6 +1423,7 @@ module.exports = {
           privatePhone: "(27) 99856-2230",
         },
         {
+          companyId,
           name: "Vicente Henrique Caio Assunção",
           cpf: "946.568.974-26",
           rg: "19.665.171-2",
@@ -1335,6 +1436,7 @@ module.exports = {
           privatePhone: "(27) 99612-1327",
         },
         {
+          companyId,
           name: "Elisa Milena da Luz",
           cpf: "421.745.019-29",
           rg: "12.990.994-4",
@@ -1347,6 +1449,7 @@ module.exports = {
           privatePhone: "(82) 98767-1173",
         },
         {
+          companyId,
           name: "João Julio Gabriel Rodrigues",
           cpf: "529.290.373-69",
           rg: "32.779.063-5",
@@ -1360,6 +1463,7 @@ module.exports = {
           privatePhone: "(92) 98237-8181",
         },
         {
+          companyId,
           name: "Victor Cauã Silveira",
           cpf: "894.685.499-50",
           rg: "44.393.156-2",
@@ -1372,6 +1476,7 @@ module.exports = {
           privatePhone: "(83) 99549-9346",
         },
         {
+          companyId,
           name: "Benício Gabriel Gomes",
           cpf: "124.514.960-10",
           rg: "25.008.597-5",
@@ -1384,6 +1489,7 @@ module.exports = {
           privatePhone: "(81) 98765-2746",
         },
         {
+          companyId,
           name: "Vicente Juan Calebe Campos",
           cpf: "538.055.522-54",
           rg: "15.180.374-2",
@@ -1396,6 +1502,7 @@ module.exports = {
           privatePhone: "(48) 99809-3690",
         },
         {
+          companyId,
           name: "Marlene Natália Aragão",
           cpf: "229.323.913-64",
           rg: "45.644.730-1",
@@ -1408,6 +1515,7 @@ module.exports = {
           privatePhone: "(65) 99148-7854",
         },
         {
+          companyId,
           name: "Regina Tatiane Sara Barros",
           cpf: "661.048.803-71",
           rg: "40.852.004-8",
@@ -1420,6 +1528,7 @@ module.exports = {
           privatePhone: "(84) 99610-7823",
         },
         {
+          companyId,
           name: "Regina Silvana Ramos",
           cpf: "084.292.116-83",
           rg: "18.032.158-4",
@@ -1432,6 +1541,7 @@ module.exports = {
           privatePhone: "(85) 98821-2121",
         },
         {
+          companyId,
           name: "Alice Carolina Melo",
           cpf: "647.869.075-02",
           rg: "33.857.449-9",
@@ -1444,6 +1554,7 @@ module.exports = {
           privatePhone: "(75) 98648-7903",
         },
         {
+          companyId,
           name: "Nelson Bryan Aparício",
           cpf: "632.401.535-13",
           rg: "43.637.851-6",
@@ -1456,6 +1567,7 @@ module.exports = {
           privatePhone: "(91) 99914-7910",
         },
         {
+          companyId,
           name: "Nicolas Benício Noah da Silva",
           cpf: "632.870.881-57",
           rg: "10.480.267-4",
@@ -1469,6 +1581,7 @@ module.exports = {
           privatePhone: "(47) 99222-3867",
         },
         {
+          companyId,
           name: "Lorena Melissa Gomes",
           cpf: "691.925.782-33",
           rg: "49.228.297-3",
@@ -1481,6 +1594,7 @@ module.exports = {
           privatePhone: "(83) 99894-7187",
         },
         {
+          companyId,
           name: "Kauê Theo Nascimento",
           cpf: "143.080.268-57",
           rg: "27.121.590-2",
@@ -1493,6 +1607,7 @@ module.exports = {
           privatePhone: "(69) 98887-8253",
         },
         {
+          companyId,
           name: "Yasmin Maitê Luciana Barros",
           cpf: "068.936.190-49",
           rg: "47.703.841-4",
@@ -1505,6 +1620,7 @@ module.exports = {
           privatePhone: "(11) 98213-6610",
         },
         {
+          companyId,
           name: "Josefa Allana Santos",
           cpf: "836.973.693-93",
           rg: "20.233.077-1",
@@ -1517,6 +1633,7 @@ module.exports = {
           privatePhone: "(61) 98349-2782",
         },
         {
+          companyId,
           name: "Vinicius Ian Ramos",
           cpf: "033.536.228-10",
           rg: "32.895.462-7",
@@ -1529,6 +1646,7 @@ module.exports = {
           privatePhone: "(83) 99746-5564",
         },
         {
+          companyId,
           name: "Renato Pedro Henrique Vitor da Mota",
           cpf: "862.327.892-53",
           rg: "27.727.066-2",
@@ -1542,6 +1660,7 @@ module.exports = {
           privatePhone: "(62) 98172-7537",
         },
         {
+          companyId,
           name: "Miguel Luan Alves",
           cpf: "375.093.531-90",
           rg: "36.589.530-1",
@@ -1554,6 +1673,7 @@ module.exports = {
           privatePhone: "(95) 99707-7393",
         },
         {
+          companyId,
           name: "Mário Pietro Cauã Gonçalves",
           cpf: "997.964.368-41",
           rg: "40.376.092-6",
@@ -1566,6 +1686,7 @@ module.exports = {
           privatePhone: "(82) 99724-0240",
         },
         {
+          companyId,
           name: "Adriana Esther Olivia Porto",
           cpf: "432.782.022-95",
           rg: "11.626.946-7",
@@ -1579,6 +1700,7 @@ module.exports = {
           privatePhone: "(86) 98542-4009",
         },
         {
+          companyId,
           name: "Luana Sueli Alves",
           cpf: "339.754.864-06",
           rg: "50.565.884-7",

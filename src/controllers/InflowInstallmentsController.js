@@ -4,8 +4,8 @@ const { Op } = require("sequelize");
 const {
   validateMoney,
   validateType,
-  validateReason,
   validateDate,
+  validateNote,
 } = require("../functions/validations");
 
 module.exports = {
@@ -18,6 +18,7 @@ module.exports = {
     /* -------------------------------------------------------------------------- */
     InflowInstallments.findOne({
       where: { id, companyId: user.company.id },
+      include: [{ association: "account" }],
     })
       .then((e) => {
         if (!e) {
@@ -39,7 +40,7 @@ module.exports = {
       accountId,
       installmentValue,
       type,
-      reason,
+      note,
       dueDate,
       paymentDate,
     } = req.body;
@@ -64,7 +65,7 @@ module.exports = {
       return res.status(400).json({ error: validation.error });
     }
 
-    validation = validateReason(reason);
+    validation = validateNote(note);
     if (validation.error) {
       return res.status(400).json({ error: validation.error });
     }
@@ -105,7 +106,7 @@ module.exports = {
       accountId,
       companyId,
       type,
-      reason,
+      note,
       dueDate,
       paymentDate,
       installmentValue,
@@ -260,7 +261,7 @@ module.exports = {
       installmentValue,
       accountId,
       type,
-      reason,
+      note,
     } = req.body;
 
     if (!accountId) {
@@ -298,7 +299,7 @@ module.exports = {
     /* -------------------------------------------------------------------------- */
 
     InflowInstallments.update(
-      { dueDate, paymentDate, installmentValue, accountId, type, reason },
+      { dueDate, paymentDate, installmentValue, accountId, type, note },
       { where: { id, companyId: user.company.id } }
     )
       .then((e) => {

@@ -1,6 +1,6 @@
 "use strict";
 
-let companyId = 2;
+let companyId = 1;
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
