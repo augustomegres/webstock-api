@@ -9,6 +9,8 @@ class Purchase extends Model {
         buyerId: DataTypes.INTEGER,
         providerId: DataTypes.INTEGER,
         freight: DataTypes.INTEGER,
+        discount: DataTypes.DECIMAL,
+        discountType: DataTypes.STRING,
       },
       {
         sequelize,
