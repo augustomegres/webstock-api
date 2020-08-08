@@ -8,7 +8,7 @@ const Validations = require("../functions/Eval");
 module.exports = {
   async index(req, res) {
     const { user } = req;
-    let { products, personType, pageSize, page, paginate } = req.query;
+    let { products, personType, pageSize, page, paginate, name } = req.query;
 
     let includes = [];
 
@@ -16,16 +16,20 @@ module.exports = {
       includes.push({ association: "products" });
     }
 
-    let where = { companyId: user.company.id };
+    let filter = { companyId: user.company.id };
 
     if (personType) {
-      where.personType = { [Op.iLike]: personType };
+      filter.personType = { [Op.iLike]: personType };
+    }
+
+    if (name) {
+      filter.name = { [Op.substring]: name };
     }
 
     switch (paginate) {
       case "true":
         await Provider.paginate({
-          where: where,
+          where: filter,
           paginate: Number(pageSize),
           page: Number(page),
           include: includes,
@@ -43,7 +47,7 @@ module.exports = {
 
       default:
         await Provider.findAll({
-          where: where,
+          where: filter,
           include: includes,
         })
           .then((providers) => {
@@ -67,7 +71,7 @@ module.exports = {
       include: [{ association: "products" }],
     });
 
-    return res.status(400).json(provider);
+    return res.status(200).json(provider);
   },
   async store(req, res) {
     const { user } = req;

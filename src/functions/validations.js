@@ -1,6 +1,6 @@
 const validateMoney = require("./validations/money");
 const validateType = require("./validations/type");
-const validateReason = require("./validations/reason");
+const validateNote = require("./validations/note");
 const validateDate = require("./validations/date");
 
 const validateName = require("./validations/name");
@@ -9,7 +9,7 @@ const validateEmail = require("./validations/email");
 module.exports = {
   validateMoney,
   validateType,
-  validateReason,
+  validateNote,
   validateDate,
   validateName,
   validateEmail,

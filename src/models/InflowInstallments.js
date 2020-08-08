@@ -11,7 +11,7 @@ class InflowInstallments extends Model {
         installmentTotal: DataTypes.INTEGER,
         installmentValue: DataTypes.DECIMAL,
         type: DataTypes.STRING,
-        reason: DataTypes.TEXT,
+        note: DataTypes.TEXT,
         dueDate: DataTypes.DATE,
         paymentDate: DataTypes.DATE,
       },

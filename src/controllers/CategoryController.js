@@ -2,6 +2,7 @@ const Category = require("../models/Category");
 const User = require("../models/User");
 
 const { Op } = require("sequelize");
+const { Sequelize } = require("sequelize");
 
 module.exports = {
   async show(req, res) {
@@ -20,17 +21,23 @@ module.exports = {
   },
   async index(req, res) {
     const { user } = req;
-    let { page, limit, name } = req.query;
+    let { page, pageSize, name, order, columnToSort } = req.query;
+
+    if (columnToSort && order) {
+      order = [[columnToSort, order]];
+    } else {
+      order = null;
+    }
 
     page = Number(page);
-    limit = Number(limit);
+    pageSize = Number(pageSize);
 
     if (!page) {
       page = 1;
     }
 
-    if (!limit) {
-      limit = 15;
+    if (!pageSize) {
+      pageSize = 12;
     }
 
     const where = { companyId: { [Op.eq]: user.company.id } };
@@ -39,15 +46,32 @@ module.exports = {
       where.name = { [Op.like]: `%${name}%` };
     }
 
-    const categories = await Category.paginate({
+    await Category.paginate({
       page,
-      paginate: limit,
+      paginate: pageSize,
+      order,
+      include: [{ association: "products" }],
       where,
-    });
+    })
+      .then((categories) => {
+        categories.docs.map((category) => {
+          category.product_count = category.products.length;
+          category.dataValues.product_count = category.products.length;
 
-    categories.page = 1;
+          category.dataValues.products = undefined;
+          category.products = undefined;
+        });
 
-    return res.json(categories);
+        return res.json(categories);
+      })
+      .catch((error) => {
+        return res
+          .status(400)
+          .json({
+            error: "Houve um erro ao requisitar as categorias.",
+            info: error,
+          });
+      });
   },
   async store(req, res) {
     const { user } = req;
@@ -76,7 +100,8 @@ module.exports = {
       return res.json(category);
     } catch (e) {
       return res.status(400).json({
-        error: "Houve um erro inesperado ao tentar cadastrar a categoria!", e
+        error: "Houve um erro inesperado ao tentar cadastrar a categoria!",
+        e,
       });
     }
   },

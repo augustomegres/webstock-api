@@ -133,7 +133,7 @@ Sale.hasMany(SaleInstallments, { as: "installments", foreignKey: "saleId" });
 /*                       RELAÇÕES DE PRODUTOS COMPRADOS                       */
 /* -------------------------------------------------------------------------- */
 
-PurchasedProducts.hasOne(Purchase, {
+PurchasedProducts.belongsTo(Purchase, {
   as: "purchases",
   foreignKey: "purchaseId",
 });
@@ -142,13 +142,12 @@ PurchasedProducts.hasOne(Purchase, {
 /*                             RELAÇÕES DE COMPRAS                            */
 /* -------------------------------------------------------------------------- */
 
+Purchase.belongsTo(Company, { as: "company", foreignKey: "companyId" });
 Purchase.hasMany(PurchasedProducts, {
-  as: "purchasedProducts",
+  as: "products",
   foreignKey: "purchaseId",
 });
-
-Purchase.belongsTo(Company, { as: "company", foreignKey: "companyId" });
-Purchase.belongsTo(Product, { as: "products", foreignKey: "productId" });
+Purchase.belongsTo(User, { as: "buyer", foreignKey: "buyerId" });
 Purchase.belongsTo(Providers, { as: "provider", foreignKey: "providerId" });
 Purchase.hasMany(OutflowInstallments, {
   as: "installments",
@@ -184,7 +183,10 @@ Providers.belongsToMany(Product, {
 /*                           RELAÇÕES DE CATEGORIAS                           */
 /* -------------------------------------------------------------------------- */
 
-Category.hasMany(Product, { as: "products", foreignKey: "id" });
+Category.hasMany(Product, {
+  as: "products",
+  foreignKey: "categoryId",
+});
 
 /* -------------------------------------------------------------------------- */
 /*                        RELAÇÕES DE PARCELAS DE SAÍDA                       */
@@ -194,7 +196,31 @@ OutflowInstallments.belongsTo(Purchase, {
   as: "installments",
   foreignKey: "purchaseId",
 });
+
+OutflowInstallments.belongsTo(Account, {
+  as: "account",
+  foreignKey: "accountId",
+});
+
 OutflowInstallments.belongsTo(Company, {
+  as: "purchasesInstallments",
+  foreignKey: "companyId",
+});
+
+/* -------------------------------------------------------------------------- */
+/*                       RELAÇÕES DE PARCELAS DE ENTRADA                      */
+/* -------------------------------------------------------------------------- */
+InflowInstallments.belongsTo(Sale, {
+  as: "installments",
+  foreignKey: "saleId",
+});
+
+InflowInstallments.belongsTo(Account, {
+  as: "account",
+  foreignKey: "accountId",
+});
+
+InflowInstallments.belongsTo(Company, {
   as: "purchasesInstallments",
   foreignKey: "companyId",
 });

@@ -12,128 +12,136 @@ module.exports = {
     let {
       min,
       max,
-      min_date_time,
-      max_date_time,
-      product,
-      provider,
+      initialDate,
+      finalDate,
+      productId,
+      id,
       columnToSort,
       order,
+      paginate,
       page,
       pageSize,
+      selectOnly,
     } = req.query;
+
+    if (!paginate) {
+      paginate = "true";
+    }
+
+    /* ---------------------------- TAMANHO DA PÁGINA --------------------------- */
+
+    if (!pageSize) {
+      pageSize = 15;
+    }
+
+    /* -------------------------------------------------------------------------- */
+    /*                                   FILTROS                                  */
+    /* -------------------------------------------------------------------------- */
 
     let filter = {
       companyId: user.company.id,
     };
 
-    //SE FOR UM NÚMERO
-    if (!isNaN(product)) {
-      let newProduct = {
-        [Op.eq]: product,
-      };
+    /* ----------------------------------- ID ----------------------------------- */
 
-      filter.productId = newProduct;
+    if (id) {
+      let newId = { [Op.eq]: id };
+      filter.id = newId;
     }
 
-    //SE FOR UM NÚMERO
-    if (!isNaN(provider)) {
-      let newProvider = {
-        [Op.eq]: provider,
-      };
-
-      filter.providerId = newProvider;
-    }
+    /* ---------------------------------- VALOR --------------------------------- */
 
     if (min || max) {
-      let min_val = 0;
-      let max_val = 9999999999;
-      filter.price = {
+      filter.total = {
         [Op.and]: {
-          [Op.gte]: Number(min) || min_val,
-          [Op.lte]: Number(max) || max_val,
+          [Op.gte]: Number(min),
+          [Op.lte]: Number(max),
         },
       };
     }
 
-    if (min_date_time || max_date_time) {
+    /* ---------------------------------- DATA ---------------------------------- */
+
+    if (initialDate || finalDate) {
+      initialDate = new Date(initialDate || "01-01-1970").setHours(0, 0, 0, 0);
+      finalDate = new Date(finalDate || "01-01-2999").setHours(23, 59, 59, 999);
+
       filter.date = {
         [Op.and]: {
-          [Op.gte]: min_date_time || "1970-01-01",
-          [Op.lte]: max_date_time || "2100-01-01",
+          [Op.gte]: initialDate,
+          [Op.lte]: finalDate,
         },
       };
     }
 
     /* -------------------------------------------------------------------------- */
-    /*                               ORDEM DE FILTRO                              */
+    /*                                   PRODUTO                                  */
+    /* -------------------------------------------------------------------------- */
+
+    let productFilter = {};
+
+    if (productId) {
+      productFilter = { productId: { [Op.eq]: productId } };
+    }
+
+    /* -------------------------------------------------------------------------- */
+    /*                                  PARCELAS                                  */
+    /* -------------------------------------------------------------------------- */
+
+    let installmentFilter = {};
+
+    /* -------------------------------------------------------------------------- */
+    /*                                  ORDENAÇÃO                                 */
     /* -------------------------------------------------------------------------- */
 
     if (columnToSort && order) {
-      order = [[columnToSort, order]];
+      order = [
+        [columnToSort, order],
+        ["installments", "installmentNumber", "ASC"],
+      ];
     } else {
       order = null;
     }
 
-    try {
-      var purchases = await Purchase.paginate({
-        page: page,
-        paginate: Number(pageSize),
-        where: filter,
-        order,
-        include: [
-          {
-            association: "products",
-          },
-          {
-            association: "provider",
-          },
-          {
-            association: "installments",
-          },
-        ],
-      });
-
-      //CONTAGEM DE DADOS
-      //ULTIMO MES
-      let date = new Date();
-      date.setDate(date.getDate() - 30);
-
-      var last30days = await Purchase.count({
-        where: { companyId: user.company.id, date: { [Op.gte]: date } },
-      });
-
-      purchases.lastMonth = last30days;
-
-      //ULTIMO ANO
-      date = new Date();
-      date.setDate(date.getDate() - 365);
-
-      var last365days = await Purchase.count({
-        where: { companyId: user.company.id, date: { [Op.gte]: date } },
-      });
-
-      purchases.lastYear = last365days;
-
-      //DESDE O INICIO
-      var allTime = await Purchase.count({
-        where: { companyId: user.company.id },
-      });
-
-      purchases.allTime = allTime;
-
-      purchases.docs.map((purchase) => {
-        let total = 0;
-        purchase.installments.map((installment) => {
-          total += Number(installment.installmentValue);
+    switch (paginate) {
+      case "true":
+        let purchases = await Purchase.paginate({
+          page,
+          paginate: Number(pageSize),
+          where: { ...filter },
+          include: [
+            { association: "installments" },
+            { association: "provider" },
+            { association: "buyer" },
+            { association: "products" },
+          ],
+        }).catch((error) => {
+          return res
+            .status(400)
+            .json({ error: "Houve um erro na sua requisição", info: error });
         });
-        purchase.total = total;
-        purchase.dataValues.total = total;
-      });
-    } catch (err) {
-      return res.status(400).json(err);
-    }
 
-    return res.json(purchases);
+        return res.json(purchases);
+        break;
+      default:
+        await Purchase.findAll({
+          where: filter,
+          order,
+          include: [
+            { association: "installments" },
+            { association: "provider" },
+          ],
+        })
+          .then((purchases) => {
+            return res.json(purchases);
+          })
+          .catch((error) => {
+            return res
+              .status(400)
+              .json({ error: "Houve um erro na sua requisição", info: error });
+          });
+        break;
+    }
   },
   async store(req, res) {
     const { date, providerId, freight, products, installments } = req.body;

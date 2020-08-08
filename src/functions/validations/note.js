@@ -1,4 +1,4 @@
-const validateReason = (value, required) => {
+const validateNote = (value, required) => {
   if (required == true && !value) {
     return {
       provided: value,
@@ -12,16 +12,16 @@ const validateReason = (value, required) => {
       success: "A razão não foi informada, porém não é obrigatória",
     };
 
-  if (value.length > 500)
+  if (value.length > 250)
     return {
       provided: value,
-      error: "A razão deve ter no máximo 500 caracteres!",
+      error: "A razão deve ter no máximo 250 caracteres!",
     };
 
-  if (value.length < 10) {
+  if (value.length < 3) {
     return {
       provided: value,
-      error: "A razão deve ter no mínimo 10 caracteres!",
+      error: "A razão deve ter no mínimo 3 caracteres!",
     };
   }
 
@@ -31,4 +31,4 @@ const validateReason = (value, required) => {
   };
 };
 
-module.exports = validateReason;
+module.exports = validateNote;
