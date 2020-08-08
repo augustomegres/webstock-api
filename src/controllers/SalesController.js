@@ -82,12 +82,11 @@ module.exports = {
     /*                                   PRODUTO                                  */
     /* -------------------------------------------------------------------------- */
 
-    let productFilter = {};
+    let productWhere = {};
 
     if (productId) {
-      productFilter = { productId: { [Op.eq]: productId } };
+      productWhere = { productId: { [Op.eq]: productId } };
     }
-
     /* -------------------------------------------------------------------------- */
     /*                                  PARCELAS                                  */
     /* -------------------------------------------------------------------------- */
@@ -156,7 +155,7 @@ module.exports = {
             { association: "customers" },
             {
               association: "productSold",
-              where: productFilter,
+              where: productWhere,
             },
             { association: "saleOwner" },
             {

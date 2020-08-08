@@ -15,13 +15,13 @@ module.exports = {
       initialDate,
       finalDate,
       productId,
+      providerId,
       id,
       columnToSort,
       order,
       paginate,
       page,
       pageSize,
-      selectOnly,
     } = req.query;
 
     if (!paginate) {
@@ -47,6 +47,20 @@ module.exports = {
     if (id) {
       let newId = { [Op.eq]: id };
       filter.id = newId;
+    }
+
+    /* ------------------------------- FORNECEDOR ------------------------------- */
+
+    if (providerId) {
+      filter.providerId = providerId;
+    }
+
+    /* --------------------------------- PRODUTO -------------------------------- */
+
+    let productWhere = {};
+
+    if (productId) {
+      productWhere = { productId: { [Op.eq]: productId } };
     }
 
     /* ---------------------------------- VALOR --------------------------------- */
@@ -75,22 +89,6 @@ module.exports = {
     }
 
     /* -------------------------------------------------------------------------- */
-    /*                                   PRODUTO                                  */
-    /* -------------------------------------------------------------------------- */
-
-    let productFilter = {};
-
-    if (productId) {
-      productFilter = { productId: { [Op.eq]: productId } };
-    }
-
-    /* -------------------------------------------------------------------------- */
-    /*                                  PARCELAS                                  */
-    /* -------------------------------------------------------------------------- */
-
-    let installmentFilter = {};
-
-    /* -------------------------------------------------------------------------- */
     /*                                  ORDENAÇÃO                                 */
     /* -------------------------------------------------------------------------- */
 
@@ -113,7 +111,7 @@ module.exports = {
             { association: "installments" },
             { association: "provider" },
             { association: "buyer" },
-            { association: "products" },
+            { association: "products", where: productWhere },
           ],
         }).catch((error) => {
           return res
@@ -130,6 +128,8 @@ module.exports = {
           include: [
             { association: "installments" },
             { association: "provider" },
+            { association: "buyer" },
+            { association: "products", where: productWhere },
           ],
         })
           .then((purchases) => {
