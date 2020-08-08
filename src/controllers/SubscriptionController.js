@@ -104,8 +104,6 @@ module.exports = {
       number = phoneNumber.substring(2);
     }
 
-    console.log(ddd, number);
-
     let customer = {
       external_id: user.id,
       name: name,

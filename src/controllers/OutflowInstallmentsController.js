@@ -42,6 +42,7 @@ module.exports = {
       min_value,
       max_value,
       page,
+      type,
       pageSize,
       dueDate,
       purchaseId,
@@ -53,6 +54,10 @@ module.exports = {
       page = 1;
     }
 
+    if (!paginate) {
+      paginate = "true";
+    }
+
     if (!pageSize) {
       pageSize = 15;
     }
@@ -61,31 +66,30 @@ module.exports = {
       companyId: user.company.id,
     };
 
-    /** FILTROS DE DATA DE PAGAMENTOS */
-    if (paid == "true") {
-      where.paymentDate = {
-        [Op.ne]: null,
-      };
-    }
-
     if (accountId) {
       where.accountId = { [Op.eq]: accountId };
+    }
+
+    if (type) {
+      where.type = { [Op.substring]: type };
     }
 
     if (paid == "false") {
       where.paymentDate = {
         [Op.eq]: null,
       };
+    } else if (paid == "true") {
+      where.paymentDate = {
+        [Op.ne]: null,
+      };
     }
 
-    /** ID DA COMPRA */
     if (purchaseId) {
       where.purchaseId = {
         [Op.eq]: purchaseId,
       };
     }
 
-    /** FILTROS DE DATA DE VENCIMENTO */
     if (dueDate) {
       var searchOrder = [];
       searchOrder.push(["dueDate", dueDate]);
@@ -137,6 +141,12 @@ module.exports = {
         paginate: Number(pageSize),
         where,
         order: searchOrder,
+        include: [
+          {
+            association: "purchases",
+            include: [{ association: "provider" }],
+          },
+        ],
       })
         .then((e) => {
           return res.status(200).json(e);
@@ -150,6 +160,12 @@ module.exports = {
       OutflowInstallments.findAll({
         where,
         order: searchOrder,
+        include: [
+          {
+            association: "purchases",
+            include: [{ association: "provider" }],
+          },
+        ],
       })
         .then((e) => {
           return res.status(200).json(e);
