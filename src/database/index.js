@@ -11,7 +11,6 @@ const ProductSold = require("../models/ProductSold");
 const PurchasedProducts = require("../models/PurchasedProducts");
 const Account = require("../models/Account");
 const Customer = require("../models/Customer");
-const SaleInstallments = require("../models/InflowInstallments");
 const Providers = require("../models/Providers");
 const Purchase = require("../models/Purchase");
 const OutflowInstallments = require("../models/OutflowInstallments");
@@ -46,9 +45,9 @@ PurchasedProducts.init(connection);
 ProductProviders.init(connection);
 Account.init(connection);
 Customer.init(connection);
-SaleInstallments.init(connection);
 Providers.init(connection);
 Purchase.init(connection);
+InflowInstallments.init(connection);
 OutflowInstallments.init(connection);
 
 sequelizePaginate.paginate(Sale);
@@ -79,7 +78,7 @@ User.belongsTo(Sale, { as: "seller", foreignKey: "id" });
 Company.belongsTo(User, { as: "users", foreignKey: "ownerId" });
 Company.hasMany(Product, { as: "products", foreignKey: "companyId" });
 Company.hasMany(Account, { as: "accounts", foreignKey: "companyId" });
-Company.hasMany(SaleInstallments, {
+Company.hasMany(InflowInstallments, {
   as: "installments",
   foreignKey: "companyId",
 });
@@ -127,7 +126,7 @@ ProductSold.belongsTo(Sale, { as: "sales", foreignKey: "saleId" });
 Sale.hasMany(ProductSold, { as: "productSold", foreignKey: "saleId" });
 Sale.belongsTo(User, { as: "saleOwner", foreignKey: "sellerId" });
 Sale.belongsTo(Customer, { as: "customers", foreignKey: "customerId" });
-Sale.hasMany(SaleInstallments, { as: "installments", foreignKey: "saleId" });
+Sale.hasMany(InflowInstallments, { as: "installments", foreignKey: "saleId" });
 
 /* -------------------------------------------------------------------------- */
 /*                       RELAÇÕES DE PRODUTOS COMPRADOS                       */
@@ -160,13 +159,6 @@ Purchase.hasMany(OutflowInstallments, {
 
 Customer.hasMany(Sale, { as: "sales", foreignKey: "customerId" });
 Customer.belongsTo(Company, { as: "company", foreignKey: "companyId" });
-
-/* -------------------------------------------------------------------------- */
-/*                            RELAÇÕES DE PARCELAS                            */
-/* -------------------------------------------------------------------------- */
-
-SaleInstallments.belongsTo(Sale, { as: "sales", foreignKey: "saleId" });
-SaleInstallments.belongsTo(Company, { as: "company", foreignKey: "companyId" });
 
 /* -------------------------------------------------------------------------- */
 /*                           RELAÇÃO DE FORNECEDORES                          */
@@ -202,8 +194,13 @@ OutflowInstallments.belongsTo(Account, {
   foreignKey: "accountId",
 });
 
+OutflowInstallments.belongsTo(Purchase, {
+  as: "purchases",
+  foreignKey: "purchaseId",
+});
+
 OutflowInstallments.belongsTo(Company, {
-  as: "purchasesInstallments",
+  as: "company",
   foreignKey: "companyId",
 });
 
@@ -220,9 +217,12 @@ InflowInstallments.belongsTo(Account, {
   foreignKey: "accountId",
 });
 
+InflowInstallments.belongsTo(Sale, {
+  as: "sales",
+  foreignKey: "saleId",
+});
 InflowInstallments.belongsTo(Company, {
-  as: "purchasesInstallments",
+  as: "company",
   foreignKey: "companyId",
 });
-
 module.exports = connection;
