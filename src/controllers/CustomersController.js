@@ -59,6 +59,10 @@ module.exports = {
     const { user } = req;
     let { paginate, page, limit, name } = req.query;
 
+    if (!paginate) {
+      paginate = "true";
+    }
+
     if (!page) page = 1;
     if (!limit) limit = 12;
 
