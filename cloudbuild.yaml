@@ -4,8 +4,4 @@ steps:
 
   - name: "gcr.io/cloud-builders/gcloud"
     args: ["app", "deploy"]
-####
-substitutions:
-  VARIAVELTESTE: "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
-
 timeout: "1600s"
