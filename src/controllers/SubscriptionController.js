@@ -60,7 +60,10 @@ module.exports = {
     }
 
     try {
-      await User.update({ name, cpf, date_of_birth }, { where: { id: user } });
+      await User.update(
+        { name, cpf, date_of_birth },
+        { where: { id: user.id } }
+      );
     } catch (e) {
       return res
         .status(400)

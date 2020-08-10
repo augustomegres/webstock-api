@@ -44,7 +44,8 @@ module.exports = {
       page,
       type,
       pageSize,
-      dueDate,
+      order,
+      columnToSort,
       purchaseId,
       accountId,
       paginate,
@@ -52,6 +53,12 @@ module.exports = {
 
     if (!page) {
       page = 1;
+    }
+
+    if (columnToSort && order) {
+      order = [[columnToSort, order]];
+    } else {
+      order = null;
     }
 
     if (!paginate) {
@@ -88,13 +95,6 @@ module.exports = {
       where.purchaseId = {
         [Op.eq]: purchaseId,
       };
-    }
-
-    if (dueDate) {
-      var searchOrder = [];
-      searchOrder.push(["dueDate", dueDate]);
-    } else {
-      var searchOrder = [];
     }
 
     if (min_date_time || max_date_time) {
@@ -140,7 +140,7 @@ module.exports = {
         page: page,
         paginate: Number(pageSize),
         where,
-        order: searchOrder,
+        order,
         include: [
           {
             association: "purchases",
@@ -159,7 +159,7 @@ module.exports = {
     } else {
       OutflowInstallments.findAll({
         where,
-        order: searchOrder,
+        order,
         include: [
           {
             association: "purchases",

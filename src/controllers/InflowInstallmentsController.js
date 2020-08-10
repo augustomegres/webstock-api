@@ -136,14 +136,21 @@ module.exports = {
       page,
       type,
       pageSize,
-      dueDate,
       purchaseId,
       accountId,
       paginate,
+      order,
+      columnToSort,
     } = req.query;
 
     if (!page) {
       page = 1;
+    }
+
+    if (columnToSort && order) {
+      order = [[columnToSort, order]];
+    } else {
+      order = null;
     }
 
     if (!paginate) {
@@ -180,13 +187,6 @@ module.exports = {
       where.purchaseId = {
         [Op.eq]: purchaseId,
       };
-    }
-
-    if (dueDate) {
-      var searchOrder = [];
-      searchOrder.push(["dueDate", dueDate]);
-    } else {
-      var searchOrder = [];
     }
 
     if (min_date_time || max_date_time) {
@@ -234,7 +234,7 @@ module.exports = {
         include: [
           { association: "sales", include: [{ association: "customers" }] },
         ],
-        order: searchOrder,
+        order,
       })
         .then((e) => {
           return res.status(200).json(e);
@@ -247,7 +247,7 @@ module.exports = {
     } else {
       InflowInstallments.findAll({
         where,
-        order: searchOrder,
+        order,
         include: [
           { association: "sales", include: [{ association: "customers" }] },
         ],
