@@ -3,7 +3,8 @@ steps:
     args: ["install"]
 
   - name: gcr.io/cloud-builders/npm
-    args: ["run", "create-env"]
+    entrypoint: npm
+    args: ["sudo", "run", "create-env"]
     env: 
       - DB_URL=${_DB_URL}
     
