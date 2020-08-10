@@ -9,4 +9,3 @@ export const DB_USER = process.env.DB_USER;
 export const PAGARME_KEY = process.env.PAGARME_KEY;
 export const SECRET = process.env.SECRET;
 export const SENDGRID = process.env.SENDGRID;
-console.log("VARIAVEL =>" + DB_URL);
