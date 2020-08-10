@@ -2,9 +2,12 @@ steps:
   - name: gcr.io/cloud-builders/npm
     args: ["install"]
 
+  - name: gcr.io/cloud-builders/npm
+    args: ["run", "create-env"]
+    env: DB_URL=${_DB_URL}
+    
   - name: "gcr.io/cloud-builders/gcloud"
-    args: ["app", "deploy", "--set-env-vars KEY1=VALUE1"]
-    env: 
-    - "TAPORRA=caralhomanotafodacaralhomanotafodacaralhomanotafodacaralhomanotafodacaralhomanotafoda"
+    args: ["app", "deploy"]
+
 
 timeout: "1600s"

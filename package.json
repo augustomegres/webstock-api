@@ -9,7 +9,7 @@
     "npm": "^6.14.4"
   },
   "scripts": {
-    "create-env": "",
+    "create-env": "printenv > .env",
     "dev": "nodemon src/app.js",
     "start": "node src/app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
