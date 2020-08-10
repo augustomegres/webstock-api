@@ -2,9 +2,9 @@ const dotenv = require("dotenv");
 dotenv.config();
 
 module.exports = {
-  url: process.env.DATABASE_URL,
+  url: process.env.DB_URL,
   define: {
     timestamps: true,
-    freezeTableName: true
-  }
+    freezeTableName: true,
+  },
 };
