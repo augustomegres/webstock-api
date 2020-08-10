@@ -7,7 +7,6 @@ steps:
 
 
   - name: 'ubuntu'
-    args: ['bash', './myscript.sh']
     env:
     - BUILD=AEC CARALHO FGUNCO
     - PROJECT=$PROJECT_ID
