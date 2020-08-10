@@ -105,6 +105,7 @@ module.exports = {
       case "true":
         let purchases = await Purchase.paginate({
           page,
+          order,
           paginate: Number(pageSize),
           where: { ...filter },
           include: [
