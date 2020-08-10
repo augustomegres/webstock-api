@@ -4,40 +4,43 @@ steps:
 
 #CRIANDO ARQUIVO APP.YAML
   - name: 'bash'
-    args: ['echo', "'runtime: nodejs10' >> ./app.yaml"]
+    args: ['echo', "'runtime: nodejs10' >> ./app.txt"]
 
   - name: 'bash'
-    args: ['echo', "\n  >> ./app.yaml"]
+    args: ['echo', "\n  >> ./app.txt"]
 
   - name: 'bash'
-    args: ['echo', "'env_variables:' >> ./app.yaml"]
+    args: ['echo', "'env_variables:' >> ./app.txt"]
 
   - name: 'bash'
-    args: ['echo', "'DB_HOST: ${_DB_HOST}' >> ./app.yaml"]
+    args: ['echo', "'DB_HOST: ${_DB_HOST}' >> ./app.txt"]
 
   - name: 'bash'
-    args: ['echo', "'DB_PATH: ${_DB_PATH}' >> ./app.yaml"]
+    args: ['echo', "'DB_PATH: ${_DB_PATH}' >> ./app.txt"]
 
   - name: 'bash'
-    args: ['echo', "'DB_USER: ${_DB_USER}' >> ./app.yaml"]
+    args: ['echo', "'DB_USER: ${_DB_USER}' >> ./app.txt"]
 
   - name: 'bash'
-    args: ['echo', "'DB_PASS: ${_DB_PASS}' >> ./app.yaml"]
+    args: ['echo', "'DB_PASS: ${_DB_PASS}' >> ./app.txt"]
 
   - name: 'bash'
-    args: ['echo', "'DB_DATABASE: ${_DB_DATABASE}' >> ./app.yaml"]
+    args: ['echo', "'DB_DATABASE: ${_DB_DATABASE}' >> ./app.txt"]
 
   - name: 'bash'
-    args: ['echo', "'DB_URL: ${_DB_URL}' >> ./app.yaml"]
+    args: ['echo', "'DB_URL: ${_DB_URL}' >> ./app.txt"]
 
   - name: 'bash'
-    args: ['echo', "'SECRET: ${_SECRET}' >> ./app.yaml"]
+    args: ['echo', "'SECRET: ${_SECRET}' >> ./app.txt"]
 
   - name: 'bash'
-    args: ['echo', "'SENDGRID: ${_SENDGRID}' >> ./app.yaml"]
+    args: ['echo', "'SENDGRID: ${_SENDGRID}' >> ./app.txt"]
 
   - name: 'bash'
-    args: ['echo', "'PAGARME_KEY: ${_PAGARME_KEY}' >> ./app.yaml"]
+    args: ['echo', "'PAGARME_KEY: ${_PAGARME_KEY}' >> ./app.txt"]
+
+  - name: 'bash'
+    args: ['cat', "./app.txt"]
 
   - name: "gcr.io/cloud-builders/gcloud"
     args: ["app", "deploy"]
