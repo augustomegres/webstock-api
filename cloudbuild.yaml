@@ -1,6 +1,4 @@
 steps:
-  - name: gcr.io/cloud-builders/npm
-    args: ["install"]
 
 #CRIANDO ARQUIVO APP.YAML
   - name: 'bash'
@@ -40,7 +38,10 @@ steps:
     args: ['echo', "'PAGARME_KEY: ${_PAGARME_KEY}' >> ./app.txt"]
 
   - name: 'bash'
-    args: ['cat', "./app.txt"]
+    args: ['cat', "app.txt"]
+
+  - name: gcr.io/cloud-builders/npm
+    args: ["install"]
 
   - name: "gcr.io/cloud-builders/gcloud"
     args: ["app", "deploy"]
