@@ -4,7 +4,7 @@ steps:
 
   - name: gcr.io/cloud-builders/npm
     args: ["run", "create-env"]
-    env: DB_URL=${_DB_URL}
+    env: 'DB_URL=${_DB_URL}'
     
   - name: "gcr.io/cloud-builders/gcloud"
     args: ["app", "deploy"]
