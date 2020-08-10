@@ -4,4 +4,12 @@ steps:
 
   - name: "gcr.io/cloud-builders/gcloud"
     args: ["app", "deploy"]
+
+
+  - name: 'ubuntu'
+    args: ['bash', './myscript.sh']
+    env:
+    - BUILD=AEC CARALHO FGUNCO
+    - PROJECT=$PROJECT_ID
+    - REV=$REVISION_ID
 timeout: "1600s"
