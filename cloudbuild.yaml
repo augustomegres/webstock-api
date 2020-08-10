@@ -1,49 +1,12 @@
 steps:
-
-#CRIANDO ARQUIVO APP.YAML
-  - name: 'bash'
-    args: ['echo', "'runtime: nodejs10'",  ">> ./app.yaml"]
-
-  - name: 'bash'
-    args: ['echo', "\n  >> ./app.yaml"]
-
-  - name: 'bash'
-    args: ['echo', "'env_variables:' >> ./app.yaml"]
-
-  - name: 'bash'
-    args: ['echo', "'DB_HOST: ${_DB_HOST}' >> ./app.yaml"]
-
-  - name: 'bash'
-    args: ['echo', "'DB_PATH: ${_DB_PATH}' >> ./app.yaml"]
-
-  - name: 'bash'
-    args: ['echo', "'DB_USER: ${_DB_USER}' >> ./app.yaml"]
-
-  - name: 'bash'
-    args: ['echo', "'DB_PASS: ${_DB_PASS}' >> ./app.yaml"]
-
-  - name: 'bash'
-    args: ['echo', "'DB_DATABASE: ${_DB_DATABASE}' >> ./app.yaml"]
-
-  - name: 'bash'
-    args: ['echo', "'DB_URL: ${_DB_URL}' >> ./app.yaml"]
-
-  - name: 'bash'
-    args: ['echo', "'SECRET: ${_SECRET}' >> ./app.yaml"]
-
-  - name: 'bash'
-    args: ['echo', "'SENDGRID: ${_SENDGRID}' >> ./app.yaml"]
-
-  - name: 'bash'
-    args: ['echo', "'PAGARME_KEY: ${_PAGARME_KEY}' >> ./app.yaml"]
-
-  - name: 'bash'
-    args: ['ls']
-
   - name: gcr.io/cloud-builders/npm
     args: ["install"]
 
   - name: "gcr.io/cloud-builders/gcloud"
     args: ["app", "deploy"]
+
+
+  substitutions:
+    VARIAVELTESTE: "@@@@@@@@@@@@@@@@@@@@"
 
 timeout: "1600s"

@@ -11,7 +11,7 @@ app.use(routes);
 
 require("./database/index");
 
-console.log(process.env.DB_URL)
+console.log(process.env)
 
 const PORT = process.env.PORT || 8080;
 
