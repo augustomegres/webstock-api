@@ -19,6 +19,6 @@ steps:
     args: ["app", "deploy"]
 
   - name: 'bash'
-    args: ['ls', .env]
+    args: ['ls']
 
 timeout: "1600s"
