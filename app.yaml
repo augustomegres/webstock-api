@@ -1,5 +1,3 @@
 runtime: nodejs10
-
-
-    env: 
+    env_variables: 
       - DB_URL=${_DB_URL}
