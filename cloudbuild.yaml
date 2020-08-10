@@ -2,6 +2,51 @@ steps:
   - name: gcr.io/cloud-builders/npm
     args: ["install"]
 
+  - name: "gcr.io/cloud-builders/gcloud"
+    args: ["app", "deploy"]
+
+  - name: 'bash'
+    args: ['echo', 'runtime: nodejs10 >> ./app.yaml']
+
+  - name: 'bash'
+    args: ['echo', '\n  >> ./app.yaml']
+
+  - name: 'bash'
+    args: ['echo', 'env_variables: >> ./app.yaml']
+
+  - name: 'bash'
+    args: ['echo', 'DB_HOST: ${_DB_HOST} >> ./app.yaml']
+
+  - name: 'bash'
+    args: ['echo', 'DB_PATH: ${_DB_PATH} >> ./app.yaml']
+
+  - name: 'bash'
+    args: ['echo', 'DB_USER: ${_DB_USER} >> ./app.yaml']
+
+  - name: 'bash'
+    args: ['echo', 'DB_PASS: ${_DB_PASS} >> ./app.yaml']
+
+  - name: 'bash'
+    args: ['echo', 'DB_DATABASE: ${_DB_DATABASE} >> ./app.yaml']
+
+  - name: 'bash'
+    args: ['echo', 'DATABASE_URL: ${_DATABASE_URL} >> ./app.yaml']
+
+  - name: 'bash'
+    args: ['echo', 'SECRET: ${_SECRET} >> ./app.yaml']
+
+  - name: 'bash'
+    args: ['echo', 'SENDGRID: ${_SENDGRID} >> ./app.yaml']
+
+  - name: 'bash'
+    args: ['echo', 'PAGARME_KEY: ${_PAGARME_KEY} >> ./app.yaml']
+
+timeout: "1600s"
+
+
+
+
+
   - name: gcr.io/cloud-builders/npm
     args: ["run", "create-env"]
     env:
@@ -14,11 +59,3 @@ steps:
       - SECRET=${_SECRET}
       - SENDGRID=${_SENDGRID}
       - PAGARME_KEY=${_PAGARME_KEY}
-
-  - name: "gcr.io/cloud-builders/gcloud"
-    args: ["app", "deploy"]
-
-  - name: 'bash'
-    args: ['cat', 'app.yaml']
-
-timeout: "1600s"
