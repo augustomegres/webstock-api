@@ -10,14 +10,6 @@ app.use(routes);
 
 require("./database/index");
 
-
-try {  
-    var data = fs.readFileSync('./.env', 'utf8');
-    console.log(data.toString());    
-} catch(e) {
-    console.log('Error:', e.stack);
-}
-
 const PORT = process.env.PORT || 8080;
 
 app.listen(PORT, () => {

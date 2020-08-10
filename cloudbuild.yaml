@@ -1,6 +1,7 @@
 steps:
   - name: gcr.io/cloud-builders/npm
     args: ["install"]
+
   - name: gcr.io/cloud-builders/npm
     args: ["run", "create-env"]
     env:
@@ -13,11 +14,10 @@ steps:
       - 'SECRET=${_SECRET}'
       - 'SENDGRID=${_SENDGRID}'
       - 'PAGARME_KEY=${_PAGARME_KEY}'
+
   - name: "gcr.io/cloud-builders/gcloud"
     args: ["app", "deploy"]
 
-- name: 'bash'
-  args: ['echo', '${_DB_HOST}']
-- name: 'bash'
-  args: ['echo', '$_DB_HOST']
+  - name: 'bash'
+    args: ['echo', $_DB_HOST]
 timeout: "1600s"
