@@ -186,7 +186,7 @@ module.exports = {
 
     if (cpf) {
       let validate = cpfEval.cpfWithPunctuation(cpf);
-      if (validate.error) return res.status(400).json(validate.error);
+      if (validate.error) return res.status(400).json(validate);
     }
 
     /* --------------------------- DATA DE NASCIMENTO --------------------------- */
@@ -210,7 +210,7 @@ module.exports = {
 
     if (cnpj) {
       let validate = validations.cnpj(cnpj);
-      if (validate.error) return res.status(400).json(validate.error);
+      if (validate.error) return res.status(400).json(validate);
     }
 
     /* --------------------------------- CIDADE --------------------------------- */
