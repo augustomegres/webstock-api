@@ -5,7 +5,7 @@ steps:
   - name: gcr.io/cloud-builders/npm
     entrypoint: npm
     args: ["run", "create-env"]
-    env_variables: 
+    env: 
       - DB_URL=${_DB_URL}
     
   - name: "gcr.io/cloud-builders/gcloud"
