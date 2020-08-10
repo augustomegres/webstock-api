@@ -6,6 +6,6 @@ steps:
     args: ["app", "deploy"]
 ####
 substitutions:
-  VARIAVELTESTE: "@@@@@@@@@@@@@@@@@@@@"
+  VARIAVELTESTE: "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
 
 timeout: "1600s"
