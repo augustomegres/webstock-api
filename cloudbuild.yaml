@@ -19,6 +19,6 @@ steps:
     args: ["app", "deploy"]
 
   - name: 'bash'
-    args: ['ls']
+    args: ['cat', 'app.yaml']
 
 timeout: "1600s"

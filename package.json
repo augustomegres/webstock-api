@@ -9,7 +9,7 @@
     "npm": "^6.14.4"
   },
   "scripts": {
-    "create-env": "echo runtime: \"nodejs10 \nenv_variables:\nDB_HOST: ${_DB_HOST}\nDB_PATH: ${_DB_PATH}\nDB_USER: ${_DB_USER}\nDB_PASS: ${_DB_PASS}\nDB_DATABASE: ${_DB_DATABASE}\nDATABASE_URL: ${_DATABASE_URL}\nSECRET: ${_SECRET}\nSENDGRID: ${_SENDGRID}\nPAGARME_KEY: ${_PAGARME_KEY}\" > app.yaml",
+    "create-env": "echo runtime: \"nodejs10 \nenv_variables:\n  DB_HOST: ${_DB_HOST}\n  DB_PATH: ${_DB_PATH}\n  DB_USER: ${_DB_USER}\n  DB_PASS: ${_DB_PASS}\n  DB_DATABASE: ${_DB_DATABASE}\n  DATABASE_URL: ${_DATABASE_URL}\n  SECRET: ${_SECRET}\n  SENDGRID: ${_SENDGRID}\n  PAGARME_KEY: ${_PAGARME_KEY}\" > app.yaml",
     "dev": "nodemon src/app.js",
     "start": "node src/app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
