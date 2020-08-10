@@ -57,23 +57,29 @@ module.exports = {
   },
   async index(req, res) {
     const { user } = req;
-    let { paginate, page, limit, name } = req.query;
+    let { paginate, page, limit, name, columnToSort, order } = req.query;
 
     if (!paginate) {
       paginate = "true";
+    }
+
+    if (columnToSort && order) {
+      order = [[columnToSort, order]];
+    } else {
+      order = null;
     }
 
     if (!page) page = 1;
     if (!limit) limit = 12;
 
     where = { companyId: user.company.id };
-    if (name) where.name = { [Op.like]: "%" + name + "%" };
+    if (name) where.name = { [Op.substring]: name };
 
     if (paginate == "true") {
       const customers = await Customer.paginate({
         where,
         include: { association: "company" },
-
+        order,
         page: Number(page),
         paginate: Number(limit),
       });
@@ -82,6 +88,7 @@ module.exports = {
     } else {
       const customers = await Customer.findAll({
         where,
+        order,
         include: { association: "company" },
       });
 
