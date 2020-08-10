@@ -28,7 +28,7 @@ steps:
     args: ['echo', 'DB_DATABASE: ${_DB_DATABASE} >> ./app.yaml']
 
   - name: 'bash'
-    args: ['echo', 'DATABASE_URL: ${_DATABASE_URL} >> ./app.yaml']
+    args: ['echo', 'DB_URL: ${_DB_URL} >> ./app.yaml']
 
   - name: 'bash'
     args: ['echo', 'SECRET: ${_SECRET} >> ./app.yaml']
@@ -41,7 +41,7 @@ steps:
 
 
   - name: 'bash'
-    args: ['echo', './app.yaml']
+    args: ['cat', './app.yaml']
 
 
   - name: "gcr.io/cloud-builders/gcloud"
