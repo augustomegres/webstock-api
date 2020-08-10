@@ -17,7 +17,7 @@ env_variables:
   DB_USER: user
   DB_PASS: pass
   DB_DATABASE: webstock
-  DATABASE_URL: mysql://user:pass@hostip/webstock
+  DB_URL: mysql://user:pass@hostip/webstock
   SECRET: 1234
   SENDGRID: KEY
   PAGARME_KEY: KEY

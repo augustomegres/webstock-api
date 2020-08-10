@@ -1,4 +1,14 @@
 steps:
   - name: "gcr.io/cloud-builders/gcloud"
     args: ["app", "deploy"]
-timeout: "1600s"
+    timeout: "1600s"
+with:
+  DB_HOST: ${{ secrets.DB_HOST }}
+  DB_PATH: ${{ secrets.DB_PATH }}
+  DB_USER: ${{ secrets.DB_USER }}
+  DB_PASS: ${{ secrets.DB_PASS }}
+  DB_DATABASE: ${{ secrets.DB_DATABASE }}
+  DB_URL: ${{ secrets.DB_URL }}
+  SECRET: ${{ secrets.SECRET }}
+  SENDGRID: ${{ secrets.SENDGRID }}
+  PAGARME_KEY: ${{ secrets.PAGARME_KEY }}

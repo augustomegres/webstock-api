@@ -1,12 +1,1 @@
 runtime: nodejs10
-
-env_variables:
-  DB_HOST: ${{ secrets.DB_HOST }}
-  DB_PATH: ${{ secrets.DB_PATH }}
-  DB_USER: ${{ secrets.DB_USER }}
-  DB_PASS: ${{ secrets.DB_PASS }}
-  DB_DATABASE: ${{ secrets.DB_DATABASE }}
-  DATABASE_URL: ${{ secrets.DATABASE_URL }}
-  SECRET: ${{ secrets.SECRET }}
-  SENDGRID: ${{ secrets.SENDGRID }}
-  PAGARME_KEY: ${{ secrets.PAGARME_KEY }}
