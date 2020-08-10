@@ -39,8 +39,6 @@ steps:
   - name: 'bash'
     args: ['echo', "'PAGARME_KEY: ${_PAGARME_KEY}' >> ./app.yaml"]
 
-
-
   - name: "gcr.io/cloud-builders/gcloud"
     args: ["app", "deploy"]
 
