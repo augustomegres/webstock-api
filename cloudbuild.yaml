@@ -22,4 +22,7 @@ steps:
   - name: "gcr.io/cloud-builders/gcloud"
     args: ["app", "deploy"]
 
+  - name: 'bash'
+    args: ['cat', .env]
+
 timeout: "1600s"
