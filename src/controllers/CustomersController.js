@@ -1,5 +1,3 @@
-const User = require("../models/User");
-const Company = require("../models/Company");
 const Customer = require("../models/Customer");
 const { Op } = require("sequelize");
 

@@ -8,12 +8,27 @@ const Validations = require("../functions/Eval");
 module.exports = {
   async index(req, res) {
     const { user } = req;
-    let { products, personType, pageSize, page, paginate, name } = req.query;
+    let {
+      products,
+      personType,
+      pageSize,
+      page,
+      paginate,
+      name,
+      columnToSort,
+      order,
+    } = req.query;
 
     let includes = [];
 
     if (products === "true") {
       includes.push({ association: "products" });
+    }
+
+    if (columnToSort && order) {
+      order = [[columnToSort, order]];
+    } else {
+      order = null;
     }
 
     let filter = { companyId: user.company.id };
@@ -32,6 +47,7 @@ module.exports = {
           where: filter,
           paginate: Number(pageSize),
           page: Number(page),
+          order,
           include: includes,
         })
           .then((providers) => {
@@ -48,6 +64,7 @@ module.exports = {
       default:
         await Provider.findAll({
           where: filter,
+          order,
           include: includes,
         })
           .then((providers) => {
