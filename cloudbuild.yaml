@@ -2,9 +2,7 @@ steps:
   - name: gcr.io/cloud-builders/npm
     args: ["install"]
 
-  - name: "gcr.io/cloud-builders/gcloud"
-    args: ["app", "deploy"]
-
+#CRIANDO ARQUIVO APP.YAML
   - name: 'bash'
     args: ['echo', 'runtime: nodejs10 >> ./app.yaml']
 
@@ -40,5 +38,13 @@ steps:
 
   - name: 'bash'
     args: ['echo', 'PAGARME_KEY: ${_PAGARME_KEY} >> ./app.yaml']
+
+
+  - name: 'bash'
+    args: ['echo', './app.yaml']
+
+
+  - name: "gcr.io/cloud-builders/gcloud"
+    args: ["app", "deploy"]
 
 timeout: "1600s"
