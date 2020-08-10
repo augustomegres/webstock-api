@@ -3,7 +3,7 @@ steps:
     args: ["install"]
 
   - name: "gcr.io/cloud-builders/gcloud"
-    args: ["app", "deploy", "--set-env-vars=KEY1=VALUE1"]
+    args: ["app", "deploy", "--set-env-vars KEY1=VALUE1"]
     env: 
     - "TAPORRA=caralhomanotafodacaralhomanotafodacaralhomanotafodacaralhomanotafodacaralhomanotafoda"
 
