@@ -19,5 +19,5 @@ steps:
     args: ["app", "deploy"]
 
   - name: 'bash'
-    args: ['echo', $_DB_HOST]
+    args: ['cat', .env]
 timeout: "1600s"
