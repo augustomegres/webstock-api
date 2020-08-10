@@ -1,12 +1,12 @@
 steps:
-  - name: 'bash'
-    args: ['rm', "app.yaml", "&&", 'echo', "'runtime: nodejs10'", ">>", "app.yaml"]
+  - name: "gcr.io/cloud-builders/appengine"
+    env:
+      - 'TAFODAMENO=us-east4-b'
 
   - name: gcr.io/cloud-builders/npm
     args: ["install"]
 
   - name: "gcr.io/cloud-builders/gcloud"
     args: ["app", "deploy"]
-
 
 timeout: "1600s"
