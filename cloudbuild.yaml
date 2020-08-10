@@ -42,20 +42,3 @@ steps:
     args: ['echo', 'PAGARME_KEY: ${_PAGARME_KEY} >> ./app.yaml']
 
 timeout: "1600s"
-
-
-
-
-
-  - name: gcr.io/cloud-builders/npm
-    args: ["run", "create-env"]
-    env:
-      - DB_HOST=${_DB_HOST}
-      - DB_PATH=${_DB_PATH}
-      - DB_USER=${_DB_USER}
-      - DB_PASS=${_DB_PASS}
-      - DB_DATABASE=${_DB_DATABASE}
-      - DB_URL=${_DB_URL}
-      - SECRET=${_SECRET}
-      - SENDGRID=${_SENDGRID}
-      - PAGARME_KEY=${_PAGARME_KEY}
