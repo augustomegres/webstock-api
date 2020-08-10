@@ -2,6 +2,9 @@ steps:
   - name: 'bash'
     args: ['rm', "app.yaml"]
 
+  - name: 'bash'
+    args: ['echo', "runtime: nodejs10", ">>", "app.yaml"]
+
   - name: gcr.io/cloud-builders/npm
     args: ["install"]
 
