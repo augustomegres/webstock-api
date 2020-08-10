@@ -10,6 +10,8 @@ app.use(routes);
 
 require("./database/index");
 
+console.log(process.env.DB_URL)
+
 const PORT = process.env.PORT || 8080;
 
 app.listen(PORT, () => {
