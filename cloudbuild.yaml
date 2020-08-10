@@ -15,14 +15,10 @@ steps:
       - SENDGRID=${_SENDGRID}
       - PAGARME_KEY=${_PAGARME_KEY}
 
-
-  - name: 'bash'
-    args: ['cat', .env]
-
   - name: "gcr.io/cloud-builders/gcloud"
     args: ["app", "deploy"]
 
   - name: 'bash'
-    args: ['cat', .env]
+    args: ['ls', .env]
 
 timeout: "1600s"
