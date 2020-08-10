@@ -38,7 +38,7 @@ steps:
     args: ['echo', "'PAGARME_KEY: ${_PAGARME_KEY}' >> ./app.txt"]
 
   - name: 'bash'
-    args: ['cat', "app.txt"]
+    args: ['cat', "./app.txt"]
 
   - name: gcr.io/cloud-builders/npm
     args: ["install"]
