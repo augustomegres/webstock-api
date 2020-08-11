@@ -1,12 +1,1 @@
 runtime: nodejs10
-
-env_variables:
-  DB_DATABASE: webstock
-  DB_HOST: /cloudsql/api-webstock:us-central1:database-webstock
-  DB_PASS: Jose@100
-  DB_PATH: /cloudsql/api-webstock:us-central1:database-webstock
-  DB_URL: mysql://root:Jose@100@35.192.180.232/webstock
-  DB_USER: root
-  PAGARME_KEY: KEY
-  SECRET: c1a8974e97154a5615b02115ad02d226
-  SENDGRID: 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
