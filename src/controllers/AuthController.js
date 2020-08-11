@@ -16,18 +16,20 @@ module.exports = {
 
     const user = await User.findOne({ where: { email } });
 
+    if (!user) {
+      return res
+        .status(404)
+        .json({ error: "Verifique seu email e tente novamente." });
+    }
+
     const userIsValid = await getUser(user.id);
 
     if (userIsValid.error) {
       return res.status(400).json(userIsValid);
     }
 
-    if (!user) {
-      return res.status(404).json({ error: "Usuário não encontrado" });
-    }
-
     if (!(await bcrypt.compare(password, user.passwordHash))) {
-      return res.status(401).json({ error: "Falha na autenticação" });
+      return res.status(401).json({ error: "Sua senha está incorreta." });
     }
 
     user.passwordHash = undefined;
