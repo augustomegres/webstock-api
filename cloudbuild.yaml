@@ -1,9 +1,6 @@
 steps:
   - name: gcr.io/cloud-builders/gsutil
-    args: ["cp", "gs://utility-vista-286116.appspot.com/app.yaml", "app.yaml"]
-
-  - name: "bash"
-    args: ["ls"]
+    args: ["cp", "gs://webstock-api.appspot.com/app.yaml", "app.yaml"]
 
   - name: gcr.io/cloud-builders/npm
     args: ["install"]
