@@ -18,6 +18,7 @@ const ProviderController = require("./controllers/ProvidersController");
 const PurchasingController = require("./controllers/PurchasingController");
 const OutflowInstallmentsController = require("./controllers/OutflowInstallmentsController");
 const SubscriptionController = require("./controllers/SubscriptionController");
+const NotificationController = require("./controllers/NotificationController");
 const EmployeeController = require("./controllers/EmployeeController");
 
 const routes = express.Router();
@@ -183,5 +184,11 @@ routes.get("/subscription", authMiddleware, SubscriptionController.show);
 routes.get("/subscriptions", authMiddleware, SubscriptionController.index);
 routes.post("/subscription", authMiddleware, SubscriptionController.store);
 routes.put("/subscription", authMiddleware, SubscriptionController.update);
+
+/* -------------------------------------------------------------------------- */
+/*                                NOTIFICAÇÕES                                */
+/* -------------------------------------------------------------------------- */
+
+routes.get("/notify", authMiddleware, NotificationController.show);
 
 module.exports = routes;
