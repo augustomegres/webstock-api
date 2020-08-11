@@ -1,6 +1,7 @@
 steps:
   - name: gcr.io/cloud-builders/gsutil
-    args: ["cp", "gs://api-webstock.appspot.com/enviroment/.env", ".env"]
+    args:
+      ["cp", "gs://api-webstock.appspot.com/enviroment/app.yaml", "app.yaml"]
 
   - name: "bash"
     args: ["ls"]
