@@ -4,6 +4,7 @@ const sequelizePaginate = require("sequelize-paginate");
 
 const User = require("../models/User");
 const Company = require("../models/Company");
+const CompanyInvite = require("../models/CompanyInvite");
 const Product = require("../models/Product");
 const Category = require("../models/Category");
 const Sale = require("../models/Sale");
@@ -37,6 +38,7 @@ const connection = new Sequelize(
 
 User.init(connection);
 Company.init(connection);
+CompanyInvite.init(connection);
 Product.init(connection);
 Category.init(connection);
 Sale.init(connection);
@@ -54,7 +56,6 @@ sequelizePaginate.paginate(Sale);
 sequelizePaginate.paginate(Purchase);
 sequelizePaginate.paginate(InflowInstallments);
 sequelizePaginate.paginate(OutflowInstallments);
-sequelizePaginate.paginate(Product);
 sequelizePaginate.paginate(Category);
 sequelizePaginate.paginate(Customer);
 sequelizePaginate.paginate(Providers);
@@ -65,9 +66,9 @@ sequelizePaginate.paginate(Providers);
 
 User.hasOne(Company, { as: "company", foreignKey: "ownerId" });
 User.belongsToMany(Company, {
-  as: "employee_company",
+  as: "companies",
   foreignKey: "userId",
-  through: "company_employee",
+  through: "company_member",
 });
 User.belongsTo(Sale, { as: "seller", foreignKey: "id" });
 
@@ -85,9 +86,9 @@ Company.hasMany(InflowInstallments, {
 Company.hasMany(Customer, { as: "customers", foreignKey: "companyId" });
 Company.hasMany(Providers, { as: "providers", foreignKey: "companyId" });
 Company.belongsToMany(User, {
-  as: "employee",
+  as: "members",
   foreignKey: "companyId",
-  through: "company_employee",
+  through: "company_member",
 });
 
 /* -------------------------------------------------------------------------- */
@@ -225,4 +226,10 @@ InflowInstallments.belongsTo(Company, {
   as: "company",
   foreignKey: "companyId",
 });
+
+/* -------------------------------------------------------------------------- */
+/*                              RELAÇÕES CONVITE                              */
+/* -------------------------------------------------------------------------- */
+CompanyInvite.belongsTo(Company, { as: "company", foreignKey: "companyId" });
+CompanyInvite.belongsTo(User, { as: "user", foreignKey: "guestId" });
 module.exports = connection;

@@ -9,10 +9,10 @@ const {
 
 module.exports = {
   async index(req, res) {
-    const { user } = req;
+    const { companyId } = req;
 
     let company = await Company.findOne({
-      where: { id: user.company.id },
+      where: { id: companyId },
       include: [
         {
           association: "employee",
@@ -124,7 +124,7 @@ module.exports = {
 
     const employee = await User.findOne({
       where: { id },
-      include: { association: "employee_company" },
+      include: { association: "company_member" },
     });
 
     /* ----------------------- VERIFICANDO SE É UM USUÁRIO ---------------------- */
@@ -137,7 +137,7 @@ module.exports = {
 
     /* --------- VERIFICANDO O FUNCIONÁRIO PERTENCE A EMPRESA DO USUÁRIO -------- */
 
-    if (employee.employee_company[0].id != user.company.id) {
+    if (employee.employee_company[0].id != companyId) {
       return res
         .status(400)
         .json({ error: "Este funcionário não pertence a sua empresa." });

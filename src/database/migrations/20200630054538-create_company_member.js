@@ -2,7 +2,7 @@
 
 module.exports = {
   up: (queryInterface, Sequelize) => {
-    return queryInterface.createTable("company_employee", {
+    return queryInterface.createTable("company_member", {
       id: {
         type: Sequelize.INTEGER,
         primaryKey: true,
@@ -24,6 +24,11 @@ module.exports = {
         onUpdate: "CASCADE",
         onDelete: "CASCADE",
       },
+      status: {
+        type: Sequelize.STRING,
+        allowNull: false,
+        defaultValue: "owner",
+      },
       createdAt: {
         type: Sequelize.DATE,
         allowNull: false,
@@ -35,6 +40,6 @@ module.exports = {
     });
   },
   down: (queryInterface, Sequelize) => {
-    return queryInterface.dropTable("company_employee");
+    return queryInterface.dropTable("company_member");
   },
 };

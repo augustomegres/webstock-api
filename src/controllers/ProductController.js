@@ -1,7 +1,6 @@
 const Product = require("../models/Product");
 const Provider = require("../models/Providers");
 const ProductProviders = require("../models/ProductProviders");
-const ProductSold = require("../models/ProductSold");
 const { Op, Sequelize } = require("sequelize");
 
 module.exports = {
@@ -20,8 +19,17 @@ module.exports = {
       columnToSort,
       order,
     } = req.query;
+    const { companyId } = req.params;
+
     if (!page) page = 1;
+    page--;
+
     if (!pageSize) pageSize = 12;
+    if (pageSize > 100) {
+      return res
+        .status(400)
+        .json({ error: "O tamanho máximo da página é de 100 documentos." });
+    }
 
     /* -------------------------------------------------------------------------- */
     /*                                  ORDENAÇÃO                                 */
@@ -41,7 +49,7 @@ module.exports = {
     /*                                   FILTROS                                  */
     /* -------------------------------------------------------------------------- */
 
-    filter = { companyId: user.company.id };
+    filter = { companyId: { [Op.eq]: companyId } };
 
     /* ---------------------- FILTRO DE PRODUTO HABILITADO ---------------------- */
 
@@ -67,9 +75,10 @@ module.exports = {
 
     /* -------------------------- FILTRO DE FORNECEDOR -------------------------- */
 
-    providerWhere = {};
+    let providerWhere;
     if (providerId) {
-      providerWhere.id = Number(providerId);
+      providerWhere = {};
+      providerWhere.id = { [Op.eq]: providerId };
     }
 
     /* --------------------------- FILTRO DE CATEGORIA -------------------------- */
@@ -82,24 +91,32 @@ module.exports = {
     /*                            REQUISITANDO PRODUTOS                           */
     /* -------------------------------------------------------------------------- */
 
+    const offset = Number(page) * Number(pageSize);
+    const limit = Number(pageSize);
+
     switch (paginate) {
       case "true":
-        Product.paginate({
-          page,
-          paginate: Number(pageSize),
+        Product.findAndCountAll({
+          limit,
+          offset,
           order,
-          include: [
-            { association: "providers", where: providerWhere, required: true },
-            { association: "category" },
-            {
-              association: "sales",
-              include: [{ association: "installments" }],
-            },
-          ],
           where: filter,
-        }).then((e) => {
-          res.status(200).json(e);
-        });
+          include: [
+            { association: "category" },
+            { association: "providers", where: providerWhere },
+          ],
+        })
+          .then((e) => {
+            let data = {};
+            data.docs = e.rows;
+
+            data.total = e.count;
+            data.pages = Math.ceil(e.count / limit);
+            res.status(200).json(data);
+          })
+          .catch((e) => {
+            res.status(400).json(e);
+          });
         break;
 
       default:
@@ -107,16 +124,16 @@ module.exports = {
           order,
           include: [
             { association: "category" },
-            { association: "providers", where: providerWhere, required: true },
-            {
-              association: "sales",
-              include: [{ association: "installments" }],
-            },
+            { association: "providers", where: providerWhere },
           ],
           where: filter,
-        }).then((e) => {
-          res.status(200).json(e);
-        });
+        })
+          .then((e) => {
+            res.status(200).json(e);
+          })
+          .catch((e) => {
+            res.status(400).json(e);
+          });
 
         break;
     }
@@ -133,6 +150,8 @@ module.exports = {
       provider,
       enabled,
     } = req.body;
+
+    const { companyId } = req.params;
 
     if (!minimum) {
       minimum = 0;
@@ -160,18 +179,16 @@ module.exports = {
 
     let _provider = [];
     _provider = await Provider.findAll({
-      where: { id: providersId, companyId: user.company.id },
+      where: { id: providersId, companyId: companyId },
     });
 
     if (_provider.length != provider.length) {
       return res.status(400).json({ error: "O fornecedor é inválido" });
     }
 
-    const company = user.company;
-
     try {
       var product = await Product.create({
-        companyId: company.id,
+        companyId: companyId,
         name,
         sku,
         categoryId,
@@ -201,6 +218,7 @@ module.exports = {
       minimum,
       provider,
     } = req.body;
+    const { companyId } = req.params;
 
     let providersId = [];
 
@@ -210,7 +228,7 @@ module.exports = {
 
     let _provider = [];
     _provider = await Provider.findAll({
-      where: { id: providersId, companyId: user.company.id },
+      where: { id: providersId, companyId: companyId },
     });
 
     if (_provider.length != provider.length) {
@@ -224,7 +242,7 @@ module.exports = {
     try {
       await Product.update(
         { name, sku, categoryId, price, quantity, minimum, enabled },
-        { where: { id: productId, companyId: user.company.id } }
+        { where: { id: productId, companyId: companyId } }
       );
 
       let product = await Product.findOne({ where: { id: productId } });
@@ -239,9 +257,8 @@ module.exports = {
   },
   async show(req, res) {
     const { user } = req;
-    let { productId } = req.params;
+    const { productId, companyId } = req.params;
     let { providers, category } = req.query;
-    productId = Number(productId);
 
     let associations = [];
 
@@ -253,56 +270,56 @@ module.exports = {
       associations.push({ association: "category" });
     }
 
-    const product = await Product.findOne({
+    await Product.findOne({
       include: associations,
       where: {
         id: productId,
-        companyId: user.company.id,
+        companyId: companyId,
       },
-    });
-
-    return res.status(200).json(product);
+    })
+      .then((product) => {
+        if (!product) {
+          throw { message: "Produto não encontrado." };
+        }
+        return res.status(200).json(product);
+      })
+      .catch((e) => {
+        return res.status(400).json({
+          error: "Não foi possível requisitar o produto solicitado.",
+          info: e.message,
+        });
+      });
   },
   async delete(req, res) {
-    const { user } = req;
-    let { productId } = req.params;
-    productId = Number(productId);
+    const { productId } = req.params;
+    const { companyId } = req.params;
 
-    const product = await Product.findByPk(productId);
-
-    if (!product) {
-      res.status(400).json({
-        error: "O produto informado não existe em nosso banco de dados",
-      });
-    }
-
-    if (user.company.id !== product.companyId) {
-      return res
-        .status(400)
-        .json({ error: "O produto informado não pertence a sua empresa!" });
-    }
-
-    const timesItWasSold = await ProductSold.findAndCountAll({
-      where: { productId: productId },
+    let product = await Product.findOne({
+      where: { id: { [Op.eq]: productId }, companyId: { [Op.eq]: companyId } },
     });
 
-    if (timesItWasSold.count > 0) {
-      return res.status(400).json({
-        error:
-          "Você não pode deletar um produto que já foi vendido, caso deseje remove-lo de sua lista, deixe-o desabilitado.",
-      });
+    if (!product) {
+      return res.status(400).json({ error: "O produto informado é inválido" });
     }
 
-    try {
-      await Product.destroy({ where: { id: productId } });
-      return res
-        .status(200)
-        .json({ success: "O produto informado foi deletado com sucesso!" });
-    } catch (e) {
-      return res.status(400).json({
-        error:
-          "Houve um erro inesperado, verifique os dados enviados e tente novamente",
-      });
+    if (!product.enabled) {
+      return res.status(400).json({ error: "O produto informado é inválido" });
     }
+
+    await Product.update(
+      { enabled: false },
+      {
+        where: { id: { [Op.eq]: productId } },
+        companyId: { [Op.eq]: companyId },
+      }
+    )
+      .then((product) => {
+        return res.status(200).json({ success: "O produto foi removido." });
+      })
+      .catch((error) => {
+        return res
+          .status(400)
+          .json({ success: "Houve um erro ao remover o produto." });
+      });
   },
 };

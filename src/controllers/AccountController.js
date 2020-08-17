@@ -5,6 +5,7 @@ const { Op } = require("sequelize");
 module.exports = {
   async store(req, res) {
     const { user } = req;
+    const { companyId } = req.params;
 
     const {
       name,
@@ -35,7 +36,7 @@ module.exports = {
         accountBank,
         agencyNumber,
         accountNumber,
-        companyId: user.company.id,
+        companyId: companyId,
       });
       return res.status(200).json(newAccount);
     } catch (e) {
@@ -46,9 +47,10 @@ module.exports = {
   },
   async index(req, res) {
     const { user } = req;
+    const { companyId } = req.params;
     let { main } = req.query;
 
-    let where = { companyId: user.company.id };
+    let where = { companyId: companyId };
 
     if (main == "true" || main == 1) {
       where.main = { [Op.eq]: true };
@@ -67,10 +69,10 @@ module.exports = {
   },
   async show(req, res) {
     const { user } = req;
-    const { id } = req.params;
+    const { id, companyId } = req.params;
 
     const account = await Account.findOne({
-      where: { id: id, companyId: user.company.id },
+      where: { id: id, companyId: companyId },
     });
 
     if (!account)
@@ -81,10 +83,10 @@ module.exports = {
     return res.status(200).json(account);
   },
   async delete(req, res) {
-    const { id } = req.params;
+    const { id, companyId } = req.params;
     const { user } = req;
 
-    const company = await Company.findByPk(user.company.id, {
+    const company = await Company.findByPk(companyId, {
       include: [{ association: "accounts" }],
     });
 
@@ -102,7 +104,7 @@ module.exports = {
     }
 
     try {
-      await Account.destroy({ where: { id, companyId: company.id } });
+      await Account.destroy({ where: { id, companyId: companyId } });
 
       return res.status(200).json({ success: "Conta deletada com sucesso!" });
     } catch (e) {
@@ -121,10 +123,10 @@ module.exports = {
       accountNumber,
     } = req.body;
 
-    const { id } = req.params;
+    const { id, companyId } = req.params;
 
     const accountExist = await Account.findOne({
-      where: { id, companyId: user.company.id },
+      where: { id, companyId: companyId },
     });
 
     if (!accountExist) {
@@ -137,13 +139,13 @@ module.exports = {
       if (main == "true") {
         await Account.update(
           { main: false },
-          { where: { companyId: user.company.id } }
+          { where: { companyId: companyId } }
         );
       }
 
       let account = await Account.update(
         { name, main, accountType, accountBank, agencyNumber, accountNumber },
-        { where: { companyId: user.company.id, id } }
+        { where: { companyId: companyId, id } }
       );
       return res.status(200).json(account);
     } catch (e) {

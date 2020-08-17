@@ -1,4 +1,4 @@
-const User = require("../models/User");
+const Account = require("../models/Account");
 const InflowInstallments = require("../models/InflowInstallments");
 const { Op } = require("sequelize");
 const {
@@ -10,14 +10,13 @@ const {
 
 module.exports = {
   async show(req, res) {
-    const { user } = req;
-    let { id } = req.params;
+    const { id, companyId } = req.params;
 
     /* -------------------------------------------------------------------------- */
     /*                            Retornando a parcela                            */
     /* -------------------------------------------------------------------------- */
     InflowInstallments.findOne({
-      where: { id, companyId: user.company.id },
+      where: { id, companyId: companyId },
       include: [{ association: "account" }],
     })
       .then((e) => {
@@ -35,7 +34,6 @@ module.exports = {
       });
   },
   async store(req, res) {
-    const { user } = req;
     let {
       accountId,
       installmentValue,
@@ -44,14 +42,19 @@ module.exports = {
       dueDate,
       paymentDate,
     } = req.body;
+    const { companyId } = req.params;
 
     let validation = {};
+
+    let account = await Account.findOne({
+      where: { id: accountId, companyId: companyId },
+    });
 
     /* -------------------------------------------------------------------------- */
     /*                       Validando o formato dos valores                      */
     /* -------------------------------------------------------------------------- */
 
-    if (!accountId) {
+    if (!account) {
       return res.status(400).json({ error: "A conta deve ser informada!" });
     }
 
@@ -84,17 +87,16 @@ module.exports = {
     /*                  Verificando se a conta pertence a empresa                 */
     /* -------------------------------------------------------------------------- */
 
-    if (!user.company) {
+    if (!account) {
       return res
         .status(400)
-        .json({ error: "A conta informada não percente a sua empresa" });
+        .json({ error: "A conta informada não pertence a sua empresa" });
     }
 
     /* -------------------------------------------------------------------------- */
     /*                   Armazenando valores fixos em variáveis                   */
     /* -------------------------------------------------------------------------- */
 
-    let companyId = user.company.id;
     let installmentNumber = 1;
     let installmentTotal = 1;
 
@@ -126,7 +128,6 @@ module.exports = {
       });
   },
   async index(req, res) {
-    const { user } = req;
     let {
       paid,
       min_date_time,
@@ -142,9 +143,16 @@ module.exports = {
       order,
       columnToSort,
     } = req.query;
+    const { companyId } = req.params;
 
-    if (!page) {
-      page = 1;
+    if (!page) page = 1;
+    page--;
+
+    if (!pageSize) pageSize = 12;
+    if (pageSize > 100) {
+      return res
+        .status(400)
+        .json({ error: "O tamanho máximo da página é de 100 documentos." });
     }
 
     if (columnToSort && order) {
@@ -157,12 +165,8 @@ module.exports = {
       paginate = "true";
     }
 
-    if (!pageSize) {
-      pageSize = 15;
-    }
-
     const where = {
-      companyId: user.company.id,
+      companyId: companyId,
     };
 
     if (accountId) {
@@ -227,17 +231,25 @@ module.exports = {
       };
     }
     if (paginate == "true") {
-      InflowInstallments.paginate({
-        page: page,
-        paginate: Number(pageSize),
+      const offset = Number(page) * Number(pageSize);
+      const limit = Number(pageSize);
+      InflowInstallments.findAndCountAll({
+        offset,
+        limit,
         where,
         include: [
           { association: "sales", include: [{ association: "customers" }] },
         ],
         order,
       })
-        .then((e) => {
-          return res.status(200).json(e);
+        .then((inflow) => {
+          let data = {};
+          data.docs = inflow.rows;
+
+          data.total = inflow.count;
+          data.pages = Math.ceil(inflow.count / limit);
+
+          return res.status(200).json(data);
         })
         .catch((e) => {
           return res
@@ -263,8 +275,7 @@ module.exports = {
     }
   },
   async update(req, res) {
-    const { user } = req;
-    const { id } = req.params;
+    const { id, companyId } = req.params;
     const {
       dueDate,
       paymentDate,
@@ -274,7 +285,11 @@ module.exports = {
       note,
     } = req.body;
 
-    if (!accountId) {
+    let account = await Account.findOne({
+      where: { id: accountId, companyId: companyId },
+    });
+
+    if (!account) {
       return res.status(400).json({
         error:
           "É necessário enviar o accountId em qualquer requisição de atualização",
@@ -301,7 +316,7 @@ module.exports = {
     if (!user.company) {
       return res
         .status(400)
-        .json({ error: "A conta informada não percente a sua empresa!" });
+        .json({ error: "A conta informada não pertence a sua empresa!" });
     }
 
     /* -------------------------------------------------------------------------- */
@@ -310,7 +325,7 @@ module.exports = {
 
     InflowInstallments.update(
       { dueDate, paymentDate, installmentValue, accountId, type, note },
-      { where: { id, companyId: user.company.id } }
+      { where: { id, companyId: companyId } }
     )
       .then((e) => {
         return res

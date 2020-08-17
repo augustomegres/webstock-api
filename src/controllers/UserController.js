@@ -7,6 +7,7 @@ const User = require("../models/User");
 const Company = require("../models/Company");
 const Account = require("../models/Account");
 const Mail = require("../services/sendgrid");
+const axios = require("axios");
 
 module.exports = {
   async show(req, res) {
@@ -15,33 +16,25 @@ module.exports = {
     id = Number(id);
 
     if (!user.isAdmin) {
-      if (user !== id) {
+      if (user.id !== id) {
         return res.status(400).json({
           error: "Você não pode visualizar um perfil que não é seu",
         });
       }
     }
 
-    if (id === user) {
-      return res.status(200).json(user);
-    } else {
-      return res.json(
-        await User.findByPk(id, {
-          include: [
-            {
-              association: "company",
-            },
-          ],
-          attributes: {
-            exclude: [
-              "passwordHash",
-              "recoverPasswordToken",
-              "recoverPasswordTokenExpires",
-            ],
-          },
-        })
-      );
-    }
+    await User.findOne({
+      where: { id: user.id },
+      include: [{ association: "companies" }],
+    })
+      .then((user) => {
+        return res.status(200).json(user);
+      })
+      .catch((error) => {
+        return res
+          .status(400)
+          .json({ error: "Houve um erro na requisição", info: error });
+      });
   },
 
   async store(req, res) {
@@ -104,7 +97,6 @@ module.exports = {
     const passwordHash = await bcrypt.hash(password, 10);
 
     /* ------------------- CRIANDO O USUÁRIO NO BANCO DE DADOS ------------------ */
-
     try {
       var user = await User.create({
         name,
@@ -114,31 +106,59 @@ module.exports = {
         type: "user",
       });
 
-      const newCompany = await Company.create({
+      var newCompany = await Company.create({
         name: company,
         lastSeen: new Date(),
         ownerId: user.id,
+      }).then(async (company) => {
+        await Account.create({
+          name: "Caixa",
+          accountType: "Caixa",
+          main: true,
+          companyId: company.id,
+        });
+
+        return company;
       });
 
-      await Account.create({
-        name: "Caixa",
-        accountType: "Caixa",
-        main: true,
-        companyId: newCompany.id,
-      });
+      let requestBody = {
+        name,
+        email,
+        mobilePhone: phone.replace(/[^0-9]+/g, ""),
+        externalReference: user.id,
+      };
+
+      let asaasUser = await axios.post(
+        `${process.env.ASAAS_URL}/customers`,
+        requestBody,
+        {
+          headers: {
+            access_token: process.env.ASAAS_TOKEN,
+          },
+        }
+      );
+
+      await User.update(
+        { customer_id: asaasUser.data.id },
+        { where: { id: user.id } }
+      );
+
+      newCompany.addMember(user);
 
       Mail.sendWelcomeMsg(email);
+
+      return res.status(200).json(user);
     } catch (e) {
       await User.destroy({
         where: {
           id: user.id,
         },
       });
+
       return res.status(400).json({
         error: e,
       });
     }
-    return res.status(200).json(user);
   },
 
   async update(req, res) {
@@ -235,6 +255,22 @@ module.exports = {
         {
           where: {
             id,
+          },
+        }
+      );
+
+      let body = {
+        name,
+        cpfCnpj,
+        mobilePhone: phone.replace(/[^0-9]+/g, ""),
+      };
+
+      let asaasUser = await axios.post(
+        `${process.env.ASAAS_URL}/customers/${user.customer_id}`,
+        body,
+        {
+          headers: {
+            access_token: process.env.ASAAS_TOKEN,
           },
         }
       );

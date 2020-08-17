@@ -11,6 +11,7 @@ class Company extends Model {
         number: DataTypes.STRING,
         street: DataTypes.STRING,
         city: DataTypes.STRING,
+        enabled: DataTypes.BOOLEAN,
         ownerId: DataTypes.INTEGER,
       },
       {

@@ -23,6 +23,7 @@ module.exports = {
       page,
       pageSize,
     } = req.query;
+    const { companyId } = req.params;
 
     if (!paginate) {
       paginate = "true";
@@ -30,8 +31,14 @@ module.exports = {
 
     /* ---------------------------- TAMANHO DA PÁGINA --------------------------- */
 
-    if (!pageSize) {
-      pageSize = 15;
+    if (!page) page = 1;
+    page--;
+
+    if (!pageSize) pageSize = 12;
+    if (pageSize > 100) {
+      return res
+        .status(400)
+        .json({ error: "O tamanho máximo da página é de 100 documentos." });
     }
 
     /* -------------------------------------------------------------------------- */
@@ -39,7 +46,7 @@ module.exports = {
     /* -------------------------------------------------------------------------- */
 
     let filter = {
-      companyId: user.company.id,
+      companyId: companyId,
     };
 
     /* ----------------------------------- ID ----------------------------------- */
@@ -103,24 +110,44 @@ module.exports = {
 
     switch (paginate) {
       case "true":
-        let purchases = await Purchase.paginate({
-          page,
+        const offset = Number(page) * Number(pageSize);
+        const limit = Number(pageSize);
+
+        await Purchase.findAndCountAll({
           order,
-          paginate: Number(pageSize),
+          offset,
+          limit,
           where: { ...filter },
           include: [
             { association: "installments" },
             { association: "provider" },
-            { association: "buyer" },
+            {
+              association: "buyer",
+              attributes: {
+                exclude: [
+                  "passwordHash",
+                  "recoverPasswordToken",
+                  "recoverPasswordTokenExpires",
+                ],
+              },
+            },
             { association: "products", where: productWhere },
           ],
-        }).catch((error) => {
-          return res
-            .status(400)
-            .json({ error: "Houve um erro na sua requisição", info: error });
-        });
+        })
+          .then((purchases) => {
+            let data = {};
+            data.docs = purchases.rows;
 
-        return res.json(purchases);
+            data.total = purchases.count;
+            data.pages = Math.ceil(purchases.count / limit);
+
+            return res.status(200).json(data);
+          })
+          .catch((error) => {
+            return res
+              .status(400)
+              .json({ error: "Houve um erro na sua requisição", info: error });
+          });
         break;
       default:
         await Purchase.findAll({
@@ -129,7 +156,16 @@ module.exports = {
           include: [
             { association: "installments" },
             { association: "provider" },
-            { association: "buyer" },
+            {
+              association: "buyer",
+              attributes: {
+                exclude: [
+                  "passwordHash",
+                  "recoverPasswordToken",
+                  "recoverPasswordTokenExpires",
+                ],
+              },
+            },
             { association: "products", where: productWhere },
           ],
         })
@@ -145,9 +181,9 @@ module.exports = {
     }
   },
   async store(req, res) {
-    const { date, providerId, freight, products, installments } = req.body;
-
     const { user } = req;
+    const { date, providerId, freight, products, installments } = req.body;
+    const { companyId } = req.params;
 
     /* -------------------------------------------------------------------------- */
     /*                                VERIFICAÇÕES                                */
@@ -156,7 +192,7 @@ module.exports = {
     //Verificando se o fornecedor pertence a empresa
     if (providerId) {
       const _providers = await Provider.findByPk(providerId);
-      if (_providers.companyId !== user.company.id) {
+      if (_providers.companyId != companyId) {
         return res.status(400).json({
           error: "O fornecedor informado não pertence a sua empresa!",
         });
@@ -186,7 +222,7 @@ module.exports = {
     const notUserCompanyProduct = await Product.findAll({
       where: {
         id: productIdList,
-        companyId: { [Op.ne]: user.company.id },
+        companyId: { [Op.ne]: companyId },
       },
     });
 
@@ -224,7 +260,7 @@ module.exports = {
 
     try {
       var purchase = await Purchase.create({
-        companyId: user.company.id,
+        companyId: companyId,
         date,
         buyerId: user.id,
         providerId,
@@ -253,7 +289,7 @@ module.exports = {
 
       installments.map((installment) => {
         installment.purchaseId = purchase.id;
-        installment.companyId = user.company.id;
+        installment.companyId = companyId;
       });
 
       /* ------------------- CRIANDO PARCELAS NO BANCO DE DADOS ------------------- */

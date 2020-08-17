@@ -8,6 +8,7 @@ const Validations = require("../functions/Eval");
 module.exports = {
   async index(req, res) {
     const { user } = req;
+
     let {
       products,
       personType,
@@ -18,6 +19,8 @@ module.exports = {
       columnToSort,
       order,
     } = req.query;
+
+    const { companyId } = req.params;
 
     let includes = [];
 
@@ -31,7 +34,7 @@ module.exports = {
       order = null;
     }
 
-    let filter = { companyId: user.company.id };
+    let filter = { companyId: companyId };
 
     if (personType) {
       filter.personType = { [Op.iLike]: personType };
@@ -81,10 +84,10 @@ module.exports = {
   },
   async show(req, res) {
     const { user } = req;
-    let { id } = req.params;
+    let { id, companyId } = req.params;
 
     const provider = await Provider.findOne({
-      where: { id, companyId: user.company.id },
+      where: { id, companyId: companyId },
       include: [{ association: "products" }],
     });
 
@@ -110,6 +113,7 @@ module.exports = {
       privatePhone,
       email,
     } = req.body;
+    const { companyId } = req.params;
 
     /**
      * VALIDAÇÕES
@@ -141,7 +145,7 @@ module.exports = {
 
     try {
       const newProvider = await Provider.create({
-        companyId: user.company.id,
+        companyId: companyId,
         name,
         personType,
         companyName,
@@ -168,7 +172,7 @@ module.exports = {
   },
   async update(req, res) {
     const { user } = req;
-    const { id } = req.params;
+    const { id, companyId } = req.params;
     let {
       name,
       personType,
@@ -208,12 +212,12 @@ module.exports = {
         email,
       },
       {
-        where: { companyId: user.company.id, id },
+        where: { companyId: companyId, id },
       }
     );
 
     return res.json(
-      await Provider.findOne({ where: { id, companyId: user.company.id } })
+      await Provider.findOne({ where: { id, companyId: companyId } })
     );
   },
   async delete(req, res) {},
