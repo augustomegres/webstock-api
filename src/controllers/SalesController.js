@@ -240,7 +240,7 @@ module.exports = {
     //Verificando se o cliente pertence a empresa
     if (customerId) {
       const _customers = await Customer.findByPk(customerId);
-      if (_customers.companyId !== companyId) {
+      if (_customers.companyId != companyId) {
         return res
           .status(400)
           .json({ error: "O cliente informado não pertence a sua empresa!" });
