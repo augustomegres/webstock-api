@@ -103,7 +103,6 @@ module.exports = {
         email,
         phone,
         passwordHash,
-        type: "user",
       });
 
       var newCompany = await Company.create({
@@ -121,10 +120,17 @@ module.exports = {
         return company;
       });
 
+      let mobilePhone;
+      if (phone) {
+        mobilePhone = phone.replace(/[^0-9]+/g, "");
+      } else {
+        mobilePhone = null;
+      }
+
       let requestBody = {
         name,
         email,
-        mobilePhone: phone.replace(/[^0-9]+/g, ""),
+        mobilePhone,
         externalReference: user.id,
       };
 
