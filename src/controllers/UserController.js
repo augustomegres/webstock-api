@@ -121,6 +121,7 @@ module.exports = {
       });
 
       let mobilePhone;
+
       if (phone) {
         mobilePhone = phone.replace(/[^0-9]+/g, "");
       } else {
