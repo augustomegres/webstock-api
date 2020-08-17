@@ -35,10 +35,6 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      type: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
       enabled: {
         type: Sequelize.BOOLEAN,
         defaultValue: true,
