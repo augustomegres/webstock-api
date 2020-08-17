@@ -7,10 +7,10 @@ const { Sequelize } = require("sequelize");
 module.exports = {
   async show(req, res) {
     const { user } = req;
-    const { id } = req.params;
+    const { id, companyId } = req.params;
 
     const category = await Category.findOne({
-      where: { id, companyId: user.company.id },
+      where: { id, companyId: companyId },
     });
 
     if (!category) {
@@ -21,7 +21,15 @@ module.exports = {
   },
   async index(req, res) {
     const { user } = req;
+    const { companyId } = req.params;
     let { page, pageSize, name, order, columnToSort } = req.query;
+
+    page = Number(page);
+    pageSize = Number(pageSize);
+    if (!pageSize) pageSize = 12;
+    if (!page) page = 1;
+
+    page--;
 
     if (columnToSort && order) {
       order = [[columnToSort, order]];
@@ -29,52 +37,40 @@ module.exports = {
       order = null;
     }
 
-    page = Number(page);
-    pageSize = Number(pageSize);
-
-    if (!page) {
-      page = 1;
-    }
-
-    if (!pageSize) {
-      pageSize = 12;
-    }
-
-    const where = { companyId: { [Op.eq]: user.company.id } };
+    const where = { companyId: { [Op.eq]: companyId } };
 
     if (name) {
-      where.name = { [Op.like]: `%${name}%` };
+      where.name = { [Op.substring]: name };
     }
 
-    await Category.paginate({
-      page,
-      paginate: pageSize,
+    const offset = Number(page) * Number(pageSize);
+    const limit = Number(pageSize);
+
+    await Category.findAndCountAll({
+      offset,
+      limit,
       order,
-      include: [{ association: "products" }],
       where,
     })
       .then((categories) => {
-        categories.docs.map((category) => {
-          category.product_count = category.products.length;
-          category.dataValues.product_count = category.products.length;
+        let data = {};
+        data.docs = categories.rows;
 
-          category.dataValues.products = undefined;
-          category.products = undefined;
-        });
+        data.total = categories.count;
+        data.pages = Math.ceil(categories.count / limit);
 
-        return res.json(categories);
+        return res.status(200).json(data);
       })
       .catch((error) => {
-        return res
-          .status(400)
-          .json({
-            error: "Houve um erro ao requisitar as categorias.",
-            info: error,
-          });
+        return res.status(400).json({
+          error: "Houve um erro ao requisitar as categorias.",
+          info: error,
+        });
       });
   },
   async store(req, res) {
     const { user } = req;
+    const { companyId } = req.params;
     let { name, description, enabled } = req.body;
 
     if (!name) {
@@ -94,7 +90,7 @@ module.exports = {
         name,
         enabled,
         description,
-        companyId: user.company.id,
+        companyId: companyId,
       });
 
       return res.json(category);
@@ -107,7 +103,7 @@ module.exports = {
   },
   async update(req, res) {
     const { user } = req;
-    const { id } = req.params;
+    const { id, companyId } = req.params;
     let { name, enabled, description } = req.body;
 
     if (!id) {
@@ -117,7 +113,7 @@ module.exports = {
     }
 
     const category = await Category.findOne({
-      where: { id, companyId: user.company.id },
+      where: { id, companyId: companyId },
     });
 
     if (!category) {
@@ -139,10 +135,10 @@ module.exports = {
   },
   async delete(req, res) {
     const { user } = req;
-    const { id } = req.params;
+    const { id, companyId } = req.params;
 
     const category = await Category.findOne({
-      where: { id, companyId: user.company.id },
+      where: { id, companyId: companyId },
       include: [{ association: "products" }],
     });
 
@@ -160,7 +156,7 @@ module.exports = {
         .json({ error: "Esta categoria contém produtos cadastrados!" });
     }
 
-    await Category.destroy({ where: { id, companyId: user.company.id } })
+    await Category.destroy({ where: { id, companyId: companyId } })
       .then(() => {
         return res
           .status(200)

@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const getUser = require("../functions/getUser");
+const User = require("../models/User");
 
 require("dotenv").config();
 module.exports = (req, res, next) => {
@@ -33,10 +33,19 @@ module.exports = (req, res, next) => {
 
     let userId = decoded.id;
 
-    let user = await getUser(userId);
+    let user = await User.findOne({
+      where: { id: userId },
+      attributes: {
+        exclude: [
+          "passwordHash",
+          "recoverPasswordToken",
+          "recoverPasswordTokenExpires",
+        ],
+      },
+    });
 
-    if (user.error) {
-      return res.status(400).json(user);
+    if (!user) {
+      return res.status(400).json({ error: "Usuário não encontrado" });
     }
 
     req.user = user;

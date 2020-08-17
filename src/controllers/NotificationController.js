@@ -7,6 +7,7 @@ const Sequelize = require("sequelize");
 module.exports = {
   async show(req, res) {
     const { user } = req;
+    const { companyId } = req.params;
 
     /* -------------------------------------------------------------------------- */
     /*                        NOTIFICAÇÃO DE ESTOQUE BAIXO                        */
@@ -15,7 +16,7 @@ module.exports = {
     let product = await Product.count({
       where: {
         quantity: { [Op.lt]: Sequelize.col("minimum") },
-        companyId: user.company.id,
+        companyId: companyId,
         enabled: true,
       },
     });
@@ -32,7 +33,7 @@ module.exports = {
       where: {
         dueDate: { [Op.lt]: new Date().setHours(0, 0, 0, 0) },
         paymentDate: { [Op.eq]: null },
-        companyId: user.company.id,
+        companyId: companyId,
       },
     });
     overduePayment = {
@@ -48,7 +49,7 @@ module.exports = {
       where: {
         dueDate: { [Op.lt]: new Date().setHours(0, 0, 0, 0) },
         paymentDate: { [Op.eq]: null },
-        companyId: user.company.id,
+        companyId: companyId,
       },
     });
 

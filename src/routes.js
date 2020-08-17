@@ -1,10 +1,13 @@
 const express = require("express");
 const authMiddleware = require("./middlewares/authMiddleware");
-const blockEmployee = require("./middlewares/blockEmployee");
+const memberVerify = require("./middlewares/memberVerify");
 
 const User = require("./models/User");
 
 const UserController = require("./controllers/UserController");
+const CompanyController = require("./controllers/CompanyController");
+const CompanyInviteController = require("./controllers/CompanyInviteController");
+const InviteController = require("./controllers/InviteController");
 const ProductController = require("./controllers/ProductController");
 const CategoryController = require("./controllers/CategoryController");
 const SalesController = require("./controllers/SalesController");
@@ -15,7 +18,7 @@ const AccountController = require("./controllers/AccountController");
 const CustomersController = require("./controllers/CustomersController");
 const InflowInstallmentsController = require("./controllers/InflowInstallmentsController");
 const ProviderController = require("./controllers/ProvidersController");
-const PurchasingController = require("./controllers/PurchasingController");
+const PurchaseController = require("./controllers/PurchaseController");
 const OutflowInstallmentsController = require("./controllers/OutflowInstallmentsController");
 const SubscriptionController = require("./controllers/SubscriptionController");
 const NotificationController = require("./controllers/NotificationController");
@@ -50,90 +53,259 @@ routes.post("/users", UserController.store);
 /* -------------------------------------------------------------------------- */
 /*                                FUNCIONÁRIOS                                */
 /* -------------------------------------------------------------------------- */
-routes.get("/employee", authMiddleware, EmployeeController.index);
-routes.post("/employee", authMiddleware, EmployeeController.store);
-routes.delete("/employee/:id", authMiddleware, EmployeeController.delete);
+routes.get(
+  "/:companyId/employee",
+  authMiddleware,
+  memberVerify,
+  EmployeeController.index
+);
+routes.post(
+  "/:companyId/employee",
+  authMiddleware,
+  memberVerify,
+  EmployeeController.store
+);
+routes.delete(
+  "/:companyId/employee/:id",
+  authMiddleware,
+  memberVerify,
+  EmployeeController.delete
+);
 
 /* -------------------------------------------------------------------------- */
 /*                                  PRODUTOS                                  */
 /* -------------------------------------------------------------------------- */
-routes.get("/product/:productId", authMiddleware, ProductController.show);
-routes.get("/products", authMiddleware, ProductController.index);
-routes.post("/product", authMiddleware, ProductController.store);
-routes.put("/product/:productId", authMiddleware, ProductController.update);
-routes.delete("/product/:productId", authMiddleware, ProductController.delete);
+routes.get(
+  "/:companyId/product/:productId",
+  authMiddleware,
+  memberVerify,
+  ProductController.show
+);
+routes.get(
+  "/:companyId/product",
+  authMiddleware,
+  memberVerify,
+  ProductController.index
+);
+routes.post(
+  "/:companyId/product",
+  authMiddleware,
+  memberVerify,
+  ProductController.store
+);
+routes.put(
+  "/:companyId/product/:productId",
+  authMiddleware,
+  memberVerify,
+  ProductController.update
+);
+routes.delete(
+  "/:companyId/product/:productId",
+  authMiddleware,
+  memberVerify,
+  ProductController.delete
+);
 
 /* -------------------------------------------------------------------------- */
 /*                                 CATEGORIAS                                 */
 /* -------------------------------------------------------------------------- */
-routes.post("/category", authMiddleware, CategoryController.store);
-routes.get("/category", authMiddleware, CategoryController.index);
-routes.get("/category/:id", authMiddleware, CategoryController.show);
-routes.put("/category/:id", authMiddleware, CategoryController.update);
-routes.delete("/category/:id", authMiddleware, CategoryController.delete);
+routes.post(
+  "/:companyId/category",
+  authMiddleware,
+  memberVerify,
+  CategoryController.store
+);
+routes.get(
+  "/:companyId/category",
+  authMiddleware,
+  memberVerify,
+  CategoryController.index
+);
+routes.get(
+  "/:companyId/category/:id",
+  authMiddleware,
+  memberVerify,
+  CategoryController.show
+);
+routes.put(
+  "/:companyId/category/:id",
+  authMiddleware,
+  memberVerify,
+  CategoryController.update
+);
+routes.delete(
+  "/:companyId/category/:id",
+  authMiddleware,
+  memberVerify,
+  CategoryController.delete
+);
 
 /* -------------------------------------------------------------------------- */
 /*                                   VENDAS                                   */
 /* -------------------------------------------------------------------------- */
-routes.get("/sales", authMiddleware, SalesController.index);
-routes.post("/sales", authMiddleware, SalesController.store);
-routes.delete("/sales/:id", authMiddleware, SalesController.delete);
+routes.get(
+  "/:companyId/sales",
+  authMiddleware,
+  memberVerify,
+  SalesController.index
+);
+routes.post(
+  "/:companyId/sales",
+  authMiddleware,
+  memberVerify,
+  SalesController.store
+);
+routes.delete(
+  "/:companyId/sales/:id",
+  authMiddleware,
+  memberVerify,
+  SalesController.delete
+);
 
 /* -------------------------------------------------------------------------- */
 /*                                  CLIENTES                                  */
 /* -------------------------------------------------------------------------- */
-routes.get("/customer", authMiddleware, CustomersController.index);
-routes.get("/customer/:id", authMiddleware, CustomersController.show);
-routes.put("/customer/:id", authMiddleware, CustomersController.update);
-routes.post("/customer", authMiddleware, CustomersController.store);
-routes.delete("/customer/:id", authMiddleware, CustomersController.delete);
+routes.get(
+  "/:companyId/customer",
+  authMiddleware,
+  memberVerify,
+  CustomersController.index
+);
+routes.get(
+  "/:companyId/customer/:id",
+  authMiddleware,
+  memberVerify,
+  CustomersController.show
+);
+routes.put(
+  "/:companyId/customer/:id",
+  authMiddleware,
+  memberVerify,
+  CustomersController.update
+);
+routes.post(
+  "/:companyId/customer",
+  authMiddleware,
+  memberVerify,
+  CustomersController.store
+);
+routes.delete(
+  "/:companyId/customer/:id",
+  authMiddleware,
+  memberVerify,
+  CustomersController.delete
+);
 
 /* -------------------------------------------------------------------------- */
 /*                                   CONTAS                                   */
 /* -------------------------------------------------------------------------- */
-routes.get("/accounts", authMiddleware, AccountController.index);
-routes.get("/accounts/:id", authMiddleware, AccountController.show);
-routes.post("/accounts", authMiddleware, AccountController.store);
-routes.delete("/accounts/:id", authMiddleware, AccountController.delete);
-routes.put("/accounts/:id", authMiddleware, AccountController.update);
+routes.get(
+  "/:companyId/accounts",
+  authMiddleware,
+  memberVerify,
+  AccountController.index
+);
+routes.get(
+  "/:companyId/accounts/:id",
+  authMiddleware,
+  memberVerify,
+  AccountController.show
+);
+routes.post(
+  "/:companyId/accounts",
+  authMiddleware,
+  memberVerify,
+  AccountController.store
+);
+routes.delete(
+  "/:companyId/accounts/:id",
+  authMiddleware,
+  memberVerify,
+  AccountController.delete
+);
+routes.put(
+  "/:companyId/accounts/:id",
+  authMiddleware,
+  memberVerify,
+  AccountController.update
+);
 
 /* -------------------------------------------------------------------------- */
 /*                                FORNECEDORES                                */
 /* -------------------------------------------------------------------------- */
-routes.get("/providers", authMiddleware, ProviderController.index);
-routes.get("/providers/:id", authMiddleware, ProviderController.show);
-routes.post("/providers", authMiddleware, ProviderController.store);
-routes.put("/providers/:id", authMiddleware, ProviderController.update);
-routes.delete("/providers/:id", authMiddleware, ProviderController.delete);
+routes.get(
+  "/:companyId/providers",
+  authMiddleware,
+  memberVerify,
+  ProviderController.index
+);
+routes.get(
+  "/:companyId/providers/:id",
+  authMiddleware,
+  memberVerify,
+  ProviderController.show
+);
+routes.post(
+  "/:companyId/providers",
+  authMiddleware,
+  memberVerify,
+  ProviderController.store
+);
+routes.put(
+  "/:companyId/providers/:id",
+  authMiddleware,
+  memberVerify,
+  ProviderController.update
+);
+routes.delete(
+  "/:companyId/providers/:id",
+  authMiddleware,
+  memberVerify,
+  ProviderController.delete
+);
 
 /* -------------------------------------------------------------------------- */
 /*                                   COMPRAS                                  */
 /* -------------------------------------------------------------------------- */
-routes.post("/purchase", authMiddleware, PurchasingController.store);
-routes.get("/purchase", authMiddleware, PurchasingController.index);
+routes.post(
+  "/:companyId/purchase",
+  authMiddleware,
+  memberVerify,
+  PurchaseController.store
+);
+routes.get(
+  "/:companyId/purchase",
+  authMiddleware,
+  memberVerify,
+  PurchaseController.index
+);
 
 /* -------------------------------------------------------------------------- */
 /*                             PARCELAS DE ENTRADA                            */
 /* -------------------------------------------------------------------------- */
 
 routes.get(
-  "/inflowInstallment/:id",
+  "/:companyId/inflowInstallment/:id",
   authMiddleware,
+  memberVerify,
   InflowInstallmentsController.show
 );
 routes.get(
-  "/inflowInstallment",
+  "/:companyId/inflowInstallment",
   authMiddleware,
+  memberVerify,
   InflowInstallmentsController.index
 );
 routes.put(
-  "/inflowInstallment/:id",
+  "/:companyId/inflowInstallment/:id",
   authMiddleware,
+  memberVerify,
   InflowInstallmentsController.update
 );
 routes.post(
-  "/inflowInstallment",
+  "/:companyId/inflowInstallment",
   authMiddleware,
+  memberVerify,
   InflowInstallmentsController.store
 );
 
@@ -141,23 +313,27 @@ routes.post(
 /*                              PARCELAS DE SAIDA                             */
 /* -------------------------------------------------------------------------- */
 routes.get(
-  "/outflowInstallment/:id",
+  "/:companyId/outflowInstallment/:id",
   authMiddleware,
+  memberVerify,
   OutflowInstallmentsController.show
 );
 routes.get(
-  "/outflowInstallment",
+  "/:companyId/outflowInstallment",
   authMiddleware,
+  memberVerify,
   OutflowInstallmentsController.index
 );
 routes.post(
-  "/outflowInstallment",
+  "/:companyId/outflowInstallment",
   authMiddleware,
+  memberVerify,
   OutflowInstallmentsController.store
 );
 routes.put(
-  "/outflowInstallment/:id",
+  "/:companyId/outflowInstallment/:id",
   authMiddleware,
+  memberVerify,
   OutflowInstallmentsController.update
 );
 
@@ -169,7 +345,7 @@ routes.post("/authenticate", AuthController.authenticate);
 /* -------------------------------------------------------------------------- */
 /*                               USUÁRIO LOGADO                               */
 /* -------------------------------------------------------------------------- */
-routes.get("/loggedUser", authMiddleware, blockEmployee, LoggedController.show);
+routes.get("/loggedUser", authMiddleware, LoggedController.show);
 
 /* -------------------------------------------------------------------------- */
 /*                              RECUPERAÇÃO SENHA                             */
@@ -186,9 +362,40 @@ routes.post("/subscription", authMiddleware, SubscriptionController.store);
 routes.put("/subscription", authMiddleware, SubscriptionController.update);
 
 /* -------------------------------------------------------------------------- */
+/*                                  EMPRESAS                                  */
+/* -------------------------------------------------------------------------- */
+
+routes.get("/company", authMiddleware, CompanyController.index);
+routes.post("/company", authMiddleware, CompanyController.store);
+routes.put("/company/:companyId", authMiddleware, CompanyController.update);
+routes.delete("/company/:companyId", authMiddleware, CompanyController.delete);
+
+/* -------------------------------------------------------------------------- */
+/*                           CONVITES PARA EMPRESAS                           */
+/* -------------------------------------------------------------------------- */
+
+routes.post(
+  "/company/invite/:companyId",
+  authMiddleware,
+  CompanyInviteController.store
+);
+
+/* -------------------------------------------------------------------------- */
+/*                                  CONVITES                                  */
+/* -------------------------------------------------------------------------- */
+
+routes.get("/invite", authMiddleware, InviteController.index);
+routes.post("/invite/:inviteId", authMiddleware, InviteController.store);
+
+/* -------------------------------------------------------------------------- */
 /*                                NOTIFICAÇÕES                                */
 /* -------------------------------------------------------------------------- */
 
-routes.get("/notify", authMiddleware, NotificationController.show);
+routes.get(
+  "/:companyId/notify",
+  authMiddleware,
+  memberVerify,
+  NotificationController.show
+);
 
 module.exports = routes;

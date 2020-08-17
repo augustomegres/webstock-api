@@ -10,6 +10,7 @@ const { Sequelize } = require("sequelize");
 module.exports = {
   async index(req, res) {
     const { user } = req;
+    const { companyId } = req.params;
     let {
       min,
       max,
@@ -28,8 +29,14 @@ module.exports = {
 
     /* ---------------------------- TAMANHO DA PÁGINA --------------------------- */
 
-    if (!pageSize) {
-      pageSize = 15;
+    if (!page) page = 1;
+    page--;
+
+    if (!pageSize) pageSize = 12;
+    if (pageSize > 100) {
+      return res
+        .status(400)
+        .json({ error: "O tamanho máximo da página é de 100 documentos." });
     }
 
     /* -------------------------------------------------------------------------- */
@@ -37,7 +44,7 @@ module.exports = {
     /* -------------------------------------------------------------------------- */
 
     let filter = {
-      companyId: user.company.id,
+      companyId,
     };
 
     /* --------------------------------- CLIENTE -------------------------------- */
@@ -147,21 +154,18 @@ module.exports = {
 
     switch (paginate) {
       case "true":
-        let sales = await Sales.paginate({
-          page,
-          paginate: Number(pageSize),
+        const offset = Number(page) * Number(pageSize);
+        const limit = Number(pageSize);
+
+        let sales = await Sales.findAndCountAll({
+          limit,
+          offset,
           where: { ...filter },
           include: [
             { association: "customers" },
-            {
-              association: "productSold",
-              where: productWhere,
-            },
+            { association: "productSold", where: productWhere },
             { association: "saleOwner" },
-            {
-              association: "installments",
-              where: installmentFilter,
-            },
+            { association: "installments", where: installmentFilter },
           ],
         }).catch((error) => {
           return res
@@ -170,30 +174,17 @@ module.exports = {
         });
 
         let ids = [];
-        sales.docs.map((sale) => {
+        sales.rows.map((sale) => {
           ids.push(sale.id);
         });
 
-        let includeSales = await Sales.paginate({
-          paginate: Number(pageSize),
-          where: { id: ids },
-          order,
-          include: [
-            { association: "customers" },
-            { association: "productSold" },
-            { association: "saleOwner" },
-            { association: "installments" },
-          ],
-        }).catch((error) => {
-          return res
-            .status(400)
-            .json({ error: "Houve um erro na sua requisição", info: error });
-        });
+        let data = {};
+        data.docs = sales.rows;
 
-        sales.docs = includeSales.docs;
-        sales.dataValues = includeSales.dataValues;
+        data.total = sales.count;
+        data.pages = Math.ceil(sales.count / limit);
 
-        return res.json(sales);
+        return res.status(200).json(data);
         break;
       default:
         await Sales.findAll({
@@ -202,7 +193,17 @@ module.exports = {
           include: [
             { association: "customers" },
             { association: "productSold" },
-            { association: "saleOwner" },
+            {
+              association: "saleOwner",
+              attributes: {
+                exclude: [
+                  "passwordHash",
+                  "recoverPasswordToken",
+                  "recoverPasswordTokenExpires",
+                  "isAdmin",
+                ],
+              },
+            },
             { association: "installments" },
           ],
         })
@@ -228,6 +229,8 @@ module.exports = {
       discountType,
     } = req.body;
 
+    const { companyId } = req.params;
+
     const { user } = req;
 
     /* -------------------------------------------------------------------------- */
@@ -237,7 +240,7 @@ module.exports = {
     //Verificando se o cliente pertence a empresa
     if (customerId) {
       const _customers = await Customer.findByPk(customerId);
-      if (_customers.companyId !== user.company.id) {
+      if (_customers.companyId !== companyId) {
         return res
           .status(400)
           .json({ error: "O cliente informado não pertence a sua empresa!" });
@@ -259,7 +262,7 @@ module.exports = {
     const notUserCompanyProduct = await Product.findAll({
       where: {
         id: productIdList,
-        companyId: { [Op.ne]: user.company.id },
+        companyId: { [Op.ne]: companyId },
       },
     });
 
@@ -312,7 +315,7 @@ module.exports = {
 
     try {
       var sale = await Sales.create({
-        companyId: user.company.id,
+        companyId: companyId,
         date,
         sellerId: user.id,
         customerId,
@@ -340,7 +343,7 @@ module.exports = {
 
       installments.map((installment) => {
         installment.saleId = sale.id;
-        installment.companyId = user.company.id;
+        installment.companyId = companyId;
       });
 
       /* ------------------- CRIANDO PARCELAS NO BANCO DE DADOS ------------------- */
@@ -364,15 +367,16 @@ module.exports = {
   },
   async delete(req, res) {
     const { user } = req;
-    const { id } = req.params;
+    const { id, companyId } = req.params;
 
     const sale = await Sales.destroy({
-      where: { [Op.and]: { id: id, companyId: user.company.id } },
+      where: { [Op.and]: { id: id, companyId: companyId } },
     });
 
     if (sale === 1) {
       return res.status(200).json({ success: "Venda deletada com sucesso!" });
     }
+
     if (sale === 0)
       return res.status(400).json({ error: "Esta venda não existe!" });
   },
