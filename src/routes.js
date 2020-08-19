@@ -28,11 +28,12 @@ const routes = express.Router();
 
 routes.get("/", async (req, res) => {
   await User.count()
-    .then(() => {
+    .then((response) => {
       return res.json({
         api_name: "webstock",
         api_version: "0.1",
         db_connected: true,
+        response,
       });
     })
     .catch(() => {
