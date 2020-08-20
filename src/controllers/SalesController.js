@@ -157,7 +157,10 @@ module.exports = {
         const offset = Number(page) * Number(pageSize);
         const limit = Number(pageSize);
 
-        let sales = await Sales.findAndCountAll({
+        let count = await Sales.count({
+          where: { ...filter },
+        });
+        let sales = await Sales.findAll({
           limit,
           offset,
           where: { ...filter },
@@ -173,16 +176,11 @@ module.exports = {
             .json({ error: "Houve um erro na sua requisição", info: error });
         });
 
-        let ids = [];
-        sales.rows.map((sale) => {
-          ids.push(sale.id);
-        });
-
         let data = {};
-        data.docs = sales.rows;
+        data.docs = sales;
 
-        data.total = sales.count;
-        data.pages = Math.ceil(sales.count / limit);
+        data.total = count;
+        data.pages = Math.ceil(count / limit);
 
         return res.status(200).json(data);
         break;
