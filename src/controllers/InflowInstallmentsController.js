@@ -313,7 +313,7 @@ module.exports = {
     /*                  Verificando se a conta pertence a empresa                 */
     /* -------------------------------------------------------------------------- */
 
-    if (!user.company) {
+    if (account.companyId != companyId) {
       return res
         .status(400)
         .json({ error: "A conta informada não pertence a sua empresa!" });
